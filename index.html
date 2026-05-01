@@ -766,7 +766,11 @@ function buildSectionDOM(sec){
     s.dataset.id=id;
     s.innerHTML = `<span class="num">${displayId(id)}</span>`;
     s.addEventListener('click', ()=>incSticker(id, s, sec));
-    s.addEventListener('contextmenu', e=>{e.preventDefault();decSticker(id,s,sec)});
+    s.addEventListener('contextmenu', e=>{e.preventDefault();decSticker(id,s,sec);});
+    let _lpt; 
+    s.addEventListener('touchstart', e=>{ _lpt=setTimeout(()=>{ e.preventDefault(); decSticker(id,s,sec); }, 500); }, {passive:false});
+    s.addEventListener('touchend', ()=>clearTimeout(_lpt));
+    s.addEventListener('touchmove', ()=>clearTimeout(_lpt));
     grid.appendChild(s);
   });
   wrap.appendChild(grid);
