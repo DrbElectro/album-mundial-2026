@@ -1621,6 +1621,12 @@ function connectDrive(){
         updateDriveBtn();
         if(!driveFileId) await driveFindOrCreate();
         await driveLoadState();
+        // set baseline modifiedTime then start auto-sync
+        try{
+          const meta = await driveAPI('GET','https://www.googleapis.com/drive/v3/files/'+driveFileId+'?fields=modifiedTime');
+          lastDriveModTime = meta.modifiedTime||null;
+        }catch(e){}
+        startDriveAutoSync();
         setTimeout(function(){ if(driveToken) tokenClient.requestAccessToken({prompt:''}); }, ((resp.expires_in||3600)-120)*1000);
       }
     });
@@ -1669,6 +1675,50 @@ async function driveDebug(){
   alert(log.join('\n'));
 }
 document.getElementById('driveBtn').addEventListener('dblclick', driveDebug);
+
+// ===== AUTO-SYNC FROM DRIVE =====
+let lastDriveModTime = null;
+let autoSyncTimer = null;
+
+async function drivePollForUpdates(){
+  if(!driveToken || !driveFileId) return;
+  if(driveSaveTimer) return; // skip: hay una escritura local pendiente
+  try{
+    const meta = await driveAPI('GET',
+      'https://www.googleapis.com/drive/v3/files/'+driveFileId+'?fields=modifiedTime'
+    );
+    if(!meta || !meta.modifiedTime) return;
+    if(meta.modifiedTime === lastDriveModTime) return; // sin cambios
+    // El archivo cambió en Drive → bajar y aplicar
+    const raw = await driveAPI('GET',
+      'https://www.googleapis.com/drive/v3/files/'+driveFileId+'?alt=media'
+    );
+    const file = typeof raw==='string' ? JSON.parse(raw) : raw;
+    if(file && file.data && file.data.stickers){
+      const def = defaultData();
+      state = {
+        stickers:{...def.stickers,...file.data.stickers},
+        paq2000:file.data.paq2000||0,
+        paq1900:file.data.paq1900===undefined?25:file.data.paq1900
+      };
+      _origSaveDataDrive(); // guarda en localStorage sin disparar otra escritura a Drive
+      if(file.history) saveHistory(file.history);
+      refreshAllStickers(); updateStats(); calcGasto(); renderChart();
+      document.getElementById('paq2000').value = state.paq2000;
+      document.getElementById('paq1900').value = state.paq1900;
+      lastDriveModTime = meta.modifiedTime;
+      const t = new Date().toLocaleString('es-AR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+      setDriveStatus('↓ Sincronizado desde otro dispositivo · '+t,'var(--teal)');
+    }
+  }catch(e){ /* errores de red silenciosos; la expiración de token la maneja driveAPI */ }
+}
+function startDriveAutoSync(){
+  stopDriveAutoSync();
+  autoSyncTimer = setInterval(drivePollForUpdates, 5000);
+}
+function stopDriveAutoSync(){
+  if(autoSyncTimer){ clearInterval(autoSyncTimer); autoSyncTimer=null; }
+}
 
 // ===== CANJE =====
 function encodeCanjeState(){
