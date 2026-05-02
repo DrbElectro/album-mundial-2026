@@ -1684,15 +1684,32 @@ document.getElementById('syncConnectBtn').addEventListener('click', async()=>{
 
 // ===== CANJE =====
 function encodeCanjeState(){
-  const str = ALL_IDS.map(id => Math.min(9, state.stickers[id]||0)).join('');
-  return btoa(str);
+  const n = ALL_IDS.length;
+  const bytes = Math.ceil(n / 8);
+  const dar    = new Uint8Array(bytes);
+  const faltan = new Uint8Array(bytes);
+  ALL_IDS.forEach((id, i) => {
+    const c = state.stickers[id] || 0;
+    if(c >= 2)  dar[i >> 3]    |= (1 << (i & 7));
+    if(c === 0) faltan[i >> 3] |= (1 << (i & 7));
+  });
+  const merged = new Uint8Array(bytes * 2);
+  merged.set(dar); merged.set(faltan, bytes);
+  return btoa(String.fromCharCode(...merged));
 }
 function decodeCanjeState(encoded){
   try{
-    const str = atob(encoded.trim());
-    if(str.length < ALL_IDS.length) throw new Error('short');
+    const raw = atob(encoded.trim());
+    const merged = Uint8Array.from(raw, c => c.charCodeAt(0));
+    const bytes = merged.length / 2;
+    const dar    = merged.slice(0, bytes);
+    const faltan = merged.slice(bytes);
     const stickers = {};
-    ALL_IDS.forEach((id,i) => { stickers[id] = parseInt(str[i])||0; });
+    ALL_IDS.forEach((id, i) => {
+      const hasDup   = !!(dar[i >> 3]    & (1 << (i & 7)));
+      const isMissing = !!(faltan[i >> 3] & (1 << (i & 7)));
+      stickers[id] = hasDup ? 2 : isMissing ? 0 : 1;
+    });
     return stickers;
   }catch(e){ return null; }
 }
