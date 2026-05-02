@@ -393,6 +393,100 @@ body::after{
 /* hide stickers when collapsed */
 .section.hidden{display:none}
 
+/* ===== Canje modal ===== */
+.modal-overlay{
+  position:fixed;inset:0;z-index:100;
+  background:rgba(26,24,20,.65);
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+}
+.modal-overlay.hidden{display:none}
+.modal{
+  background:var(--paper);border:2px solid var(--ink);
+  max-width:900px;width:100%;max-height:92vh;overflow-y:auto;
+  box-shadow:6px 6px 0 var(--ink);position:relative;
+}
+.modal-head{
+  background:var(--ink);color:var(--paper);
+  padding:14px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  font-family:'Archivo Black',sans-serif;font-size:14px;
+  text-transform:uppercase;letter-spacing:.08em;
+  position:sticky;top:0;z-index:2;
+}
+.modal-close{
+  background:none;border:none;color:var(--paper);
+  font-size:22px;cursor:pointer;line-height:1;padding:0;
+  font-family:'Archivo Black',sans-serif;
+}
+.modal-close:hover{color:var(--gold)}
+.modal-body{padding:22px}
+.canje-step{margin-bottom:22px}
+.canje-step h3{
+  font-family:'Archivo Black',sans-serif;font-size:12px;
+  text-transform:uppercase;letter-spacing:.1em;
+  margin-bottom:12px;padding-bottom:7px;
+  border-bottom:2px solid var(--ink);
+  display:flex;align-items:center;gap:10px;
+}
+.canje-step h3 .step-num{
+  background:var(--ink);color:var(--paper);
+  padding:2px 8px;font-size:10px;letter-spacing:.12em;
+}
+.canje-code-box{
+  background:var(--paper-3);border:1px solid var(--ink);
+  padding:10px 12px;
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  word-break:break-all;line-height:1.5;
+  color:var(--ink-soft);max-height:56px;overflow:hidden;
+  margin-bottom:10px;letter-spacing:.03em;
+}
+.canje-input{
+  width:100%;padding:10px 12px;
+  border:1px solid var(--ink);background:var(--paper);
+  font-family:'JetBrains Mono',monospace;font-size:12px;
+  color:var(--ink);margin-bottom:10px;border-radius:0;
+}
+.canje-input:focus{outline:2px solid var(--red);outline-offset:-1px}
+.canje-hint{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:var(--ink-soft);letter-spacing:.05em;line-height:1.5;
+}
+.canje-result-cols{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:4px}
+@media(max-width:600px){.canje-result-cols{grid-template-columns:1fr}}
+.canje-col h4{
+  font-family:'Archivo Black',sans-serif;font-size:12px;
+  padding:8px 12px;margin-bottom:12px;
+  text-transform:uppercase;letter-spacing:.06em;
+  display:flex;align-items:center;gap:8px;
+}
+.canje-col.give h4{background:var(--gold);color:var(--ink)}
+.canje-col.get h4{background:#a6c879;color:#1f3d10}
+.canje-country{margin-bottom:12px}
+.canje-country-name{
+  font-family:'Archivo Black',sans-serif;font-size:10px;
+  text-transform:uppercase;letter-spacing:.08em;
+  color:var(--ink-soft);margin-bottom:5px;
+}
+.canje-chips{display:flex;flex-wrap:wrap;gap:4px}
+.canje-chip{
+  background:var(--paper-2);border:1px solid var(--ink);
+  padding:3px 7px;
+  font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;
+  color:var(--ink);letter-spacing:.04em;
+}
+.canje-empty{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--ink-soft);padding:20px;text-align:center;
+  border:1px dashed var(--rule);letter-spacing:.06em;line-height:1.6;
+}
+.canje-summary{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--ink-soft);letter-spacing:.06em;
+  padding:10px 0;border-top:1px solid var(--rule);margin-top:10px;
+}
+.canje-summary strong{color:var(--ink);font-weight:700}
+
 </style>
 </head>
 <body>
@@ -457,6 +551,7 @@ body::after{
         <button class="btn ghost" id="importTxtBtn" title="Importar una lista .txt exportada (modificada)">📥 Importar Lista</button>
         <input type="file" id="importTxtInput" accept=".txt" style="display:none">
         <button class="btn ghost" id="driveBtn">☁ Conectar Drive</button>
+        <button class="btn" id="canjeBtn" style="background:var(--teal);border-color:var(--teal)">🔄 Canje</button>
       </div>
       <div id="drive-status-bar" style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;color:var(--ink-soft);padding:6px 0 10px;min-height:22px;"></div>
 
@@ -510,6 +605,53 @@ body::after{
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<!-- ===== Canje modal ===== -->
+<div class="modal-overlay hidden" id="canjeModal">
+  <div class="modal">
+    <div class="modal-head">
+      <span>🔄 Intercambio de Figuritas</span>
+      <button class="modal-close" id="canjeClose">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="canje-step">
+        <h3><span class="step-num">1</span> Tu código de canje</h3>
+        <div class="canje-code-box" id="canjeMyCode">—</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+          <button class="btn" id="canjeCopyCode">📋 Copiar código</button>
+          <button class="btn ghost" id="canjeCopyLink">🔗 Copiar link directo</button>
+        </div>
+        <div class="canje-hint">Compartí este código (o el link) con tu amigo. Él lo pega abajo y ve al instante qué pueden cambiar.</div>
+      </div>
+
+      <div class="canje-step">
+        <h3><span class="step-num">2</span> Código de tu amigo</h3>
+        <input type="text" class="canje-input" id="canjeFriendInput" placeholder="Pegá el código de canje de tu amigo acá…">
+        <button class="btn" id="canjeCompareBtn">🔍 Ver qué podemos cambiar</button>
+      </div>
+
+      <div id="canjeResults" style="display:none">
+        <div class="canje-step">
+          <h3><span class="step-num">✓</span> Resultado</h3>
+          <div class="canje-result-cols">
+            <div class="canje-col give">
+              <h4>📤 Vos das · Tu amigo pega</h4>
+              <div id="canjeDar"></div>
+            </div>
+            <div class="canje-col get">
+              <h4>📥 Vos pegás · Tu amigo da</h4>
+              <div id="canjeRecibir"></div>
+            </div>
+          </div>
+          <div class="canje-summary" id="canjeSummary"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast">¡Pegada!</div>
 <div class="confetti" id="confetti"></div>
 
@@ -767,7 +909,7 @@ function buildSectionDOM(sec){
     s.innerHTML = `<span class="num">${displayId(id)}</span>`;
     s.addEventListener('click', ()=>incSticker(id, s, sec));
     s.addEventListener('contextmenu', e=>{e.preventDefault();decSticker(id,s,sec);});
-    let _lpt; 
+    let _lpt;
     s.addEventListener('touchstart', e=>{ _lpt=setTimeout(()=>{ e.preventDefault(); decSticker(id,s,sec); }, 500); }, {passive:false});
     s.addEventListener('touchend', ()=>clearTimeout(_lpt));
     s.addEventListener('touchmove', ()=>clearTimeout(_lpt));
@@ -1536,6 +1678,101 @@ async function driveDebug(){
   alert(log.join('\n'));
 }
 document.getElementById('driveBtn').addEventListener('dblclick', driveDebug);
+
+// ===== CANJE =====
+function encodeCanjeState(){
+  const str = ALL_IDS.map(id => Math.min(9, state.stickers[id]||0)).join('');
+  return btoa(str);
+}
+function decodeCanjeState(encoded){
+  try{
+    const str = atob(encoded.trim());
+    if(str.length < ALL_IDS.length) throw new Error('short');
+    const stickers = {};
+    ALL_IDS.forEach((id,i) => { stickers[id] = parseInt(str[i])||0; });
+    return stickers;
+  }catch(e){ return null; }
+}
+function computeCanje(myS, friendS){
+  const dar=[], recibir=[];
+  SECTIONS.forEach(sec=>{
+    const ids = getIds(sec);
+    const darIds     = ids.filter(id => (myS[id]||0)>=2 && (friendS[id]||0)===0);
+    const recibirIds = ids.filter(id => (friendS[id]||0)>=2 && (myS[id]||0)===0);
+    if(darIds.length)     dar.push({sec, ids:darIds});
+    if(recibirIds.length) recibir.push({sec, ids:recibirIds});
+  });
+  return {dar, recibir};
+}
+function renderCanjeList(container, list){
+  container.innerHTML='';
+  if(!list.length){
+    container.innerHTML='<div class="canje-empty">Sin coincidencias</div>';
+    return 0;
+  }
+  let total=0;
+  list.forEach(({sec,ids})=>{
+    total+=ids.length;
+    const div=document.createElement('div');
+    div.className='canje-country';
+    div.innerHTML=`<div class="canje-country-name">${sec.name}</div><div class="canje-chips">${
+      ids.map(id=>`<span class="canje-chip">${displayId(id)}</span>`).join('')
+    }</div>`;
+    container.appendChild(div);
+  });
+  return total;
+}
+function runCanje(code){
+  const friendS = decodeCanjeState(code);
+  if(!friendS){ showToast('Código inválido'); return; }
+  const {dar, recibir} = computeCanje(state.stickers, friendS);
+  const nDar     = renderCanjeList(document.getElementById('canjeDar'), dar);
+  const nRecibir = renderCanjeList(document.getElementById('canjeRecibir'), recibir);
+  document.getElementById('canjeSummary').innerHTML =
+    `Podés dar <strong>${nDar}</strong> figurita${nDar!==1?'s':''} · Podés recibir <strong>${nRecibir}</strong> figurita${nRecibir!==1?'s':''}`;
+  document.getElementById('canjeResults').style.display='';
+}
+function openCanje(){
+  document.getElementById('canjeMyCode').textContent = encodeCanjeState();
+  document.getElementById('canjeResults').style.display='none';
+  document.getElementById('canjeModal').classList.remove('hidden');
+  // auto-load from URL hash if friend shared a link
+  const hash = location.hash;
+  if(hash.startsWith('#canje=')){
+    const code = decodeURIComponent(hash.slice(7));
+    document.getElementById('canjeFriendInput').value = code;
+    runCanje(code);
+  }
+}
+function closeCanjeModal(){
+  document.getElementById('canjeModal').classList.add('hidden');
+  if(location.hash.startsWith('#canje='))
+    history.replaceState(null,'', location.pathname+location.search);
+}
+
+document.getElementById('canjeBtn').addEventListener('click', openCanje);
+document.getElementById('canjeClose').addEventListener('click', closeCanjeModal);
+document.getElementById('canjeModal').addEventListener('click', e=>{
+  if(e.target===document.getElementById('canjeModal')) closeCanjeModal();
+});
+document.getElementById('canjeCopyCode').addEventListener('click',()=>{
+  navigator.clipboard.writeText(encodeCanjeState()).then(()=>showToast('Código copiado'));
+});
+document.getElementById('canjeCopyLink').addEventListener('click',()=>{
+  const url = location.href.split('#')[0]+'#canje='+encodeURIComponent(encodeCanjeState());
+  navigator.clipboard.writeText(url).then(()=>showToast('Link copiado'));
+});
+document.getElementById('canjeCompareBtn').addEventListener('click',()=>{
+  const code = document.getElementById('canjeFriendInput').value.trim();
+  if(!code) return;
+  runCanje(code);
+  history.replaceState(null,'', location.pathname+location.search+'#canje='+encodeURIComponent(code));
+});
+
+// Auto-open canje modal if page loaded with a friend's link
+if(location.hash.startsWith('#canje=')){
+  window.addEventListener('load', ()=>setTimeout(openCanje, 600));
+}
 
 // ===== INIT =====
 document.getElementById('search').addEventListener('input', applyFilters);
