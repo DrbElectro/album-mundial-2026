@@ -393,25 +393,12 @@ body::after{
 /* hide stickers when collapsed */
 .section.hidden{display:none}
 
-/* ===== Drive reconnect banner ===== */
-.drive-banner{
-  position:fixed;bottom:0;left:0;right:0;z-index:60;
-  background:var(--teal);color:#fff;
-  display:flex;align-items:center;justify-content:center;gap:14px;
-  padding:12px 20px;
-  font-family:'Archivo Black',sans-serif;font-size:12px;
-  text-transform:uppercase;letter-spacing:.1em;
-  box-shadow:0 -3px 0 rgba(0,0,0,.2);
-  cursor:pointer;
-  transition:background .15s;
+/* ===== Sync status bar ===== */
+.sync-status-bar{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  letter-spacing:.08em;color:var(--ink-soft);
+  padding:6px 0 10px;min-height:22px;
 }
-.drive-banner:hover{background:#0a5a57}
-.drive-banner.hidden{display:none}
-.drive-banner-x{
-  margin-left:auto;font-size:18px;line-height:1;
-  opacity:.7;cursor:pointer;padding:0 4px;
-}
-.drive-banner-x:hover{opacity:1}
 
 /* ===== Canje modal ===== */
 .modal-overlay{
@@ -569,10 +556,10 @@ body::after{
         <button class="btn ghost" id="autosaveBtn" title="Vincular un archivo .json para guardar automáticamente">🔗 Auto-guardar en archivo</button>
         <button class="btn ghost" id="importTxtBtn" title="Importar una lista .txt exportada (modificada)">📥 Importar Lista</button>
         <input type="file" id="importTxtInput" accept=".txt" style="display:none">
-        <button class="btn ghost" id="driveBtn">☁ Conectar Drive</button>
+        <button class="btn" id="syncBtn" style="background:var(--teal);border-color:var(--teal)">☁ Sync</button>
         <button class="btn" id="canjeBtn" style="background:var(--teal);border-color:var(--teal)">🔄 Canje</button>
       </div>
-      <div id="drive-status-bar" style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;color:var(--ink-soft);padding:6px 0 10px;min-height:22px;"></div>
+      <div id="sync-status-bar" class="sync-status-bar"></div>
 
       <div id="sections-container"></div>
 
@@ -625,10 +612,34 @@ body::after{
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-<!-- ===== Drive reconnect banner ===== -->
-<div class="drive-banner hidden" id="driveBanner">
-  ☁ Drive desconectado — tap para reconectar
-  <span class="drive-banner-x" id="driveBannerX">✕</span>
+<!-- ===== Sync modal ===== -->
+<div class="modal-overlay hidden" id="syncModal">
+  <div class="modal">
+    <div class="modal-head">
+      <span>☁ Sincronización entre dispositivos</span>
+      <button class="modal-close" id="syncClose">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="canje-step">
+        <h3><span class="step-num">1</span> Tu código de sync</h3>
+        <div class="canje-code-box" id="syncCodeDisplay">Generando…</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+          <button class="btn" id="syncCopyCode">📋 Copiar código</button>
+        </div>
+        <div class="canje-hint">Ingresá este código en el otro dispositivo para que ambos queden sincronizados automáticamente.</div>
+      </div>
+
+      <div class="canje-step">
+        <h3><span class="step-num">2</span> Conectar otro dispositivo</h3>
+        <input type="text" class="canje-input" id="syncCodeInput" placeholder="Pegá el código del otro dispositivo acá…">
+        <button class="btn" id="syncConnectBtn">🔗 Conectar y sincronizar</button>
+      </div>
+
+      <div id="syncStatusArea" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-soft);margin-top:14px;letter-spacing:.06em;min-height:18px;"></div>
+
+    </div>
+  </div>
 </div>
 
 <!-- ===== Canje modal ===== -->
@@ -1531,249 +1542,159 @@ saveHistory = function(h){
 };
 
 
-// ===== GOOGLE DRIVE SYNC =====
-const DRIVE_CLIENT_ID = '428107761493-css3g37kd2blci9i9jqv8noue1cn71bm.apps.googleusercontent.com';
-const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive';
-const DRIVE_FILE_NAME = 'album_mundial_2026.json';
-const DRIVE_FILE_KEY = 'album_drive_file_id_v2';
+// ===== SYNC CODE (jsonblob.com — sin login, sin popups) =====
+const SYNC_BLOB_KEY = 'album_sync_blob_v1';
+const JSONBLOB = 'https://jsonblob.com/api/jsonBlob';
 
-let driveToken = null;
-let driveFileId = localStorage.getItem(DRIVE_FILE_KEY) || null;
-let driveSaveTimer = null;
-let tokenClient = null;
+let syncBlobId = localStorage.getItem(SYNC_BLOB_KEY) || null;
+let syncLastAt  = null;
+let syncWriteTimer = null;
+let syncPollTimer  = null;
 
-function setDriveStatus(txt, color){
-  const el = document.getElementById('drive-status-bar');
-  if(el){ el.textContent = txt; el.style.color = color || 'var(--ink-soft)'; }
+function syncPayload(){
+  return {version:1, savedAt:new Date().toISOString(), data:state, history:loadHistory()};
 }
-function updateDriveBtn(){
-  const btn = document.getElementById('driveBtn');
+function formatBlobCode(id){
+  return String(id).match(/.{1,5}/g).join('-');
+}
+function parseBlobCode(code){
+  return code.replace(/[-\s]/g,'');
+}
+function setSyncStatus(txt, color){
+  ['sync-status-bar','syncStatusArea'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){ el.textContent=txt; el.style.color=color||'var(--ink-soft)'; }
+  });
+}
+function updateSyncBtn(){
+  const btn=document.getElementById('syncBtn');
   if(!btn) return;
-  if(driveToken){ btn.textContent='☁ Drive conectado'; btn.classList.remove('ghost'); }
-  else { btn.textContent='☁ Conectar Drive'; btn.classList.add('ghost'); }
+  if(syncBlobId){ btn.textContent='☁ Sync activo'; btn.style.background='var(--green)'; btn.style.borderColor='var(--green)'; }
+  else           { btn.textContent='☁ Sync';        btn.style.background='var(--teal)';  btn.style.borderColor='var(--teal)';  }
 }
 
-async function driveAPI(method, url, body){
-  const opts = { method, headers:{'Authorization':'Bearer '+driveToken} };
-  if(body instanceof FormData){ opts.body=body; }
-  else if(body){ opts.headers['Content-Type']='application/json'; opts.body=JSON.stringify(body); }
-  const res = await fetch(url, opts);
-  if(res.status===401){ driveToken=null; updateDriveBtn(); setDriveStatus('Sesion expirada - reconecta Drive','var(--red)'); throw new Error('401'); }
-  if(!res.ok) throw new Error('Drive '+res.status);
-  const ct = res.headers.get('content-type')||'';
-  return ct.includes('json') ? res.json() : res.text();
+async function blobCreate(){
+  const resp = await fetch(JSONBLOB,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Accept':'application/json'},
+    body:JSON.stringify(syncPayload())
+  });
+  if(!resp.ok) throw new Error('create '+resp.status);
+  const id = (resp.headers.get('Location')||'').split('/').pop();
+  if(!id) throw new Error('sin id');
+  syncBlobId=id; localStorage.setItem(SYNC_BLOB_KEY,id);
+  syncLastAt=new Date().toISOString();
+  return id;
+}
+async function blobRead(id){
+  const resp = await fetch(JSONBLOB+'/'+id,{headers:{'Accept':'application/json'}});
+  if(!resp.ok) throw new Error('read '+resp.status);
+  return resp.json();
+}
+async function blobWrite(){
+  if(!syncBlobId) return;
+  try{
+    const p=syncPayload();
+    const resp=await fetch(JSONBLOB+'/'+syncBlobId,{
+      method:'PUT',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify(p)
+    });
+    if(!resp.ok) throw new Error('write '+resp.status);
+    syncLastAt=p.savedAt;
+    setSyncStatus('☁ Guardado · '+new Date().toLocaleString('es-AR',{hour:'2-digit',minute:'2-digit'}),'var(--green)');
+  }catch(e){ setSyncStatus('Error al guardar en la nube','var(--red)'); }
+}
+function scheduleWrite(){
+  if(!syncBlobId) return;
+  clearTimeout(syncWriteTimer);
+  syncWriteTimer=setTimeout(blobWrite,3000);
+}
+async function pollBlob(){
+  if(!syncBlobId||syncWriteTimer) return;
+  try{
+    const file=await blobRead(syncBlobId);
+    if(!file||!file.savedAt||!file.data||file.savedAt===syncLastAt) return;
+    const def=defaultData();
+    state={stickers:{...def.stickers,...file.data.stickers},paq2000:file.data.paq2000||0,paq1900:file.data.paq1900===undefined?25:file.data.paq1900};
+    _origSaveData_beforeSync();
+    if(file.history) saveHistory(file.history);
+    refreshAllStickers(); updateStats(); calcGasto(); renderChart();
+    document.getElementById('paq2000').value=state.paq2000;
+    document.getElementById('paq1900').value=state.paq1900;
+    syncLastAt=file.savedAt;
+    setSyncStatus('↓ Actualizado desde otro dispositivo · '+new Date().toLocaleString('es-AR',{timeStyle:'short'}),'var(--teal)');
+  }catch(e){}
+}
+function startSyncPoll(){
+  if(syncPollTimer) clearInterval(syncPollTimer);
+  syncPollTimer=setInterval(pollBlob,10000);
+  updateSyncBtn();
 }
 
-async function driveFindOrCreate(){
-  const result = await driveAPI('GET',
-    "https://www.googleapis.com/drive/v3/files?q=name='album_mundial_2026.json'+and+trashed=false&fields=files(id)&pageSize=1"
-  );
-  if(result.files && result.files.length){
-    driveFileId = result.files[0].id;
-    localStorage.setItem(DRIVE_FILE_KEY, driveFileId);
-    return 'found';
+const _origSaveData_beforeSync = saveData;
+saveData = function(){ _origSaveData_beforeSync(); scheduleWrite(); };
+
+// Auto-iniciar si ya hay un blob guardado
+if(syncBlobId){
+  blobRead(syncBlobId).then(file=>{
+    if(file&&file.savedAt){ syncLastAt=file.savedAt; }
+    setSyncStatus('☁ Sync activo','var(--green)');
+    startSyncPoll();
+  }).catch(()=>setSyncStatus('No se pudo conectar al sync','var(--red)'));
+}
+updateSyncBtn();
+
+// Modal de sync
+async function openSyncModal(){
+  document.getElementById('syncModal').classList.remove('hidden');
+  if(!syncBlobId){
+    document.getElementById('syncCodeDisplay').textContent='Generando…';
+    setSyncStatus('Creando código…','var(--gold-deep)');
+    try{
+      const id=await blobCreate();
+      document.getElementById('syncCodeDisplay').textContent=formatBlobCode(id);
+      startSyncPoll();
+      setSyncStatus('☁ Sync activo','var(--green)');
+    }catch(e){
+      document.getElementById('syncCodeDisplay').textContent='Error al generar';
+      setSyncStatus('Error: '+e.message,'var(--red)');
+    }
+  } else {
+    document.getElementById('syncCodeDisplay').textContent=formatBlobCode(syncBlobId);
   }
-  const fd = new FormData();
-  fd.append('metadata', new Blob([JSON.stringify({name:DRIVE_FILE_NAME})],{type:'application/json'}));
-  fd.append('file', new Blob([JSON.stringify({version:1,savedAt:new Date().toISOString(),data:state,history:loadHistory()},null,2)],{type:'application/json'}));
-  const created = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',{
-    method:'POST', headers:{'Authorization':'Bearer '+driveToken}, body:fd
-  }).then(r=>r.json());
-  driveFileId = created.id;
-  localStorage.setItem(DRIVE_FILE_KEY, driveFileId);
-  return 'created';
 }
-
-async function driveLoadState(){
-  setDriveStatus('Cargando desde Drive...','var(--gold-deep)');
-  try{
-    let raw;
-    if(driveFileId){
-      try{ raw = await driveAPI('GET','https://www.googleapis.com/drive/v3/files/'+driveFileId+'?alt=media'); }
-      catch(e){ if(!e.message.includes('401')){ driveFileId=null; localStorage.removeItem(DRIVE_FILE_KEY); } else throw e; }
-    }
-    if(!raw){
-      const action = await driveFindOrCreate();
-      if(action==='found') raw = await driveAPI('GET','https://www.googleapis.com/drive/v3/files/'+driveFileId+'?alt=media');
-      else { setDriveStatus('Archivo nuevo creado en Drive','var(--green)'); return; }
-    }
-    const file = typeof raw==='string' ? JSON.parse(raw) : raw;
-    if(file && file.data && file.data.stickers){
-      const def = defaultData();
-      state = { stickers:{...def.stickers,...file.data.stickers}, paq2000:file.data.paq2000||0, paq1900:file.data.paq1900===undefined?25:file.data.paq1900 };
-      _origSaveDataDrive();
-      if(file.history) saveHistory(file.history);
-      refreshAllStickers(); updateStats(); calcGasto(); renderChart();
-      document.getElementById('paq2000').value = state.paq2000;
-      document.getElementById('paq1900').value = state.paq1900;
-      const when = file.savedAt ? new Date(file.savedAt).toLocaleString('es-AR',{dateStyle:'short',timeStyle:'short'}) : '--';
-      setDriveStatus('Cargado desde Drive: '+when,'var(--green)');
-    } else {
-      await driveSaveNow();
-    }
-  }catch(e){ console.error('driveLoad',e); setDriveStatus('Error al cargar Drive','var(--red)'); }
-}
-
-async function driveSaveNow(){
-  if(!driveToken||!driveFileId) return;
-  try{
-    const fd = new FormData();
-    fd.append('metadata', new Blob([JSON.stringify({name:DRIVE_FILE_NAME})],{type:'application/json'}));
-    fd.append('file', new Blob([JSON.stringify({version:1,savedAt:new Date().toISOString(),data:state,history:loadHistory()},null,2)],{type:'application/json'}));
-    await fetch('https://www.googleapis.com/upload/drive/v3/files/'+driveFileId+'?uploadType=multipart',{
-      method:'PATCH', headers:{'Authorization':'Bearer '+driveToken}, body:fd
-    });
-    const t = new Date().toLocaleString('es-AR',{hour:'2-digit',minute:'2-digit'});
-    setDriveStatus('Guardado en Drive: '+t,'var(--green)');
-  }catch(e){ console.error('driveSave',e); setDriveStatus('Error al guardar en Drive','var(--red)'); }
-}
-
-function driveSave(){
-  if(!driveToken) return;
-  clearTimeout(driveSaveTimer);
-  setDriveStatus('Guardando...','var(--gold-deep)');
-  driveSaveTimer = setTimeout(driveSaveNow, 2000);
-}
-
-function connectDrive(){
-  if(!window.google){ setDriveStatus('Cargando libreria de Google...','var(--gold-deep)'); setTimeout(connectDrive,800); return; }
-  if(!tokenClient){
-    tokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: DRIVE_CLIENT_ID,
-      scope: DRIVE_SCOPE,
-      callback: async function(resp){
-        if(resp.error){ setDriveStatus('Error: '+resp.error,'var(--red)'); return; }
-        driveToken = resp.access_token;
-        localStorage.setItem(DRIVE_AUTOCONNECT_KEY, '1');
-        // guardar el email de la cuenta elegida para saltear el selector la próxima vez
-        fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{'Authorization':'Bearer '+driveToken}})
-          .then(r=>r.json()).then(d=>{ if(d.email) localStorage.setItem(DRIVE_HINT_KEY, d.email); }).catch(()=>{});
-        updateDriveBtn();
-        hideDriveBanner();
-        if(!driveFileId) await driveFindOrCreate();
-        await driveLoadState();
-        // set baseline modifiedTime then start auto-sync
-        try{
-          const meta = await driveAPI('GET','https://www.googleapis.com/drive/v3/files/'+driveFileId+'?fields=modifiedTime');
-          lastDriveModTime = meta.modifiedTime||null;
-        }catch(e){}
-        startDriveAutoSync();
-        setTimeout(function(){ if(driveToken) tokenClient.requestAccessToken({prompt:''}); }, ((resp.expires_in||3600)-120)*1000);
-      }
-    });
-  }
-  const hint = localStorage.getItem(DRIVE_HINT_KEY)||'';
-  tokenClient.requestAccessToken({prompt: hint?'':'select_account', hint});
-}
-
-const _origSaveDataDrive = saveData;
-saveData = function(){ _origSaveDataDrive(); driveSave(); };
-
-const DRIVE_AUTOCONNECT_KEY = 'album_drive_autoconnect_v1';
-const DRIVE_HINT_KEY        = 'album_drive_hint_v1';
-
-function showDriveBanner(){
-  document.getElementById('driveBanner').classList.remove('hidden');
-}
-function hideDriveBanner(){
-  document.getElementById('driveBanner').classList.add('hidden');
-}
-document.getElementById('driveBanner').addEventListener('click', function(e){
-  if(e.target.id==='driveBannerX'){ hideDriveBanner(); return; }
-  hideDriveBanner();
-  connectDrive();
+document.getElementById('syncBtn').addEventListener('click', openSyncModal);
+document.getElementById('syncClose').addEventListener('click',()=>document.getElementById('syncModal').classList.add('hidden'));
+document.getElementById('syncModal').addEventListener('click',e=>{ if(e.target===document.getElementById('syncModal')) document.getElementById('syncModal').classList.add('hidden'); });
+document.getElementById('syncCopyCode').addEventListener('click',()=>{
+  const code=document.getElementById('syncCodeDisplay').textContent;
+  if(code&&!code.includes('…')&&!code.includes('Error'))
+    navigator.clipboard.writeText(parseBlobCode(code)).then(()=>showToast('Código copiado'));
 });
-document.getElementById('driveBannerX').addEventListener('click', e=>{
-  e.stopPropagation(); hideDriveBanner();
+document.getElementById('syncConnectBtn').addEventListener('click', async()=>{
+  const id=parseBlobCode(document.getElementById('syncCodeInput').value.trim());
+  if(id.length<10){ showToast('Código inválido'); return; }
+  setSyncStatus('Conectando…','var(--gold-deep)');
+  try{
+    const file=await blobRead(id);
+    if(!file||!file.data) throw new Error('datos inválidos');
+    const def=defaultData();
+    state={stickers:{...def.stickers,...file.data.stickers},paq2000:file.data.paq2000||0,paq1900:file.data.paq1900===undefined?25:file.data.paq1900};
+    _origSaveData_beforeSync();
+    if(file.history) saveHistory(file.history);
+    refreshAllStickers(); updateStats(); calcGasto(); renderChart();
+    document.getElementById('paq2000').value=state.paq2000;
+    document.getElementById('paq1900').value=state.paq1900;
+    syncBlobId=id; syncLastAt=file.savedAt||null;
+    localStorage.setItem(SYNC_BLOB_KEY,id);
+    document.getElementById('syncCodeDisplay').textContent=formatBlobCode(id);
+    document.getElementById('syncCodeInput').value='';
+    startSyncPoll();
+    setSyncStatus('☁ Conectado y sincronizado','var(--green)');
+    showToast('¡Sincronizado!');
+  }catch(e){ setSyncStatus('Error: no se pudo conectar','var(--red)'); }
 });
-
-(function(){
-  const s = document.createElement('script');
-  s.src = 'https://accounts.google.com/gsi/client';
-  s.async = true;
-  s.onload = function(){
-    if(localStorage.getItem(DRIVE_AUTOCONNECT_KEY)){
-      showDriveBanner();
-    }
-  };
-  document.head.appendChild(s);
-  document.getElementById('driveBtn').addEventListener('click', connectDrive);
-})();
-
-
-
-// ===== DRIVE DEBUG =====
-async function driveDebug(){
-  const log = [];
-  log.push('Token: '+(driveToken?'OK':'NO TOKEN'));
-  log.push('FileId en localStorage: '+(driveFileId||'ninguno'));
-  if(!driveToken){ alert(log.join('\n')); return; }
-  try{
-    const r1 = await fetch('https://www.googleapis.com/drive/v3/files?q=name=\'album_mundial_2026.json\'+and+trashed=false&fields=files(id,name,size)&pageSize=5',{
-      headers:{'Authorization':'Bearer '+driveToken}
-    });
-    const j1 = await r1.json();
-    log.push('Busqueda por nombre: HTTP '+r1.status);
-    log.push('Archivos encontrados: '+JSON.stringify(j1.files||j1.error));
-    if(j1.files && j1.files.length){
-      const fid = j1.files[0].id;
-      const r2 = await fetch('https://www.googleapis.com/drive/v3/files/'+fid+'?alt=media',{
-        headers:{'Authorization':'Bearer '+driveToken}
-      });
-      log.push('Lectura archivo: HTTP '+r2.status);
-      if(r2.ok){
-        const txt = await r2.text();
-        log.push('Contenido (primeros 100 chars): '+txt.substring(0,100));
-      }
-    }
-  }catch(e){ log.push('ERROR: '+e.message); }
-  alert(log.join('\n'));
-}
-document.getElementById('driveBtn').addEventListener('dblclick', driveDebug);
-
-// ===== AUTO-SYNC FROM DRIVE =====
-let lastDriveModTime = null;
-let autoSyncTimer = null;
-
-async function drivePollForUpdates(){
-  if(!driveToken || !driveFileId) return;
-  if(driveSaveTimer) return; // skip: hay una escritura local pendiente
-  try{
-    const meta = await driveAPI('GET',
-      'https://www.googleapis.com/drive/v3/files/'+driveFileId+'?fields=modifiedTime'
-    );
-    if(!meta || !meta.modifiedTime) return;
-    if(meta.modifiedTime === lastDriveModTime) return; // sin cambios
-    // El archivo cambió en Drive → bajar y aplicar
-    const raw = await driveAPI('GET',
-      'https://www.googleapis.com/drive/v3/files/'+driveFileId+'?alt=media'
-    );
-    const file = typeof raw==='string' ? JSON.parse(raw) : raw;
-    if(file && file.data && file.data.stickers){
-      const def = defaultData();
-      state = {
-        stickers:{...def.stickers,...file.data.stickers},
-        paq2000:file.data.paq2000||0,
-        paq1900:file.data.paq1900===undefined?25:file.data.paq1900
-      };
-      _origSaveDataDrive(); // guarda en localStorage sin disparar otra escritura a Drive
-      if(file.history) saveHistory(file.history);
-      refreshAllStickers(); updateStats(); calcGasto(); renderChart();
-      document.getElementById('paq2000').value = state.paq2000;
-      document.getElementById('paq1900').value = state.paq1900;
-      lastDriveModTime = meta.modifiedTime;
-      const t = new Date().toLocaleString('es-AR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-      setDriveStatus('↓ Sincronizado desde otro dispositivo · '+t,'var(--teal)');
-    }
-  }catch(e){ /* errores de red silenciosos; la expiración de token la maneja driveAPI */ }
-}
-function startDriveAutoSync(){
-  stopDriveAutoSync();
-  autoSyncTimer = setInterval(drivePollForUpdates, 5000);
-}
-function stopDriveAutoSync(){
-  if(autoSyncTimer){ clearInterval(autoSyncTimer); autoSyncTimer=null; }
-}
 
 // ===== CANJE =====
 function encodeCanjeState(){
