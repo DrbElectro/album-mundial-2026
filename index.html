@@ -1618,6 +1618,7 @@ function connectDrive(){
       callback: async function(resp){
         if(resp.error){ setDriveStatus('Error: '+resp.error,'var(--red)'); return; }
         driveToken = resp.access_token;
+        localStorage.setItem(DRIVE_AUTOCONNECT_KEY, '1');
         updateDriveBtn();
         if(!driveFileId) await driveFindOrCreate();
         await driveLoadState();
@@ -1637,10 +1638,18 @@ function connectDrive(){
 const _origSaveDataDrive = saveData;
 saveData = function(){ _origSaveDataDrive(); driveSave(); };
 
+const DRIVE_AUTOCONNECT_KEY = 'album_drive_autoconnect_v1';
+
 (function(){
   const s = document.createElement('script');
   s.src = 'https://accounts.google.com/gsi/client';
   s.async = true;
+  s.onload = function(){
+    if(localStorage.getItem(DRIVE_AUTOCONNECT_KEY)){
+      setDriveStatus('Reconectando Drive...','var(--gold-deep)');
+      setTimeout(connectDrive, 600);
+    }
+  };
   document.head.appendChild(s);
   document.getElementById('driveBtn').addEventListener('click', connectDrive);
 })();
