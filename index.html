@@ -551,9 +551,8 @@ body::after{
           <option value="completion">Por completado %</option>
           <option value="alpha">A → Z</option>
         </select>
-        <button class="btn" id="exportBtn" title="Exportar a Excel">📄 Exportar Excel</button>
         <button class="btn" id="exportTxtBtn" title="Exportar faltantes y repetidas (texto)">📝 Exportar Lista</button>
-        <button class="btn ghost" id="autosaveBtn" title="Vincular un archivo .json para guardar automáticamente">🔗 Auto-guardar en archivo</button>
+        <button class="btn ghost" id="autosaveBtn" title="Vincular un archivo .json para guardar automáticamente">💾 Auto-Guardado</button>
         <button class="btn ghost" id="importTxtBtn" title="Importar una lista .txt exportada (modificada)">📥 Importar Lista</button>
         <input type="file" id="importTxtInput" accept=".txt" style="display:none">
         <button class="btn" id="syncBtn" style="background:var(--teal);border-color:var(--teal)">☁ Sync</button>
@@ -1268,7 +1267,6 @@ function exportarExcel(){
   XLSX.writeFile(wb, `album_mundial_2026_${fecha}.xlsx`);
   showToast('Excel exportado');
 }
-document.getElementById('exportBtn').addEventListener('click', exportarExcel);
 
 // ===== EXPORT TXT (faltantes / repetidas) =====
 function formatStickerLabel(id){
@@ -1485,7 +1483,7 @@ function updateAutosaveUI(){
     btn.classList.remove('ghost');
     btn.title = 'Click para desvincular el archivo';
   } else {
-    btn.textContent = '🔗 Auto-guardar en archivo';
+    btn.textContent = '💾 Auto-Guardado';
     btn.classList.add('ghost');
     btn.title = 'Vincular un archivo .json para guardar automáticamente';
   }
