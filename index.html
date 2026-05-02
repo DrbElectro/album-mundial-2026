@@ -1645,6 +1645,9 @@ function connectDrive(){
         if(resp.error){ setDriveStatus('Error: '+resp.error,'var(--red)'); return; }
         driveToken = resp.access_token;
         localStorage.setItem(DRIVE_AUTOCONNECT_KEY, '1');
+        // guardar el email de la cuenta elegida para saltear el selector la próxima vez
+        fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{'Authorization':'Bearer '+driveToken}})
+          .then(r=>r.json()).then(d=>{ if(d.email) localStorage.setItem(DRIVE_HINT_KEY, d.email); }).catch(()=>{});
         updateDriveBtn();
         hideDriveBanner();
         if(!driveFileId) await driveFindOrCreate();
@@ -1659,13 +1662,15 @@ function connectDrive(){
       }
     });
   }
-  tokenClient.requestAccessToken({prompt:''});
+  const hint = localStorage.getItem(DRIVE_HINT_KEY)||'';
+  tokenClient.requestAccessToken({prompt: hint?'':'select_account', hint});
 }
 
 const _origSaveDataDrive = saveData;
 saveData = function(){ _origSaveDataDrive(); driveSave(); };
 
 const DRIVE_AUTOCONNECT_KEY = 'album_drive_autoconnect_v1';
+const DRIVE_HINT_KEY        = 'album_drive_hint_v1';
 
 function showDriveBanner(){
   document.getElementById('driveBanner').classList.remove('hidden');
