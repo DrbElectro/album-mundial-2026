@@ -622,12 +622,23 @@ body::after{
     <div class="modal-body">
 
       <div class="canje-step">
+        <h3><span class="step-num">🔑</span> Token de GitHub <span style="font-weight:400;font-size:10px;color:var(--ink-soft)">(una vez por dispositivo)</span></h3>
+        <input type="password" class="canje-input" id="syncPatInput" placeholder="ghp_xxxxxxxxxxxxxxxx…" autocomplete="off">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+          <button class="btn" id="syncSaveToken">💾 Guardar token</button>
+          <button class="btn ghost" id="syncClearToken">Quitar</button>
+        </div>
+        <div class="canje-hint">Necesitás un token con scope <strong>gist</strong>. &nbsp;<a href="https://github.com/settings/tokens/new?scopes=gist&description=Album+Mundial+Sync" target="_blank" style="color:var(--teal);font-weight:700">Crear token en GitHub →</a></div>
+      </div>
+
+      <div class="canje-step">
         <h3><span class="step-num">1</span> Tu código de sync</h3>
-        <div class="canje-code-box" id="syncCodeDisplay">Generando…</div>
+        <div class="canje-code-box" id="syncCodeDisplay">—</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
           <button class="btn" id="syncCopyCode">📋 Copiar código</button>
+          <button class="btn ghost" id="syncGenCode">⊕ Generar nuevo</button>
         </div>
-        <div class="canje-hint">Ingresá este código en el otro dispositivo para que ambos queden sincronizados automáticamente.</div>
+        <div class="canje-hint">Compartí este código con tus otros dispositivos.</div>
       </div>
 
       <div class="canje-step">
@@ -1542,23 +1553,25 @@ saveHistory = function(h){
 };
 
 
-// ===== SYNC CODE (jsonblob.com — sin login, sin popups) =====
-const SYNC_BLOB_KEY = 'album_sync_blob_v1';
-const JSONBLOB = 'https://jsonblob.com/api/jsonBlob';
+// ===== SYNC CODE (GitHub Gist — CORS garantizado) =====
+const SYNC_GIST_KEY = 'album_sync_gist_v1';
+const SYNC_PAT_KEY  = 'album_sync_pat_v1';
+const GH_API        = 'https://api.github.com';
+const GIST_FILE     = 'album_mundial_2026_sync.json';
 
-let syncBlobId = localStorage.getItem(SYNC_BLOB_KEY) || null;
-let syncLastAt  = null;
+let syncGistId = localStorage.getItem(SYNC_GIST_KEY) || null;
+let syncPat    = localStorage.getItem(SYNC_PAT_KEY)  || null;
+let syncLastAt = null;
 let syncWriteTimer = null;
 let syncPollTimer  = null;
 
 function syncPayload(){
   return {version:1, savedAt:new Date().toISOString(), data:state, history:loadHistory()};
 }
-function formatBlobCode(id){
-  return String(id).match(/.{1,5}/g).join('-');
-}
-function parseBlobCode(code){
-  return code.replace(/[-\s]/g,'');
+function ghHeaders(auth=true){
+  const h={'Accept':'application/vnd.github+json','Content-Type':'application/json'};
+  if(auth && syncPat) h['Authorization']='Bearer '+syncPat;
+  return h;
 }
 function setSyncStatus(txt, color){
   ['sync-status-bar','syncStatusArea'].forEach(id=>{
@@ -1569,131 +1582,161 @@ function setSyncStatus(txt, color){
 function updateSyncBtn(){
   const btn=document.getElementById('syncBtn');
   if(!btn) return;
-  if(syncBlobId){ btn.textContent='☁ Sync activo'; btn.style.background='var(--green)'; btn.style.borderColor='var(--green)'; }
-  else           { btn.textContent='☁ Sync';        btn.style.background='var(--teal)';  btn.style.borderColor='var(--teal)';  }
+  if(syncGistId && syncPat){ btn.textContent='☁ Sync activo'; btn.style.background='var(--green)'; btn.style.borderColor='var(--green)'; }
+  else                      { btn.textContent='☁ Sync';        btn.style.background='var(--teal)';  btn.style.borderColor='var(--teal)';  }
 }
 
-async function blobCreate(){
-  const resp = await fetch(JSONBLOB,{
-    method:'POST',
-    headers:{'Content-Type':'application/json','Accept':'application/json'},
-    body:JSON.stringify(syncPayload())
+async function gistCreate(){
+  if(!syncPat) throw new Error('Falta el token de GitHub');
+  const resp = await fetch(GH_API+'/gists',{
+    method:'POST', headers:ghHeaders(),
+    body:JSON.stringify({description:'Album Mundial 2026 · Sync', public:true,
+      files:{[GIST_FILE]:{content:JSON.stringify(syncPayload(),null,2)}}})
   });
-  if(!resp.ok) throw new Error('create '+resp.status);
-  const id = (resp.headers.get('Location')||'').split('/').pop();
-  if(!id) throw new Error('sin id');
-  syncBlobId=id; localStorage.setItem(SYNC_BLOB_KEY,id);
-  syncLastAt=new Date().toISOString();
-  return id;
+  if(!resp.ok) throw new Error('HTTP '+resp.status+' — ¿el token tiene scope gist?');
+  const data = await resp.json();
+  syncGistId = data.id;
+  localStorage.setItem(SYNC_GIST_KEY, syncGistId);
+  syncLastAt = new Date().toISOString();
+  return syncGistId;
 }
-async function blobRead(id){
-  const resp = await fetch(JSONBLOB+'/'+id,{headers:{'Accept':'application/json'}});
+async function gistRead(id){
+  const resp = await fetch(GH_API+'/gists/'+id, {headers:ghHeaders(false)});
   if(!resp.ok) throw new Error('read '+resp.status);
-  return resp.json();
+  const data = await resp.json();
+  const content = data.files?.[GIST_FILE]?.content;
+  if(!content) throw new Error('sin datos');
+  return JSON.parse(content);
 }
-async function blobWrite(){
-  if(!syncBlobId) return;
+async function gistWrite(){
+  if(!syncGistId || !syncPat) return;
   try{
-    const p=syncPayload();
-    const resp=await fetch(JSONBLOB+'/'+syncBlobId,{
-      method:'PUT',
-      headers:{'Content-Type':'application/json','Accept':'application/json'},
-      body:JSON.stringify(p)
+    const p = syncPayload();
+    const resp = await fetch(GH_API+'/gists/'+syncGistId,{
+      method:'PATCH', headers:ghHeaders(),
+      body:JSON.stringify({files:{[GIST_FILE]:{content:JSON.stringify(p,null,2)}}})
     });
     if(!resp.ok) throw new Error('write '+resp.status);
-    syncLastAt=p.savedAt;
+    syncLastAt = p.savedAt;
     setSyncStatus('☁ Guardado · '+new Date().toLocaleString('es-AR',{hour:'2-digit',minute:'2-digit'}),'var(--green)');
-  }catch(e){ setSyncStatus('Error al guardar en la nube','var(--red)'); }
+  }catch(e){ setSyncStatus('Error al guardar','var(--red)'); }
 }
 function scheduleWrite(){
-  if(!syncBlobId) return;
+  if(!syncGistId || !syncPat) return;
   clearTimeout(syncWriteTimer);
-  syncWriteTimer=setTimeout(blobWrite,3000);
+  syncWriteTimer = setTimeout(gistWrite, 3000);
 }
-async function pollBlob(){
-  if(!syncBlobId||syncWriteTimer) return;
+async function pollGist(){
+  if(!syncGistId || syncWriteTimer) return;
   try{
-    const file=await blobRead(syncBlobId);
-    if(!file||!file.savedAt||!file.data||file.savedAt===syncLastAt) return;
-    const def=defaultData();
-    state={stickers:{...def.stickers,...file.data.stickers},paq2000:file.data.paq2000||0,paq1900:file.data.paq1900===undefined?25:file.data.paq1900};
+    const file = await gistRead(syncGistId);
+    if(!file?.savedAt || !file?.data || file.savedAt===syncLastAt) return;
+    const def = defaultData();
+    state = {stickers:{...def.stickers,...file.data.stickers}, paq2000:file.data.paq2000||0, paq1900:file.data.paq1900===undefined?25:file.data.paq1900};
     _origSaveData_beforeSync();
     if(file.history) saveHistory(file.history);
     refreshAllStickers(); updateStats(); calcGasto(); renderChart();
-    document.getElementById('paq2000').value=state.paq2000;
-    document.getElementById('paq1900').value=state.paq1900;
-    syncLastAt=file.savedAt;
+    document.getElementById('paq2000').value = state.paq2000;
+    document.getElementById('paq1900').value = state.paq1900;
+    syncLastAt = file.savedAt;
     setSyncStatus('↓ Actualizado desde otro dispositivo · '+new Date().toLocaleString('es-AR',{timeStyle:'short'}),'var(--teal)');
   }catch(e){}
 }
 function startSyncPoll(){
   if(syncPollTimer) clearInterval(syncPollTimer);
-  syncPollTimer=setInterval(pollBlob,10000);
+  syncPollTimer = setInterval(pollGist, 10000);
   updateSyncBtn();
 }
 
 const _origSaveData_beforeSync = saveData;
 saveData = function(){ _origSaveData_beforeSync(); scheduleWrite(); };
 
-// Auto-iniciar si ya hay un blob guardado
-if(syncBlobId){
-  blobRead(syncBlobId).then(file=>{
-    if(file&&file.savedAt){ syncLastAt=file.savedAt; }
+// Auto-iniciar si ya hay credenciales guardadas
+if(syncGistId && syncPat){
+  gistRead(syncGistId).then(file=>{
+    if(file?.savedAt) syncLastAt = file.savedAt;
     setSyncStatus('☁ Sync activo','var(--green)');
     startSyncPoll();
   }).catch(()=>setSyncStatus('No se pudo conectar al sync','var(--red)'));
 }
 updateSyncBtn();
 
-// Modal de sync
-async function openSyncModal(){
+// ---- Modal ----
+function openSyncModal(){
   document.getElementById('syncModal').classList.remove('hidden');
-  if(!syncBlobId){
-    document.getElementById('syncCodeDisplay').textContent='Generando…';
-    setSyncStatus('Creando código…','var(--gold-deep)');
-    try{
-      const id=await blobCreate();
-      document.getElementById('syncCodeDisplay').textContent=formatBlobCode(id);
-      startSyncPoll();
-      setSyncStatus('☁ Sync activo','var(--green)');
-    }catch(e){
-      document.getElementById('syncCodeDisplay').textContent='Error al generar';
-      setSyncStatus('Error: '+e.message,'var(--red)');
-    }
-  } else {
-    document.getElementById('syncCodeDisplay').textContent=formatBlobCode(syncBlobId);
-  }
+  // Mostrar token guardado (enmascarado)
+  const patInput = document.getElementById('syncPatInput');
+  if(syncPat) patInput.placeholder = '••••••••••••••••••• (guardado)';
+  // Mostrar código si ya existe
+  if(syncGistId) document.getElementById('syncCodeDisplay').textContent = syncGistId;
 }
 document.getElementById('syncBtn').addEventListener('click', openSyncModal);
 document.getElementById('syncClose').addEventListener('click',()=>document.getElementById('syncModal').classList.add('hidden'));
-document.getElementById('syncModal').addEventListener('click',e=>{ if(e.target===document.getElementById('syncModal')) document.getElementById('syncModal').classList.add('hidden'); });
-document.getElementById('syncCopyCode').addEventListener('click',()=>{
-  const code=document.getElementById('syncCodeDisplay').textContent;
-  if(code&&!code.includes('…')&&!code.includes('Error'))
-    navigator.clipboard.writeText(parseBlobCode(code)).then(()=>showToast('Código copiado'));
+document.getElementById('syncModal').addEventListener('click',e=>{if(e.target===document.getElementById('syncModal')) document.getElementById('syncModal').classList.add('hidden');});
+
+// Guardar / quitar token
+document.getElementById('syncSaveToken').addEventListener('click',()=>{
+  const val = document.getElementById('syncPatInput').value.trim();
+  if(!val){ showToast('Ingresá el token primero'); return; }
+  syncPat = val;
+  localStorage.setItem(SYNC_PAT_KEY, syncPat);
+  document.getElementById('syncPatInput').value = '';
+  document.getElementById('syncPatInput').placeholder = '••••••••••••••••••• (guardado)';
+  showToast('Token guardado');
+  updateSyncBtn();
 });
+document.getElementById('syncClearToken').addEventListener('click',()=>{
+  syncPat = null; localStorage.removeItem(SYNC_PAT_KEY);
+  document.getElementById('syncPatInput').placeholder = 'ghp_xxxxxxxxxxxxxxxx…';
+  showToast('Token quitado'); updateSyncBtn();
+});
+
+// Generar nuevo código
+document.getElementById('syncGenCode').addEventListener('click', async()=>{
+  if(!syncPat){ setSyncStatus('Primero guardá el token de GitHub','var(--red)'); return; }
+  document.getElementById('syncCodeDisplay').textContent = 'Generando…';
+  setSyncStatus('Creando gist…','var(--gold-deep)');
+  try{
+    const id = await gistCreate();
+    document.getElementById('syncCodeDisplay').textContent = id;
+    startSyncPoll();
+    setSyncStatus('☁ Sync activo','var(--green)');
+  }catch(e){
+    document.getElementById('syncCodeDisplay').textContent = '—';
+    setSyncStatus('Error: '+e.message,'var(--red)');
+  }
+});
+
+// Copiar código
+document.getElementById('syncCopyCode').addEventListener('click',()=>{
+  const code = document.getElementById('syncCodeDisplay').textContent;
+  if(code && code !== '—' && !code.includes('…'))
+    navigator.clipboard.writeText(code).then(()=>showToast('Código copiado'));
+});
+
+// Conectar desde otro dispositivo
 document.getElementById('syncConnectBtn').addEventListener('click', async()=>{
-  const id=parseBlobCode(document.getElementById('syncCodeInput').value.trim());
-  if(id.length<10){ showToast('Código inválido'); return; }
+  const id = document.getElementById('syncCodeInput').value.trim();
+  if(id.length < 10){ showToast('Código inválido'); return; }
   setSyncStatus('Conectando…','var(--gold-deep)');
   try{
-    const file=await blobRead(id);
-    if(!file||!file.data) throw new Error('datos inválidos');
-    const def=defaultData();
-    state={stickers:{...def.stickers,...file.data.stickers},paq2000:file.data.paq2000||0,paq1900:file.data.paq1900===undefined?25:file.data.paq1900};
+    const file = await gistRead(id);
+    if(!file?.data) throw new Error('datos inválidos');
+    const def = defaultData();
+    state = {stickers:{...def.stickers,...file.data.stickers}, paq2000:file.data.paq2000||0, paq1900:file.data.paq1900===undefined?25:file.data.paq1900};
     _origSaveData_beforeSync();
     if(file.history) saveHistory(file.history);
     refreshAllStickers(); updateStats(); calcGasto(); renderChart();
-    document.getElementById('paq2000').value=state.paq2000;
-    document.getElementById('paq1900').value=state.paq1900;
-    syncBlobId=id; syncLastAt=file.savedAt||null;
-    localStorage.setItem(SYNC_BLOB_KEY,id);
-    document.getElementById('syncCodeDisplay').textContent=formatBlobCode(id);
-    document.getElementById('syncCodeInput').value='';
+    document.getElementById('paq2000').value = state.paq2000;
+    document.getElementById('paq1900').value = state.paq1900;
+    syncGistId = id; syncLastAt = file.savedAt||null;
+    localStorage.setItem(SYNC_GIST_KEY, id);
+    document.getElementById('syncCodeDisplay').textContent = id;
+    document.getElementById('syncCodeInput').value = '';
     startSyncPoll();
     setSyncStatus('☁ Conectado y sincronizado','var(--green)');
     showToast('¡Sincronizado!');
-  }catch(e){ setSyncStatus('Error: no se pudo conectar','var(--red)'); }
+  }catch(e){ setSyncStatus('Error: '+e.message,'var(--red)'); }
 });
 
 // ===== CANJE =====
