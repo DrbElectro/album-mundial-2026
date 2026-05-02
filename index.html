@@ -622,28 +622,18 @@ body::after{
     <div class="modal-body">
 
       <div class="canje-step">
-        <h3><span class="step-num">🔑</span> Token de GitHub <span style="font-weight:400;font-size:10px;color:var(--ink-soft)">(una vez por dispositivo)</span></h3>
-        <input type="password" class="canje-input" id="syncPatInput" placeholder="ghp_xxxxxxxxxxxxxxxx…" autocomplete="off">
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
-          <button class="btn" id="syncSaveToken">💾 Guardar token</button>
-          <button class="btn ghost" id="syncClearToken">Quitar</button>
-        </div>
-        <div class="canje-hint">Necesitás un token con scope <strong>gist</strong>. &nbsp;<a href="https://github.com/settings/tokens/new?scopes=gist&description=Album+Mundial+Sync" target="_blank" style="color:var(--teal);font-weight:700">Crear token en GitHub →</a></div>
-      </div>
-
-      <div class="canje-step">
-        <h3><span class="step-num">1</span> Tu código de sync</h3>
-        <div class="canje-code-box" id="syncCodeDisplay">—</div>
+        <h3><span class="step-num">1</span> Tu código de sala</h3>
+        <div class="canje-code-box" id="syncCodeDisplay" style="letter-spacing:.25em;font-size:1.6rem">—</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
           <button class="btn" id="syncCopyCode">📋 Copiar código</button>
-          <button class="btn ghost" id="syncGenCode">⊕ Generar nuevo</button>
+          <button class="btn ghost" id="syncGenCode">⊕ Nuevo código</button>
         </div>
-        <div class="canje-hint">Compartí este código con tus otros dispositivos.</div>
+        <div class="canje-hint">Compartí este código con tus otros dispositivos. Sin login, sin contraseña.</div>
       </div>
 
       <div class="canje-step">
-        <h3><span class="step-num">2</span> Conectar otro dispositivo</h3>
-        <input type="text" class="canje-input" id="syncCodeInput" placeholder="Pegá el código del otro dispositivo acá…">
+        <h3><span class="step-num">2</span> Unirse a una sala existente</h3>
+        <input type="text" class="canje-input" id="syncCodeInput" placeholder="Ingresá el código de otro dispositivo…" maxlength="8" style="text-transform:uppercase;letter-spacing:.15em;font-size:1.1rem">
         <button class="btn" id="syncConnectBtn">🔗 Conectar y sincronizar</button>
       </div>
 
@@ -1553,26 +1543,19 @@ saveHistory = function(h){
 };
 
 
-// ===== SYNC CODE (GitHub Gist — CORS garantizado) =====
-const SYNC_GIST_KEY = 'album_sync_gist_v1';
-const SYNC_PAT_KEY  = 'album_sync_pat_v1';
-const GH_API        = 'https://api.github.com';
-const GIST_FILE     = 'album_mundial_2026_sync.json';
+// ===== SYNC CODE (Firebase Realtime Database — sin login) =====
+const FIREBASE_DB   = 'https://album-mundial-2026-e3e63-default-rtdb.firebaseio.com';
+const SYNC_ROOM_KEY = 'album_sync_room_v2';
 
-let syncGistId = localStorage.getItem(SYNC_GIST_KEY) || null;
-let syncPat    = localStorage.getItem(SYNC_PAT_KEY)  || null;
-let syncLastAt = null;
+let syncRoom       = localStorage.getItem(SYNC_ROOM_KEY) || null;
+let syncLastAt     = null;
 let syncWriteTimer = null;
 let syncPollTimer  = null;
 
-function syncPayload(){
-  return {version:1, savedAt:new Date().toISOString(), data:state, history:loadHistory()};
-}
-function ghHeaders(auth=true){
-  const h={'Accept':'application/vnd.github+json','Content-Type':'application/json'};
-  if(auth && syncPat) h['Authorization']='Bearer '+syncPat;
-  return h;
-}
+function genRoomCode(){ return Math.random().toString(36).slice(2,8).toUpperCase(); }
+function roomUrl(r){ return FIREBASE_DB+'/rooms/'+r+'.json'; }
+function syncPayload(){ return {version:1, savedAt:new Date().toISOString(), data:state, history:loadHistory()}; }
+
 function setSyncStatus(txt, color){
   ['sync-status-bar','syncStatusArea'].forEach(id=>{
     const el=document.getElementById(id);
@@ -1582,39 +1565,16 @@ function setSyncStatus(txt, color){
 function updateSyncBtn(){
   const btn=document.getElementById('syncBtn');
   if(!btn) return;
-  if(syncGistId && syncPat){ btn.textContent='☁ Sync activo'; btn.style.background='var(--green)'; btn.style.borderColor='var(--green)'; }
-  else                      { btn.textContent='☁ Sync';        btn.style.background='var(--teal)';  btn.style.borderColor='var(--teal)';  }
+  if(syncRoom){ btn.textContent='☁ Sync activo'; btn.style.background='var(--green)'; btn.style.borderColor='var(--green)'; }
+  else        { btn.textContent='☁ Sync';        btn.style.background='var(--teal)';  btn.style.borderColor='var(--teal)';  }
 }
 
-async function gistCreate(){
-  if(!syncPat) throw new Error('Falta el token de GitHub');
-  const resp = await fetch(GH_API+'/gists',{
-    method:'POST', headers:ghHeaders(),
-    body:JSON.stringify({description:'Album Mundial 2026 · Sync', public:true,
-      files:{[GIST_FILE]:{content:JSON.stringify(syncPayload(),null,2)}}})
-  });
-  if(!resp.ok) throw new Error('HTTP '+resp.status+' — ¿el token tiene scope gist?');
-  const data = await resp.json();
-  syncGistId = data.id;
-  localStorage.setItem(SYNC_GIST_KEY, syncGistId);
-  syncLastAt = new Date().toISOString();
-  return syncGistId;
-}
-async function gistRead(id){
-  const resp = await fetch(GH_API+'/gists/'+id, {headers:ghHeaders(false)});
-  if(!resp.ok) throw new Error('read '+resp.status);
-  const data = await resp.json();
-  const content = data.files?.[GIST_FILE]?.content;
-  if(!content) throw new Error('sin datos');
-  return JSON.parse(content);
-}
-async function gistWrite(){
-  if(!syncGistId || !syncPat) return;
+async function fbWrite(){
+  if(!syncRoom || FIREBASE_DB==='FIREBASE_URL_PLACEHOLDER') return;
   try{
     const p = syncPayload();
-    const resp = await fetch(GH_API+'/gists/'+syncGistId,{
-      method:'PATCH', headers:ghHeaders(),
-      body:JSON.stringify({files:{[GIST_FILE]:{content:JSON.stringify(p,null,2)}}})
+    const resp = await fetch(roomUrl(syncRoom),{
+      method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(p)
     });
     if(!resp.ok) throw new Error('write '+resp.status);
     syncLastAt = p.savedAt;
@@ -1622,115 +1582,100 @@ async function gistWrite(){
   }catch(e){ setSyncStatus('Error al guardar','var(--red)'); }
 }
 function scheduleWrite(){
-  if(!syncGistId || !syncPat) return;
+  if(!syncRoom) return;
   clearTimeout(syncWriteTimer);
-  syncWriteTimer = setTimeout(gistWrite, 3000);
+  syncWriteTimer = setTimeout(()=>{ fbWrite(); syncWriteTimer=null; }, 3000);
 }
-async function pollGist(){
-  if(!syncGistId || syncWriteTimer) return;
+async function fbRead(room){
+  if(FIREBASE_DB==='FIREBASE_URL_PLACEHOLDER') throw new Error('Firebase no configurado');
+  const resp = await fetch(roomUrl(room));
+  if(!resp.ok) throw new Error('read '+resp.status);
+  const data = await resp.json();
+  if(!data) throw new Error('sala vacía');
+  return data;
+}
+function applyRemoteState(file){
+  const def = defaultData();
+  state = {stickers:{...def.stickers,...file.data.stickers}, paq2000:file.data.paq2000||0, paq1900:file.data.paq1900===undefined?25:file.data.paq1900};
+  _origSaveData_beforeSync();
+  if(file.history) saveHistory(file.history);
+  refreshAllStickers(); updateStats(); calcGasto(); renderChart();
+  document.getElementById('paq2000').value = state.paq2000;
+  document.getElementById('paq1900').value = state.paq1900;
+  syncLastAt = file.savedAt;
+  setSyncStatus('↓ Actualizado · '+new Date().toLocaleString('es-AR',{timeStyle:'short'}),'var(--teal)');
+}
+async function pollFb(){
+  if(!syncRoom || syncWriteTimer) return;
   try{
-    const file = await gistRead(syncGistId);
+    const file = await fbRead(syncRoom);
     if(!file?.savedAt || !file?.data || file.savedAt===syncLastAt) return;
-    const def = defaultData();
-    state = {stickers:{...def.stickers,...file.data.stickers}, paq2000:file.data.paq2000||0, paq1900:file.data.paq1900===undefined?25:file.data.paq1900};
-    _origSaveData_beforeSync();
-    if(file.history) saveHistory(file.history);
-    refreshAllStickers(); updateStats(); calcGasto(); renderChart();
-    document.getElementById('paq2000').value = state.paq2000;
-    document.getElementById('paq1900').value = state.paq1900;
-    syncLastAt = file.savedAt;
-    setSyncStatus('↓ Actualizado desde otro dispositivo · '+new Date().toLocaleString('es-AR',{timeStyle:'short'}),'var(--teal)');
+    applyRemoteState(file);
   }catch(e){}
 }
 function startSyncPoll(){
   if(syncPollTimer) clearInterval(syncPollTimer);
-  syncPollTimer = setInterval(pollGist, 10000);
+  syncPollTimer = setInterval(pollFb, 10000);
   updateSyncBtn();
 }
 
 const _origSaveData_beforeSync = saveData;
 saveData = function(){ _origSaveData_beforeSync(); scheduleWrite(); };
 
-// Auto-iniciar si ya hay credenciales guardadas
-if(syncGistId && syncPat){
-  gistRead(syncGistId).then(file=>{
+// Auto-iniciar si ya hay sala guardada
+if(syncRoom && FIREBASE_DB!=='FIREBASE_URL_PLACEHOLDER'){
+  fbRead(syncRoom).then(file=>{
     if(file?.savedAt) syncLastAt = file.savedAt;
     setSyncStatus('☁ Sync activo','var(--green)');
     startSyncPoll();
-  }).catch(()=>setSyncStatus('No se pudo conectar al sync','var(--red)'));
+  }).catch(()=>{ setSyncStatus('',''); });
 }
 updateSyncBtn();
 
 // ---- Modal ----
 function openSyncModal(){
   document.getElementById('syncModal').classList.remove('hidden');
-  // Mostrar token guardado (enmascarado)
-  const patInput = document.getElementById('syncPatInput');
-  if(syncPat) patInput.placeholder = '••••••••••••••••••• (guardado)';
-  // Mostrar código si ya existe
-  if(syncGistId) document.getElementById('syncCodeDisplay').textContent = syncGistId;
+  const disp = document.getElementById('syncCodeDisplay');
+  if(!syncRoom){
+    // Auto-generar código la primera vez que abre el modal
+    syncRoom = genRoomCode();
+    localStorage.setItem(SYNC_ROOM_KEY, syncRoom);
+    fbWrite().then(startSyncPoll);
+  }
+  disp.textContent = syncRoom;
 }
 document.getElementById('syncBtn').addEventListener('click', openSyncModal);
 document.getElementById('syncClose').addEventListener('click',()=>document.getElementById('syncModal').classList.add('hidden'));
 document.getElementById('syncModal').addEventListener('click',e=>{if(e.target===document.getElementById('syncModal')) document.getElementById('syncModal').classList.add('hidden');});
 
-// Guardar / quitar token
-document.getElementById('syncSaveToken').addEventListener('click',()=>{
-  const val = document.getElementById('syncPatInput').value.trim();
-  if(!val){ showToast('Ingresá el token primero'); return; }
-  syncPat = val;
-  localStorage.setItem(SYNC_PAT_KEY, syncPat);
-  document.getElementById('syncPatInput').value = '';
-  document.getElementById('syncPatInput').placeholder = '••••••••••••••••••• (guardado)';
-  showToast('Token guardado');
-  updateSyncBtn();
-});
-document.getElementById('syncClearToken').addEventListener('click',()=>{
-  syncPat = null; localStorage.removeItem(SYNC_PAT_KEY);
-  document.getElementById('syncPatInput').placeholder = 'ghp_xxxxxxxxxxxxxxxx…';
-  showToast('Token quitado'); updateSyncBtn();
-});
-
 // Generar nuevo código
 document.getElementById('syncGenCode').addEventListener('click', async()=>{
-  if(!syncPat){ setSyncStatus('Primero guardá el token de GitHub','var(--red)'); return; }
-  document.getElementById('syncCodeDisplay').textContent = 'Generando…';
-  setSyncStatus('Creando gist…','var(--gold-deep)');
-  try{
-    const id = await gistCreate();
-    document.getElementById('syncCodeDisplay').textContent = id;
-    startSyncPoll();
-    setSyncStatus('☁ Sync activo','var(--green)');
-  }catch(e){
-    document.getElementById('syncCodeDisplay').textContent = '—';
-    setSyncStatus('Error: '+e.message,'var(--red)');
-  }
+  syncRoom = genRoomCode();
+  localStorage.setItem(SYNC_ROOM_KEY, syncRoom);
+  document.getElementById('syncCodeDisplay').textContent = syncRoom;
+  setSyncStatus('Sala creada','var(--green)');
+  await fbWrite();
+  startSyncPoll();
 });
 
 // Copiar código
 document.getElementById('syncCopyCode').addEventListener('click',()=>{
   const code = document.getElementById('syncCodeDisplay').textContent;
-  if(code && code !== '—' && !code.includes('…'))
+  if(code && code !== '—')
     navigator.clipboard.writeText(code).then(()=>showToast('Código copiado'));
 });
 
 // Conectar desde otro dispositivo
 document.getElementById('syncConnectBtn').addEventListener('click', async()=>{
-  const id = document.getElementById('syncCodeInput').value.trim();
-  if(id.length < 10){ showToast('Código inválido'); return; }
+  const id = document.getElementById('syncCodeInput').value.trim().toUpperCase();
+  if(id.length < 4){ showToast('Código inválido'); return; }
   setSyncStatus('Conectando…','var(--gold-deep)');
   try{
-    const file = await gistRead(id);
+    const file = await fbRead(id);
     if(!file?.data) throw new Error('datos inválidos');
-    const def = defaultData();
-    state = {stickers:{...def.stickers,...file.data.stickers}, paq2000:file.data.paq2000||0, paq1900:file.data.paq1900===undefined?25:file.data.paq1900};
-    _origSaveData_beforeSync();
-    if(file.history) saveHistory(file.history);
-    refreshAllStickers(); updateStats(); calcGasto(); renderChart();
-    document.getElementById('paq2000').value = state.paq2000;
-    document.getElementById('paq1900').value = state.paq1900;
-    syncGistId = id; syncLastAt = file.savedAt||null;
-    localStorage.setItem(SYNC_GIST_KEY, id);
+    syncRoom = id;
+    localStorage.setItem(SYNC_ROOM_KEY, id);
+    applyRemoteState(file);
     document.getElementById('syncCodeDisplay').textContent = id;
     document.getElementById('syncCodeInput').value = '';
     startSyncPoll();
