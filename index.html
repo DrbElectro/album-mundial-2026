@@ -111,7 +111,7 @@ body::after{
 
 /* ===== Stats strip ===== */
 .stats{
-  display:grid;grid-template-columns:repeat(5,1fr);gap:0;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:0;
   border-bottom:1px solid var(--ink);
   margin-bottom:28px;
 }
@@ -518,7 +518,6 @@ body::after{
     <div class="stat green"><div class="lbl">Pegadas</div><div class="val" id="s-owned">0</div><div class="delta">en su lugar</div></div>
     <div class="stat amber"><div class="lbl">Repetidas</div><div class="val" id="s-rep">0</div><div class="delta">para cambiar</div></div>
     <div class="stat red"><div class="lbl">Faltan</div><div class="val" id="s-miss">995</div><div class="delta">por conseguir</div></div>
-    <div class="stat blue"><div class="lbl">Completado</div><div class="val" id="s-pct">0%</div><div class="delta" id="s-pct-delta">empezamos</div></div>
   </div>
 
   <!-- ===== Layout ===== -->
@@ -836,16 +835,8 @@ function updateStats(){
   document.getElementById('s-owned').textContent = s.owned;
   document.getElementById('s-rep').textContent = s.rep;
   document.getElementById('s-miss').textContent = s.miss;
-  document.getElementById('s-pct').textContent = s.pct+'%';
   document.getElementById('big-pct').textContent = s.pct;
   document.getElementById('big-frac').textContent = s.owned+' / '+s.total;
-  const delta = document.getElementById('s-pct-delta');
-  if(s.pct===0) delta.textContent="empezamos";
-  else if(s.pct<25) delta.textContent="recién arranca";
-  else if(s.pct<50) delta.textContent="vamos bien";
-  else if(s.pct<75) delta.textContent="ya pasamos la mitad";
-  else if(s.pct<100) delta.textContent="cerca del final";
-  else delta.textContent="¡COMPLETO! 🏆";
 }
 
 // ===== GASTO =====
