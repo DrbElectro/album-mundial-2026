@@ -1815,11 +1815,27 @@ document.getElementById('canjeCopyLink').addEventListener('click',()=>{
   navigator.clipboard.writeText(url).then(()=>showToast('Link copiado'));
 });
 document.getElementById('canjeShareMyCode').addEventListener('click',()=>{
-  const code = encodeCanjeState();
+  const dar     = document.getElementById('canjeDar');
+  const recibir = document.getElementById('canjeRecibir');
+  let txt = '🔄 *Intercambio de figuritas · Mundial 2026*\n\n';
+  const seccionesToTxt = (el, titulo) => {
+    const paises = el.querySelectorAll('.canje-country');
+    if(!paises.length) return '';
+    let s = titulo+'\n';
+    paises.forEach(p=>{
+      const nombre = p.querySelector('.canje-country-name')?.textContent||'';
+      const chips  = [...p.querySelectorAll('.canje-chip')].map(c=>c.textContent).join(', ');
+      s += `• ${nombre}: ${chips}\n`;
+    });
+    return s+'\n';
+  };
+  txt += seccionesToTxt(dar,     '📤 *Yo te doy:*');
+  txt += seccionesToTxt(recibir, '📥 *Yo necesito:*');
+  txt += document.getElementById('canjeSummary')?.textContent||'';
   if(navigator.share){
-    navigator.share({title:'Mi código de canje · Mundial 2026', text:'Pegá este código en el álbum para ver qué podemos cambiar:\n\n'+code});
+    navigator.share({title:'Intercambio · Mundial 2026', text:txt});
   } else {
-    navigator.clipboard.writeText(code).then(()=>showToast('Código copiado'));
+    navigator.clipboard.writeText(txt).then(()=>showToast('Copiado'));
   }
 });
 document.getElementById('canjeCompareBtn').addEventListener('click',()=>{
