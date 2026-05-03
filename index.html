@@ -681,6 +681,9 @@ body::after{
             </div>
           </div>
           <div class="canje-summary" id="canjeSummary"></div>
+          <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn" id="canjeShareMyCode">📋 Compartir mi código con el amigo</button>
+          </div>
         </div>
       </div>
 
@@ -1810,6 +1813,14 @@ document.getElementById('canjeCopyCode').addEventListener('click',()=>{
 document.getElementById('canjeCopyLink').addEventListener('click',()=>{
   const url = location.href.split('#')[0]+'#canje='+encodeURIComponent(encodeCanjeState());
   navigator.clipboard.writeText(url).then(()=>showToast('Link copiado'));
+});
+document.getElementById('canjeShareMyCode').addEventListener('click',()=>{
+  const code = encodeCanjeState();
+  if(navigator.share){
+    navigator.share({title:'Mi código de canje · Mundial 2026', text:'Pegá este código en el álbum para ver qué podemos cambiar:\n\n'+code});
+  } else {
+    navigator.clipboard.writeText(code).then(()=>showToast('Código copiado'));
+  }
 });
 document.getElementById('canjeCompareBtn').addEventListener('click',()=>{
   const code = document.getElementById('canjeFriendInput').value.trim();
