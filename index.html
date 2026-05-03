@@ -682,7 +682,7 @@ body::after{
           </div>
           <div class="canje-summary" id="canjeSummary"></div>
           <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn" id="canjeShareMyCode">📋 Compartir mi código con el amigo</button>
+            <button class="btn" id="canjeShareMyCode">📋 Copiar intercambio</button>
           </div>
         </div>
       </div>
@@ -1832,11 +1832,7 @@ document.getElementById('canjeShareMyCode').addEventListener('click',()=>{
   txt += seccionesToTxt(dar,     '📤 *Yo te doy:*');
   txt += seccionesToTxt(recibir, '📥 *Yo necesito:*');
   txt += document.getElementById('canjeSummary')?.textContent||'';
-  if(navigator.share){
-    navigator.share({title:'Intercambio · Mundial 2026', text:txt});
-  } else {
-    navigator.clipboard.writeText(txt).then(()=>showToast('Copiado'));
-  }
+  navigator.clipboard.writeText(txt).then(()=>showToast('¡Copiado! Pegalo donde quieras'));
 });
 document.getElementById('canjeCompareBtn').addEventListener('click',()=>{
   const code = document.getElementById('canjeFriendInput').value.trim();
