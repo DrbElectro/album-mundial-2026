@@ -1847,7 +1847,7 @@ function renderConfirmList(){
       const row = document.createElement('div');
       row.className = 'confirm-row';
       const on = sel.has(id);
-      row.innerHTML = `<span class="confirm-id">${displayId(id)}</span><span class="confirm-sec">${sec.name}</span><button class="confirm-toggle ${on?'on':'off'}">${on?'✓ incluir':'✗ no'}</button>`;
+      row.innerHTML = `<button class="confirm-toggle ${on?'on':'off'}">${on?'✓ incluir':'✗ no'}</button><span class="confirm-id">${displayId(id)}</span><span class="confirm-sec">${sec.name}</span>`;
       row.querySelector('.confirm-toggle').addEventListener('click', e=>{
         const btn = e.currentTarget;
         if(sel.has(id)){ sel.delete(id); btn.className='confirm-toggle off'; btn.textContent='✗ no'; }
