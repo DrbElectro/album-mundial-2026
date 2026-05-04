@@ -184,6 +184,13 @@ body::after{
 .lote-row .lote-sep{font-size:11px;color:var(--ink-soft);white-space:nowrap}
 .lote-row .lote-del{border:none;background:none;color:var(--ink-soft);cursor:pointer;font-size:14px;padding:0 2px;line-height:1;flex-shrink:0}
 .lote-row .lote-del:hover{color:var(--red)}
+.confirm-section-title{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin:14px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--rule)}
+.confirm-row{display:flex;align-items:center;gap:8px;padding:5px 2px;border-bottom:1px solid rgba(0,0,0,.06)}
+.confirm-row .confirm-id{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;min-width:56px;color:var(--ink)}
+.confirm-row .confirm-sec{font-size:12px;color:var(--ink-soft);flex:1}
+.confirm-toggle{border:none;cursor:pointer;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;letter-spacing:.05em;transition:background .15s}
+.confirm-toggle.on{background:var(--green);color:#fff}
+.confirm-toggle.off{background:var(--paper-3);color:var(--ink-soft)}
 
 /* progress chart */
 .chart-wrap{position:relative;height:140px;margin-top:6px}
@@ -682,11 +689,30 @@ body::after{
           </div>
           <div class="canje-summary" id="canjeSummary"></div>
           <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn" id="canjeShareMyCode">📋 Copiar intercambio</button>
+            <button class="btn" id="canjeConfirmBtn">✓ Confirmar intercambio</button>
+            <button class="btn ghost" id="canjeShareMyCode">📋 Copiar</button>
           </div>
         </div>
       </div>
 
+    </div>
+  </div>
+</div>
+
+<!-- ===== Confirmar canje modal ===== -->
+<div class="modal-overlay hidden" id="canjeConfirmModal">
+  <div class="modal">
+    <div class="modal-head">
+      <span>✓ Confirmá el intercambio</span>
+      <button class="modal-close" id="canjeConfirmClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="canjeConfirmList" style="max-height:55vh;overflow-y:auto;padding-right:4px"></div>
+      <div id="canjeConfirmSummary" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-soft);margin-top:14px;letter-spacing:.06em"></div>
+      <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+        <button class="btn" id="canjeConfirmOk">✓ Confirmar</button>
+        <button class="btn ghost" id="canjeConfirmCancel">Cancelar</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1774,16 +1800,88 @@ function renderCanjeList(container, list){
   });
   return total;
 }
+let lastCanjeData = {dar:[], recibir:[]};
+
 function runCanje(code){
   const friendS = decodeCanjeState(code);
   if(!friendS){ showToast('Código inválido'); return; }
-  const {dar, recibir} = computeCanje(state.stickers, friendS);
+  lastCanjeData = computeCanje(state.stickers, friendS);
+  const {dar, recibir} = lastCanjeData;
   const nDar     = renderCanjeList(document.getElementById('canjeDar'), dar);
   const nRecibir = renderCanjeList(document.getElementById('canjeRecibir'), recibir);
   document.getElementById('canjeSummary').innerHTML =
     `Podés dar <strong>${nDar}</strong> figurita${nDar!==1?'s':''} · Podés recibir <strong>${nRecibir}</strong> figurita${nRecibir!==1?'s':''}`;
   document.getElementById('canjeResults').style.display='';
 }
+
+// ---- Modal confirmar canje ----
+let confirmDarSel = new Set();
+let confirmRecibirSel = new Set();
+let confirmDarIds = [];
+let confirmRecibirIds = [];
+
+function openCanjeConfirm(){
+  const {dar, recibir} = lastCanjeData;
+  confirmDarIds     = dar.flatMap(({sec,ids})=>ids.map(id=>({id,sec})));
+  confirmRecibirIds = recibir.flatMap(({sec,ids})=>ids.map(id=>({id,sec})));
+  confirmDarSel     = new Set(confirmDarIds.map(x=>x.id));
+  confirmRecibirSel = new Set(confirmRecibirIds.map(x=>x.id));
+  renderConfirmList();
+  document.getElementById('canjeConfirmModal').classList.remove('hidden');
+}
+
+function renderConfirmList(){
+  const c = document.getElementById('canjeConfirmList');
+  c.innerHTML = '';
+  const makeSection = (title, items, sel) => {
+    if(!items.length) return;
+    const h = document.createElement('div');
+    h.className = 'confirm-section-title'; h.textContent = title;
+    c.appendChild(h);
+    items.forEach(({id, sec})=>{
+      const row = document.createElement('div');
+      row.className = 'confirm-row';
+      const on = sel.has(id);
+      row.innerHTML = `<span class="confirm-id">${displayId(id)}</span><span class="confirm-sec">${sec.name}</span><button class="confirm-toggle ${on?'on':'off'}">${on?'✓ incluir':'✗ no'}</button>`;
+      row.querySelector('.confirm-toggle').addEventListener('click', e=>{
+        const btn = e.currentTarget;
+        if(sel.has(id)){ sel.delete(id); btn.className='confirm-toggle off'; btn.textContent='✗ no'; }
+        else            { sel.add(id);    btn.className='confirm-toggle on';  btn.textContent='✓ incluir'; }
+        updateConfirmSummary();
+      });
+      c.appendChild(row);
+    });
+  };
+  makeSection('📤 Vos das', confirmDarIds, confirmDarSel);
+  makeSection('📥 Vos pegás', confirmRecibirIds, confirmRecibirSel);
+  updateConfirmSummary();
+}
+
+function updateConfirmSummary(){
+  const d = confirmDarSel.size, r = confirmRecibirSel.size;
+  document.getElementById('canjeConfirmSummary').textContent =
+    `Das ${d} figurita${d!==1?'s':''} · Recibís ${r} figurita${r!==1?'s':''}`;
+  document.getElementById('canjeConfirmOk').textContent = `✓ Confirmar (${d+r} en total)`;
+}
+
+function applyCanjeConfirm(){
+  confirmDarIds.forEach(({id})=>{
+    if(confirmDarSel.has(id)) state.stickers[id] = Math.max(0,(state.stickers[id]||0)-1);
+  });
+  confirmRecibirIds.forEach(({id})=>{
+    if(confirmRecibirSel.has(id)) state.stickers[id] = 1;
+  });
+  saveData(); refreshAllStickers(); updateStats(); calcGasto(); renderChart(); recordHistory();
+  document.getElementById('canjeConfirmModal').classList.add('hidden');
+  document.getElementById('canjeModal').classList.add('hidden');
+  showToast('¡Intercambio aplicado!');
+}
+
+document.getElementById('canjeConfirmBtn').addEventListener('click', openCanjeConfirm);
+document.getElementById('canjeConfirmClose').addEventListener('click',()=>document.getElementById('canjeConfirmModal').classList.add('hidden'));
+document.getElementById('canjeConfirmCancel').addEventListener('click',()=>document.getElementById('canjeConfirmModal').classList.add('hidden'));
+document.getElementById('canjeConfirmOk').addEventListener('click', applyCanjeConfirm);
+document.getElementById('canjeConfirmModal').addEventListener('click',e=>{if(e.target===document.getElementById('canjeConfirmModal')) document.getElementById('canjeConfirmModal').classList.add('hidden');});
 function openCanje(){
   document.getElementById('canjeMyCode').textContent = encodeCanjeState();
   document.getElementById('canjeResults').style.display='none';
