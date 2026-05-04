@@ -191,6 +191,11 @@ body::after{
 .confirm-toggle{border:none;cursor:pointer;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;letter-spacing:.04em;transition:background .15s;white-space:nowrap;min-width:80px;text-align:center}
 .confirm-toggle.on{background:var(--green);color:#fff}
 .confirm-toggle.off{background:var(--paper-3);color:var(--ink-soft)}
+/* canje rápido */
+body.canje-rapido .sticker.repeated{box-shadow:0 0 0 3px var(--gold);cursor:pointer}
+body.canje-rapido .sticker:not(.owned):not(.repeated){box-shadow:0 0 0 3px var(--teal);cursor:pointer}
+body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
+#canjeRapidoBanner{display:none}
 @media(max-width:600px){
   #canjeConfirmModal .modal{width:100%;max-width:100%;min-height:100dvh;border-radius:0;margin:0;display:flex;flex-direction:column}
   #canjeConfirmModal .modal-body{flex:1;display:flex;flex-direction:column;padding:12px 16px}
@@ -573,6 +578,7 @@ body::after{
         <button class="btn ghost" id="autosaveBtn" title="Vincular un archivo .json para guardar automáticamente">💾 Auto-Guardado</button>
         <button class="btn ghost" id="importTxtBtn" title="Importar una lista .txt exportada (modificada)">📥 Importar Lista</button>
         <input type="file" id="importTxtInput" accept=".txt" style="display:none">
+        <button class="btn" id="canjeRapidoBtn" style="background:var(--gold-deep);border-color:var(--gold-deep)">⚡ Canje rápido</button>
         <button class="btn" id="syncBtn" style="background:var(--teal);border-color:var(--teal)">☁ Sync</button>
         <button class="btn" id="canjeBtn" style="background:var(--teal);border-color:var(--teal)">🔄 Canje</button>
       </div>
@@ -702,6 +708,14 @@ body::after{
 
     </div>
   </div>
+</div>
+
+<!-- ===== Banner canje rápido ===== -->
+<div id="canjeRapidoBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:var(--gold-deep);color:#fff;padding:12px 16px;display:none;align-items:center;gap:10px;flex-wrap:wrap">
+  <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;flex:1">
+    ⚡ CANJE RÁPIDO · <span style="opacity:.8">Repetidas = tap para dar · Faltan = tap para recibir</span>
+  </span>
+  <button id="canjeRapidoSalir" style="border:2px solid #fff;background:transparent;color:#fff;border-radius:6px;padding:5px 14px;font-weight:700;font-size:12px;cursor:pointer">Salir</button>
 </div>
 
 <!-- ===== Confirmar canje modal ===== -->
@@ -993,7 +1007,7 @@ function buildSectionDOM(sec){
     s.className='sticker';
     s.dataset.id=id;
     s.innerHTML = `<span class="num">${displayId(id)}</span>`;
-    s.addEventListener('click', ()=>incSticker(id, s, sec));
+    s.addEventListener('click', ()=>canjeRapidoActive ? canjeRapidoTap(id,s) : incSticker(id,s,sec));
     s.addEventListener('contextmenu', e=>{e.preventDefault();decSticker(id,s,sec);});
     let _lpt;
     s.addEventListener('touchstart', e=>{ _lpt=setTimeout(()=>{ e.preventDefault(); decSticker(id,s,sec); }, 500); }, {passive:false});
@@ -1705,6 +1719,42 @@ function openSyncModal(){
   }
   disp.textContent = syncRoom;
 }
+// ===== CANJE RÁPIDO =====
+let canjeRapidoActive = false;
+
+function canjeRapidoTap(id, el){
+  const v = state.stickers[id]||0;
+  if(v >= 2){
+    // dar: bajar 1
+    state.stickers[id] = v - 1;
+    saveData(); paintSticker(el, state.stickers[id]);
+    updateStats(); calcGasto();
+    showToast('−1 · '+displayId(id));
+  } else if(v === 0){
+    // recibir: marcar como pegada
+    state.stickers[id] = 1;
+    saveData(); paintSticker(el, 1);
+    updateStats(); calcGasto();
+    showToast('+1 · '+displayId(id));
+  }
+  const sec = SECTIONS.find(s=>getIds(s).includes(id));
+  if(sec){ const wrap=document.querySelector(`.section[data-id="${sec.id}"]`); if(wrap) paintSection(sec,wrap); }
+  recordHistory(); renderChart();
+}
+
+function setCanjeRapido(on){
+  canjeRapidoActive = on;
+  document.body.classList.toggle('canje-rapido', on);
+  document.getElementById('canjeRapidoBanner').style.display = on ? 'flex' : 'none';
+  const btn = document.getElementById('canjeRapidoBtn');
+  btn.style.background = on ? 'var(--red)' : 'var(--gold-deep)';
+  btn.style.borderColor = on ? 'var(--red)' : 'var(--gold-deep)';
+  btn.textContent = on ? '✕ Salir del canje' : '⚡ Canje rápido';
+}
+
+document.getElementById('canjeRapidoBtn').addEventListener('click', ()=>setCanjeRapido(!canjeRapidoActive));
+document.getElementById('canjeRapidoSalir').addEventListener('click', ()=>setCanjeRapido(false));
+
 document.getElementById('syncBtn').addEventListener('click', openSyncModal);
 document.getElementById('syncClose').addEventListener('click',()=>document.getElementById('syncModal').classList.add('hidden'));
 document.getElementById('syncModal').addEventListener('click',e=>{if(e.target===document.getElementById('syncModal')) document.getElementById('syncModal').classList.add('hidden');});
