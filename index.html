@@ -574,7 +574,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
           <option value="completion">Por completado %</option>
           <option value="alpha">A → Z</option>
         </select>
-        <button class="btn ghost" id="lockBtn" title="Bloquear toques accidentales">🔓 Bloqueado</button>
+        <button class="btn ghost" id="lockBtn" title="Bloquear toques accidentales">🔓 Bloquear</button>
         <button class="btn" id="exportTxtBtn" title="Exportar faltantes y repetidas (texto)">📝 Exportar Lista</button>
         <button class="btn ghost" id="autosaveBtn" title="Vincular un archivo .json para guardar automáticamente">💾 Auto-Guardado</button>
         <button class="btn ghost" id="importTxtBtn" title="Importar una lista .txt exportada (modificada)">📥 Importar Lista</button>
@@ -1731,7 +1731,7 @@ let locked = false;
 const lockBtn = document.getElementById('lockBtn');
 lockBtn.addEventListener('click', ()=>{
   locked = !locked;
-  lockBtn.textContent = locked ? '🔒 Bloqueado' : '🔓 Bloqueado';
+  lockBtn.textContent = locked ? '🔒 Bloqueado' : '🔓 Bloquear';
   lockBtn.style.background    = locked ? 'var(--red)' : '';
   lockBtn.style.borderColor   = locked ? 'var(--red)' : '';
   lockBtn.style.color         = locked ? '#fff'        : '';
