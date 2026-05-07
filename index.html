@@ -996,6 +996,7 @@ function buildSectionDOM(sec){
     <div class="sec-meta">
       <span class="pct" data-role="pct">0%</span>
       <span data-role="frac">0/${ids.length}</span>
+      <span data-role="rep" style="display:none;font-family:'JetBrains Mono',monospace;font-size:10px;background:var(--gold);color:#fff;border-radius:4px;padding:1px 6px;font-weight:700"></span>
       <div class="sec-bar"><div class="sec-bar-fill" data-role="bar"></div></div>
     </div>
   `;
@@ -1042,10 +1043,14 @@ function paintSticker(el, v){
 function paintSection(sec, wrap){
   const ids = getIds(sec);
   const owned = ids.filter(id=>(state.stickers[id]||0)>=1).length;
+  const reps  = ids.reduce((s,id)=>s+Math.max(0,(state.stickers[id]||0)-1),0);
   const pct = Math.round(owned/ids.length*100);
   wrap.querySelector('[data-role=pct]').textContent = pct+'%';
   wrap.querySelector('[data-role=pct]').classList.toggle('done', pct===100);
   wrap.querySelector('[data-role=frac]').textContent = owned+'/'+ids.length;
+  const repEl = wrap.querySelector('[data-role=rep]');
+  if(reps>0){ repEl.textContent = '+'+reps+' rep'; repEl.style.display='inline'; }
+  else       { repEl.style.display='none'; }
   const bar = wrap.querySelector('[data-role=bar]');
   bar.style.width = pct+'%';
   bar.classList.toggle('partial', pct>0 && pct<100);
