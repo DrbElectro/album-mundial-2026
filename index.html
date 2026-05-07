@@ -220,7 +220,10 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
   display:flex;flex-direction:column;gap:8px;
   padding:14px 0;border-bottom:1px solid var(--rule);margin-bottom:24px;
 }
-.ctrl-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.ctrl-row{display:flex;gap:8px;align-items:center;width:100%;}
+.ctrl-row input[type=text]{flex:1;min-width:0;}
+.ctrl-row select{flex:1;min-width:0;}
+.ctrl-row .btn{flex:1;min-width:0;text-align:center;}
 .controls input[type=text],.controls select{
   padding:8px 12px;border:1px solid var(--ink);background:var(--paper);
   font-family:'Archivo',sans-serif;font-weight:500;font-size:13px;color:var(--ink);
