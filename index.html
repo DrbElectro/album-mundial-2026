@@ -1567,12 +1567,14 @@ function updateAutosaveUI(){
   const btn = document.getElementById('autosaveBtn');
   if(!btn) return;
   if(fileHandle){
-    btn.textContent = '✓ Auto-guardando: '+fileHandle.name;
+    btn.textContent = '✓ Auto-Guardado';
     btn.classList.remove('ghost');
+    btn.style.background='var(--ink)'; btn.style.borderColor='var(--ink)'; btn.style.color='#fff';
     btn.title = 'Click para desvincular el archivo';
   } else {
     btn.textContent = '💾 Auto-Guardado';
     btn.classList.add('ghost');
+    btn.style.background=''; btn.style.borderColor=''; btn.style.color='';
     btn.title = 'Vincular un archivo .json para guardar automáticamente';
   }
 }
