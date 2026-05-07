@@ -574,6 +574,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
           <option value="completion">Por completado %</option>
           <option value="alpha">A → Z</option>
         </select>
+        <button class="btn ghost" id="lockBtn" title="Bloquear toques accidentales">🔓 Bloqueado</button>
         <button class="btn" id="exportTxtBtn" title="Exportar faltantes y repetidas (texto)">📝 Exportar Lista</button>
         <button class="btn ghost" id="autosaveBtn" title="Vincular un archivo .json para guardar automáticamente">💾 Auto-Guardado</button>
         <button class="btn ghost" id="importTxtBtn" title="Importar una lista .txt exportada (modificada)">📥 Importar Lista</button>
@@ -1009,10 +1010,10 @@ function buildSectionDOM(sec){
     s.className='sticker';
     s.dataset.id=id;
     s.innerHTML = `<span class="num">${displayId(id)}</span>`;
-    s.addEventListener('click', ()=>canjeRapidoActive ? canjeRapidoTap(id,s) : incSticker(id,s,sec));
+    s.addEventListener('click', ()=>{ if(locked) return; canjeRapidoActive ? canjeRapidoTap(id,s) : incSticker(id,s,sec); });
     s.addEventListener('contextmenu', e=>{e.preventDefault();decSticker(id,s,sec);});
     let _lpt;
-    s.addEventListener('touchstart', e=>{ _lpt=setTimeout(()=>{ e.preventDefault(); decSticker(id,s,sec); }, 500); }, {passive:false});
+    s.addEventListener('touchstart', e=>{ if(locked) return; _lpt=setTimeout(()=>{ e.preventDefault(); decSticker(id,s,sec); }, 500); }, {passive:false});
     s.addEventListener('touchend', ()=>clearTimeout(_lpt));
     s.addEventListener('touchmove', ()=>clearTimeout(_lpt));
     grid.appendChild(s);
@@ -1725,6 +1726,19 @@ function openSyncModal(){
   }
   disp.textContent = syncRoom;
 }
+// ===== BLOQUEO =====
+let locked = false;
+const lockBtn = document.getElementById('lockBtn');
+lockBtn.addEventListener('click', ()=>{
+  locked = !locked;
+  lockBtn.textContent = locked ? '🔒 Bloqueado' : '🔓 Bloqueado';
+  lockBtn.style.background    = locked ? 'var(--red)' : '';
+  lockBtn.style.borderColor   = locked ? 'var(--red)' : '';
+  lockBtn.style.color         = locked ? '#fff'        : '';
+  document.body.classList.toggle('album-locked', locked);
+  showToast(locked ? '🔒 Álbum bloqueado' : '🔓 Desbloqueado');
+});
+
 // ===== CANJE RÁPIDO =====
 let canjeRapidoActive = false;
 
