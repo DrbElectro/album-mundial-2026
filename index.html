@@ -191,6 +191,41 @@ body::after{
 .confirm-toggle{border:none;cursor:pointer;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;letter-spacing:.04em;transition:background .15s;white-space:nowrap;min-width:80px;text-align:center}
 .confirm-toggle.on{background:var(--green);color:#fff}
 .confirm-toggle.off{background:var(--paper-3);color:var(--ink-soft)}
+/* reservadas */
+.sticker.reservada-dar{
+  background:#fff !important;
+  color:var(--ink) !important;
+  border-color:var(--rule) !important;
+}
+.sticker.reservada-recibir{
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,255,255,.6), transparent 55%),
+    linear-gradient(160deg, #8fd6f0 0%, #4db8e8 50%, #1a90c4 100%) !important;
+  color:#0a2a3d !important;
+  border-color:#1a90c4 !important;
+}
+.res-badge{position:absolute;top:-7px;right:-7px;font-size:9px;line-height:1;pointer-events:none}
+/* canjes pendientes modal */
+.canje-pendiente-card{background:var(--paper-2);border:1px solid var(--rule);border-radius:8px;padding:12px;margin-bottom:10px}
+.cp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cp-nombre{font-family:'Archivo Black',sans-serif;font-size:13px}
+.cp-fecha{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-soft);background:var(--paper-3);padding:2px 7px;border-radius:4px}
+.cp-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.cp-col-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:5px}
+.cp-chips{display:flex;flex-wrap:wrap;gap:3px}
+.cp-chip{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px}
+.cp-chip.dar{background:#fff;color:var(--ink);border:1px solid var(--rule)}
+.cp-chip.recibir{background:#4db8e8;color:#0a2a3d;border:1px solid #1a90c4}
+.cp-actions{display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid var(--rule);padding-top:8px}
+.cp-empty{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-soft);text-align:center;padding:20px 0}
+.ec-tab{flex:1;padding:7px 10px;border:2px solid var(--rule);background:var(--paper-2);border-radius:6px;font-family:'Archivo',sans-serif;font-weight:700;font-size:12px;cursor:pointer;color:var(--ink-soft)}
+.ec-tab.active{border-color:#d4650a;color:#d4650a;background:var(--paper)}
+.ec-sec-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);padding:8px 2px 4px;border-bottom:1px solid var(--rule);margin-bottom:6px}
+.ec-stickers{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.ec-sticker{width:46px;height:46px;border-radius:6px;border:2px solid var(--rule);background:var(--paper-3);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-soft);text-align:center;line-height:1.2;transition:all .1s}
+.ec-sticker.sel-dar{background:#d4650a;border-color:#d4650a;color:#fff;transform:scale(1.08)}
+.ec-sticker.sel-recibir{background:var(--teal);border-color:var(--teal);color:#fff;transform:scale(1.08)}
+.ec-empty{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-soft);padding:16px 0;text-align:center}
 /* canje rápido */
 body.canje-rapido .sticker.repeated{box-shadow:0 0 0 3px var(--gold);cursor:pointer}
 body.canje-rapido .sticker:not(.owned):not(.repeated){box-shadow:0 0 0 3px var(--teal);cursor:pointer}
@@ -246,6 +281,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 .leg-sw.miss{background:var(--paper-3)}
 .leg-sw.own{background:#a6c879}
 .leg-sw.rep{background:var(--gold)}
+.leg-sw.res{background:linear-gradient(to right,#fff 50%,#4db8e8 50%)}
 
 /* ===== Section ===== */
 .section{margin-bottom:32px;break-inside:avoid}
@@ -562,6 +598,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
         <div class="leg"><div class="leg-sw miss"></div>Falta</div>
         <div class="leg"><div class="leg-sw own"></div>Pegada</div>
         <div class="leg"><div class="leg-sw rep"></div>Repetida</div>
+        <div class="leg"><div class="leg-sw res"></div>Cambio futuro</div>
         <div class="leg" style="margin-left:auto">Click izquierdo: +1 · Click derecho: −1</div>
       </div>
 
@@ -573,6 +610,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
             <option value="missing">Faltan</option>
             <option value="owned">Pegadas</option>
             <option value="repeated">Repetidas</option>
+            <option value="reserved">Cambios futuros</option>
           </select>
           <select id="sortSel">
             <option value="default">Orden del álbum</option>
@@ -587,8 +625,9 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
           <input type="file" id="importTxtInput" accept=".txt" style="display:none">
         </div>
         <div class="ctrl-row">
-          <button class="btn" id="canjeBtn" style="background:var(--teal);border-color:var(--teal)">🔄 Canje x Código</button>
-          <button class="btn" id="canjeRapidoBtn" style="background:var(--gold-deep);border-color:var(--gold-deep)">⚡ Canje Rápido</button>
+          <button class="btn" id="canjeBtn" style="background:var(--teal);border-color:var(--teal)">🔄 Cambio x Código</button>
+          <button class="btn" id="canjeRapidoBtn" style="background:var(--gold-deep);border-color:var(--gold-deep)">⚡ Cambio Rápido</button>
+          <button class="btn" id="canjesPendientesBtn" style="background:#d4650a;border-color:#d4650a">📌 Cambios Futuros</button>
           <button class="btn" id="syncBtn" style="background:var(--teal);border-color:var(--teal)">☁ Sync</button>
           <button class="btn ghost" id="lockBtn">🔓 Bloquear</button>
         </div>
@@ -682,7 +721,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
     <div class="modal-body">
 
       <div class="canje-step">
-        <h3><span class="step-num">1</span> Tu código de canje</h3>
+        <h3><span class="step-num">1</span> Tu código de cambio</h3>
         <div class="canje-code-box" id="canjeMyCode">—</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
           <button class="btn" id="canjeCopyCode">📋 Copiar código</button>
@@ -693,7 +732,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 
       <div class="canje-step">
         <h3><span class="step-num">2</span> Código de tu amigo</h3>
-        <input type="text" class="canje-input" id="canjeFriendInput" placeholder="Pegá el código de canje de tu amigo acá…">
+        <input type="text" class="canje-input" id="canjeFriendInput" placeholder="Pegá el código de cambio de tu amigo acá…">
         <button class="btn" id="canjeCompareBtn">🔍 Ver qué podemos cambiar</button>
       </div>
 
@@ -722,10 +761,50 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
   </div>
 </div>
 
+<!-- ===== Modal Canjes Pendientes ===== -->
+<div class="modal-overlay hidden" id="canjesPendientesModal">
+  <div class="modal">
+    <div class="modal-head">
+      <span>📌 Cambios Futuros</span>
+      <button class="modal-close" id="canjesPendientesClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="canjesPendientesList"></div>
+      <button class="btn" id="nuevoCanjePendienteBtn" style="width:100%;margin-top:8px;background:#d4650a;border-color:#d4650a">+ Nuevo cambio futuro</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Modal Nuevo/Editar Canje Pendiente ===== -->
+<div class="modal-overlay hidden" id="editCanjeModal">
+  <div class="modal">
+    <div class="modal-head">
+      <span id="editCanjeTitle">+ Nuevo cambio futuro</span>
+      <button class="modal-close" id="editCanjeClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <input type="text" class="canje-input" id="ecNombre" placeholder="Nombre del amigo…" style="flex:1">
+        <input type="text" class="canje-input" id="ecFecha" placeholder="Fecha (opcional)" style="flex:1">
+      </div>
+      <!-- Tabs -->
+      <div style="display:flex;gap:4px;margin-bottom:10px">
+        <button class="ec-tab active" id="ecTabDar" data-tab="dar">📤 Doy <span id="ecDarCount">(0)</span></button>
+        <button class="ec-tab" id="ecTabRecibir" data-tab="recibir">📥 Recibo <span id="ecRecibirCount">(0)</span></button>
+      </div>
+      <div id="ecGrid" style="max-height:52vh;overflow-y:auto;padding-right:2px"></div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn" id="ecGuardar" style="background:#d4650a;border-color:#d4650a;flex:1">💾 Guardar</button>
+        <button class="btn ghost" id="ecCancelar">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ===== Banner canje rápido ===== -->
 <div id="canjeRapidoBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:var(--gold-deep);color:#fff;padding:12px 16px;display:none;align-items:center;gap:10px;flex-wrap:wrap">
   <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;flex:1">
-    ⚡ CANJE RÁPIDO · <span style="opacity:.8">Repetidas = tap para dar · Faltan = tap para recibir</span>
+    ⚡ CAMBIO RÁPIDO · <span style="opacity:.8">Repetidas = tap para dar · Faltan = tap para recibir</span>
   </span>
   <button id="canjeRapidoSalir" style="border:2px solid #fff;background:transparent;color:#fff;border-radius:6px;padding:5px 14px;font-weight:700;font-size:12px;cursor:pointer">Salir</button>
 </div>
@@ -880,7 +959,7 @@ const TOTAL = ALL_IDS.length;
 
 function defaultData(){
   const stickers={};ALL_IDS.forEach(id=>stickers[id]=0);
-  return {stickers, lotes:[{qty:25,price:1900}]};
+  return {stickers, lotes:[{qty:25,price:1900}], canjes:[], reservadas:{}};
 }
 function loadData(){
   try{
@@ -897,7 +976,7 @@ function loadData(){
       if(p1900>0) lotes.push({qty:p1900,price:1900});
       if(!lotes.length) lotes=[{qty:0,price:2000}];
     }
-    return {stickers:{...def.stickers,...d.stickers}, lotes};
+    return {stickers:{...def.stickers,...d.stickers}, lotes, canjes:d.canjes||[], reservadas:d.reservadas||{}};
   }catch(e){return defaultData()}
 }
 function saveData(){
@@ -1038,17 +1117,29 @@ function displayId(id){
 }
 
 function paintSticker(el, v){
-  el.classList.remove('owned','repeated');
-  // remove old badge
-  const oldBadge = el.querySelector('.badge');
-  if(oldBadge) oldBadge.remove();
-  if(v===1) el.classList.add('owned');
+  el.classList.remove('owned','repeated','reservada','reservada-dar','reservada-recibir');
+  el.querySelectorAll('.badge,.res-badge').forEach(b=>b.remove());
+  const id = el.dataset.id;
+  const isDarRes     = (state.canjes||[]).some(c=>(c.dar||[]).includes(id));
+  const isRecibirRes = (state.canjes||[]).some(c=>(c.recibir||[]).includes(id));
+  const isRes = isDarRes || isRecibirRes;
+  if(v===1){ el.classList.add('owned'); }
   else if(v>=2){
     el.classList.add('repeated');
     const b=document.createElement('div');
-    b.className='badge';
-    b.textContent='×'+(v-1);
+    b.className='badge'; b.textContent='×'+(v-1);
     el.appendChild(b);
+  }
+  if(isDarRes){
+    el.classList.add('reservada-dar');
+    const rb=document.createElement('div');
+    rb.className='res-badge'; rb.textContent='📌';
+    el.appendChild(rb);
+  } else if(isRecibirRes){
+    el.classList.add('reservada-recibir');
+    const rb=document.createElement('div');
+    rb.className='res-badge'; rb.textContent='📌';
+    el.appendChild(rb);
   }
 }
 function paintSection(sec, wrap){
@@ -1129,7 +1220,8 @@ function applyFilters(){
         filter==='all' ||
         (filter==='missing' && v===0) ||
         (filter==='owned' && v>=1) ||
-        (filter==='repeated' && v>=2);
+        (filter==='repeated' && v>=2) ||
+        (filter==='reserved' && (state.canjes||[]).some(c=>(c.dar||[]).includes(id)||(c.recibir||[]).includes(id)));
       const visible = (nameMatch || idMatch) && stateMatch;
       el.style.display = visible ? '' : 'none';
       if(visible) anyVisible=true;
@@ -1738,6 +1830,215 @@ function openSyncModal(){
   }
   disp.textContent = syncRoom;
 }
+// ===== CANJES PENDIENTES =====
+let editCanjeId = null; // null = nuevo, string = editar
+
+function canjesPendientesCount(){
+  return (state.canjes||[]).length;
+}
+function updateCanjesPendientesBtn(){
+  const btn = document.getElementById('canjesPendientesBtn');
+  if(!btn) return;
+  const n = canjesPendientesCount();
+  btn.textContent = n>0 ? `📌 Cambios Futuros (${n})` : '📌 Cambios Futuros';
+}
+
+let ecDarSel = new Set();
+let ecRecibirSel = new Set();
+let ecTabActivo = 'dar';
+
+function ecUpdateCounts(){
+  document.getElementById('ecDarCount').textContent    = '('+ecDarSel.size+')';
+  document.getElementById('ecRecibirCount').textContent = '('+ecRecibirSel.size+')';
+}
+
+function buildEcGrid(){
+  const grid = document.getElementById('ecGrid');
+  grid.innerHTML = '';
+  const isDar = ecTabActivo === 'dar';
+  // Filtrar figuritas relevantes
+  const ids = isDar
+    ? ALL_IDS.filter(id => disponiblesParaDar(id, editCanjeId) > 0)
+    : ALL_IDS.filter(id => (state.stickers[id]||0)===0 && !recibirReservado(id, editCanjeId));
+  if(!ids.length){
+    grid.innerHTML = `<div class="ec-empty">${isDar ? 'No tenés figuritas repetidas' : 'No te falta ninguna figurita'}</div>`;
+    return;
+  }
+  // Agrupar por sección
+  SECTIONS.forEach(sec=>{
+    const secIds = getIds(sec).filter(id=>ids.includes(id));
+    if(!secIds.length) return;
+    const lbl = document.createElement('div');
+    lbl.className = 'ec-sec-label';
+    lbl.textContent = sec.name;
+    grid.appendChild(lbl);
+    const row = document.createElement('div');
+    row.className = 'ec-stickers';
+    secIds.forEach(id=>{
+      const s = document.createElement('div');
+      s.className = 'ec-sticker';
+      const sel = isDar ? ecDarSel : ecRecibirSel;
+      if(sel.has(id)) s.classList.add(isDar ? 'sel-dar' : 'sel-recibir');
+      s.textContent = displayId(id);
+      s.addEventListener('click', ()=>{
+        if(sel.has(id)){ sel.delete(id); s.classList.remove('sel-dar','sel-recibir'); }
+        else           { sel.add(id);    s.classList.add(isDar ? 'sel-dar' : 'sel-recibir'); }
+        ecUpdateCounts();
+      });
+      row.appendChild(s);
+    });
+    grid.appendChild(row);
+  });
+}
+
+function switchEcTab(tab){
+  ecTabActivo = tab;
+  document.querySelectorAll('.ec-tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===tab));
+  buildEcGrid();
+}
+document.getElementById('ecTabDar').addEventListener('click',    ()=>switchEcTab('dar'));
+document.getElementById('ecTabRecibir').addEventListener('click', ()=>switchEcTab('recibir'));
+
+function renderCanjesPendientesList(){
+  const c = document.getElementById('canjesPendientesList');
+  const canjes = state.canjes||[];
+  if(!canjes.length){ c.innerHTML='<div class="cp-empty">No hay cambios futuros.<br>Creá uno con el botón de abajo.</div>'; return; }
+  c.innerHTML='';
+  canjes.forEach((cj,i)=>{
+    const card = document.createElement('div');
+    card.className='canje-pendiente-card';
+    const darChips  = cj.dar.map(id=>`<span class="cp-chip dar">${displayId(id)}</span>`).join('');
+    const recChips  = cj.recibir.map(id=>`<span class="cp-chip recibir">${displayId(id)}</span>`).join('');
+    card.innerHTML=`
+      <div class="cp-head">
+        <div class="cp-nombre">${cj.nombre}</div>
+        ${cj.fecha?`<div class="cp-fecha">${cj.fecha}</div>`:''}
+      </div>
+      <div class="cp-cols">
+        <div><div class="cp-col-label">📤 Yo le doy</div><div class="cp-chips">${darChips||'—'}</div></div>
+        <div><div class="cp-col-label">📥 Yo recibo</div><div class="cp-chips">${recChips||'—'}</div></div>
+      </div>
+      <div class="cp-actions">
+        <button class="btn" data-i="${i}" data-action="confirm" style="background:var(--green);border-color:var(--green);font-size:11px">✓ Confirmar</button>
+        <button class="btn ghost" data-i="${i}" data-action="edit" style="font-size:11px">✏️ Editar</button>
+        <button class="btn ghost" data-i="${i}" data-action="cancel" style="font-size:11px;color:var(--red);border-color:var(--red)">✕ Cancelar</button>
+      </div>`;
+    card.querySelectorAll('[data-action]').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const idx=+btn.dataset.i;
+        if(btn.dataset.action==='confirm') confirmarCanjePendiente(idx);
+        else if(btn.dataset.action==='edit')  abrirEditCanje(idx);
+        else if(btn.dataset.action==='cancel') cancelarCanjePendiente(idx);
+      });
+    });
+    c.appendChild(card);
+  });
+}
+
+// Cuántas veces está reservada una figurita para DAR (excluye el canje que se está editando)
+function darReservadoCount(id, excludeId=null){
+  return (state.canjes||[]).filter(c=>c.id!==excludeId && (c.dar||[]).includes(id)).length;
+}
+// Si ya está reservada para RECIBIR en algún canje (excluye el que se edita)
+function recibirReservado(id, excludeId=null){
+  return (state.canjes||[]).some(c=>c.id!==excludeId && (c.recibir||[]).includes(id));
+}
+// Disponibles para dar: repetidas (count-1) menos las ya reservadas
+function disponiblesParaDar(id, excludeId=null){
+  return Math.max(0,(state.stickers[id]||0)-1) - darReservadoCount(id, excludeId);
+}
+
+function reservarStickers(cj){ /* calculado dinámicamente desde state.canjes */ }
+function liberarStickers(cj){  /* calculado dinámicamente desde state.canjes */ }
+
+function confirmarCanjePendiente(i){
+  const cj = state.canjes[i];
+  if(!cj) return;
+  if(!confirm(`¿Confirmar cambio con ${cj.nombre}? Se aplicarán los cambios en tu álbum.`)) return;
+  cj.dar.forEach(id=>{ state.stickers[id]=Math.max(0,(state.stickers[id]||0)-1); });
+  cj.recibir.forEach(id=>{ if((state.stickers[id]||0)===0) state.stickers[id]=1; });
+  liberarStickers(cj);
+  state.canjes.splice(i,1);
+  saveData(); refreshAllStickers(); updateStats(); calcGasto(); recordHistory(); renderChart();
+  renderCanjesPendientesList(); updateCanjesPendientesBtn();
+  showToast('✓ Cambio confirmado con '+cj.nombre);
+}
+
+function cancelarCanjePendiente(i){
+  const cj = state.canjes[i];
+  if(!cj) return;
+  if(!confirm(`¿Cancelar el cambio con ${cj.nombre}? Las figuritas reservadas quedarán libres.`)) return;
+  liberarStickers(cj);
+  state.canjes.splice(i,1);
+  saveData(); refreshAllStickers(); updateCanjesPendientesBtn();
+  renderCanjesPendientesList();
+  showToast('Cambio cancelado');
+}
+
+function abrirEditCanje(i){
+  const cj = i!=null ? state.canjes[i] : null;
+  editCanjeId = cj ? cj.id : null;
+  document.getElementById('editCanjeTitle').textContent = cj ? '✏️ Editar cambio' : '+ Nuevo cambio futuro';
+  document.getElementById('ecNombre').value = cj?.nombre||'';
+  document.getElementById('ecFecha').value  = cj?.fecha||'';
+  ecDarSel     = new Set(cj?.dar||[]);
+  ecRecibirSel = new Set(cj?.recibir||[]);
+  ecTabActivo  = 'dar';
+  document.querySelectorAll('.ec-tab').forEach(t=>t.classList.toggle('active', t.dataset.tab==='dar'));
+  ecUpdateCounts();
+  buildEcGrid();
+  document.getElementById('editCanjeModal').classList.remove('hidden');
+}
+
+
+document.getElementById('ecGuardar').addEventListener('click',()=>{
+  const nombre = document.getElementById('ecNombre').value.trim();
+  if(!nombre){ showToast('Ingresá el nombre del amigo'); return; }
+  const dar     = [...ecDarSel];
+  const recibir = [...ecRecibirSel];
+  if(!dar.length && !recibir.length){ showToast('Agregá al menos una figurita'); return; }
+
+  // Si edita, liberar stickers viejos primero
+  if(editCanjeId){
+    const old = state.canjes.find(c=>c.id===editCanjeId);
+    if(old) liberarStickers(old);
+  }
+
+  const cj = {
+    id: editCanjeId || ('cj_'+Date.now()),
+    nombre, fecha: document.getElementById('ecFecha').value.trim(),
+    dar, recibir
+  };
+
+  if(editCanjeId){
+    const idx = state.canjes.findIndex(c=>c.id===editCanjeId);
+    if(idx>=0) state.canjes[idx]=cj; else state.canjes.push(cj);
+  } else {
+    state.canjes.push(cj);
+  }
+
+  reservarStickers(cj);
+  saveData(); refreshAllStickers(); updateCanjesPendientesBtn();
+  renderCanjesPendientesList();
+  document.getElementById('editCanjeModal').classList.add('hidden');
+  showToast(editCanjeId ? 'Cambio actualizado' : 'Cambio guardado');
+  editCanjeId=null;
+});
+
+document.getElementById('ecCancelar').addEventListener('click',()=>{ document.getElementById('editCanjeModal').classList.add('hidden'); editCanjeId=null; });
+document.getElementById('editCanjeClose').addEventListener('click',()=>{ document.getElementById('editCanjeModal').classList.add('hidden'); editCanjeId=null; });
+document.getElementById('editCanjeModal').addEventListener('click',e=>{ if(e.target===document.getElementById('editCanjeModal')){ document.getElementById('editCanjeModal').classList.add('hidden'); editCanjeId=null; }});
+
+document.getElementById('canjesPendientesBtn').addEventListener('click',()=>{
+  renderCanjesPendientesList();
+  document.getElementById('canjesPendientesModal').classList.remove('hidden');
+});
+document.getElementById('canjesPendientesClose').addEventListener('click',()=>document.getElementById('canjesPendientesModal').classList.add('hidden'));
+document.getElementById('canjesPendientesModal').addEventListener('click',e=>{ if(e.target===document.getElementById('canjesPendientesModal')) document.getElementById('canjesPendientesModal').classList.add('hidden'); });
+document.getElementById('nuevoCanjePendienteBtn').addEventListener('click',()=>abrirEditCanje(null));
+
+updateCanjesPendientesBtn();
+
 // ===== BLOQUEO =====
 let locked = false;
 const lockBtn = document.getElementById('lockBtn');
@@ -1781,7 +2082,7 @@ function setCanjeRapido(on){
   const btn = document.getElementById('canjeRapidoBtn');
   btn.style.background = on ? 'var(--red)' : 'var(--gold-deep)';
   btn.style.borderColor = on ? 'var(--red)' : 'var(--gold-deep)';
-  btn.textContent = on ? '✕ Salir del canje' : '⚡ Canje rápido';
+  btn.textContent = on ? '✕ Salir del cambio' : '⚡ Cambio Rápido';
 }
 
 document.getElementById('canjeRapidoBtn').addEventListener('click', ()=>setCanjeRapido(!canjeRapidoActive));
