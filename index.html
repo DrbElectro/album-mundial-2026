@@ -1790,10 +1790,10 @@ function applyRemoteState(file){
     if(p1900>0) lotes.push({qty:p1900,price:1900});
     if(!lotes.length) lotes=[{qty:0,price:2000}];
   }
-  state = {stickers:{...def.stickers,...file.data.stickers}, lotes};
+  state = {stickers:{...def.stickers,...file.data.stickers}, lotes, canjes:file.data.canjes||[]};
   _origSaveData_beforeSync();
   if(file.history) saveHistory(file.history);
-  refreshAllStickers(); updateStats(); renderLotes(); calcGasto(); renderChart();
+  refreshAllStickers(); updateStats(); renderLotes(); calcGasto(); renderChart(); renderCanjesPendientesList(); updateCanjesPendientesBtn();
   syncLastAt = file.savedAt;
   setSyncStatus('↓ Actualizado · '+new Date().toLocaleString('es-AR',{timeStyle:'short'}),'var(--teal)');
 }
