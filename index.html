@@ -1468,7 +1468,7 @@ function exportarTxt(){
   lines.push('');
   SECTIONS.forEach(sec=>{
     const ids = getIds(sec);
-    const faltan = ids.filter(id=>(state.stickers[id]||0)===0).map(formatStickerLabel);
+    const faltan = ids.filter(id=>(state.stickers[id]||0)===0 && !recibirReservado(id)).map(formatStickerLabel);
     if(faltan.length){
       lines.push(sec.name+':');
       lines.push(faltan.join(' - '));
