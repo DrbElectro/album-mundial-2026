@@ -222,7 +222,13 @@ body::after{
 .ec-tab.active{border-color:#d4650a;color:#d4650a;background:var(--paper)}
 .ec-sec-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);padding:8px 2px 4px;border-bottom:1px solid var(--rule);margin-bottom:6px}
 .ec-stickers{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
-.ec-sticker{width:46px;height:46px;border-radius:6px;border:2px solid var(--rule);background:var(--paper-3);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-soft);text-align:center;line-height:1.2;transition:all .1s}
+.ec-sticker{width:58px;height:58px;border-radius:6px;border:2px solid var(--rule);background:var(--paper-3);font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-soft);text-align:center;line-height:1.2;transition:all .1s}
+@media(max-width:600px){
+  .ec-sticker{width:min(17vw,64px);height:min(17vw,64px);font-size:12px;border-radius:8px}
+  .ec-stickers{gap:6px}
+  .modal-body{padding:14px}
+  .modal-overlay{padding:10px}
+}
 .ec-sticker.sel-dar{background:#d4650a;border-color:#d4650a;color:#fff;transform:scale(1.08)}
 .ec-sticker.sel-recibir{background:var(--teal);border-color:var(--teal);color:#fff;transform:scale(1.08)}
 .ec-empty{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-soft);padding:16px 0;text-align:center}
