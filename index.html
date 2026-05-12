@@ -1479,10 +1479,10 @@ function exportarTxt(){
   lines.push('');
   SECTIONS.forEach(sec=>{
     const ids = getIds(sec);
-    const reps = ids.filter(id=>(state.stickers[id]||0)>=2).map(id=>{
-      const extras = (state.stickers[id]||0)-1;
-      return extras>1 ? `${formatStickerLabel(id)} (${extras})` : formatStickerLabel(id);
-    });
+    const reps = ids.map(id=>{
+      const extras = Math.max(0, (state.stickers[id]||0) - 1 - darReservadoCount(id));
+      return extras > 0 ? (extras>1 ? `${formatStickerLabel(id)} (${extras})` : formatStickerLabel(id)) : null;
+    }).filter(Boolean);
     if(reps.length){
       lines.push(sec.name+':');
       lines.push(reps.join(' - '));
