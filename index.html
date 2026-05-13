@@ -789,16 +789,16 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
       <button class="modal-close" id="editCanjeClose">✕</button>
     </div>
     <div class="modal-body">
-      <div style="display:flex;gap:8px;margin-bottom:12px">
+      <div style="display:flex;gap:8px;margin-bottom:10px">
         <input type="text" class="canje-input" id="ecNombre" placeholder="Nombre del amigo…" style="flex:1">
-        <input type="text" class="canje-input" id="ecFecha" placeholder="Fecha (opcional)" style="flex:1">
       </div>
       <!-- Tabs -->
-      <div style="display:flex;gap:4px;margin-bottom:10px">
+      <div style="display:flex;gap:4px;margin-bottom:8px">
         <button class="ec-tab active" id="ecTabDar" data-tab="dar">📤 Doy <span id="ecDarCount">(0)</span></button>
         <button class="ec-tab" id="ecTabRecibir" data-tab="recibir">📥 Recibo <span id="ecRecibirCount">(0)</span></button>
       </div>
-      <div id="ecGrid" style="max-height:52vh;overflow-y:auto;padding-right:2px"></div>
+      <input type="text" id="ecSearch" class="canje-input" placeholder="🔍 Buscar figurita…" style="width:100%;margin-bottom:8px" oninput="filterEcGrid(this.value)">
+      <div id="ecGrid" style="max-height:48vh;overflow-y:auto;padding-right:2px"></div>
       <div style="display:flex;gap:8px;margin-top:12px">
         <button class="btn" id="ecGuardar" style="background:#d4650a;border-color:#d4650a;flex:1">💾 Guardar</button>
         <button class="btn ghost" id="ecCancelar">Cancelar</button>
@@ -1858,6 +1858,27 @@ function ecUpdateCounts(){
   document.getElementById('ecRecibirCount').textContent = '('+ecRecibirSel.size+')';
 }
 
+function filterEcGrid(q){
+  const term = q.trim().toLowerCase();
+  document.querySelectorAll('#ecGrid .ec-sec-label, #ecGrid .ec-stickers').forEach(el=>{
+    if(el.classList.contains('ec-sec-label')){
+      el._ecHide = false; // reset, decided by sibling stickers
+    } else {
+      let anyVisible = false;
+      el.querySelectorAll('.ec-sticker').forEach(s=>{
+        const match = !term || s.textContent.toLowerCase().includes(term);
+        s.style.display = match ? '' : 'none';
+        if(match) anyVisible = true;
+      });
+      // hide section label if no stickers visible
+      const lbl = el.previousElementSibling;
+      if(lbl && lbl.classList.contains('ec-sec-label'))
+        lbl.style.display = anyVisible ? '' : 'none';
+      el.style.display = anyVisible ? '' : 'none';
+    }
+  });
+}
+
 function buildEcGrid(){
   const grid = document.getElementById('ecGrid');
   grid.innerHTML = '';
@@ -1986,7 +2007,7 @@ function abrirEditCanje(i){
   editCanjeId = cj ? cj.id : null;
   document.getElementById('editCanjeTitle').textContent = cj ? '✏️ Editar cambio' : '+ Nuevo cambio futuro';
   document.getElementById('ecNombre').value = cj?.nombre||'';
-  document.getElementById('ecFecha').value  = cj?.fecha||'';
+  document.getElementById('ecSearch').value = '';
   ecDarSel     = new Set(cj?.dar||[]);
   ecRecibirSel = new Set(cj?.recibir||[]);
   ecTabActivo  = 'dar';
@@ -2012,7 +2033,7 @@ document.getElementById('ecGuardar').addEventListener('click',()=>{
 
   const cj = {
     id: editCanjeId || ('cj_'+Date.now()),
-    nombre, fecha: document.getElementById('ecFecha').value.trim(),
+    nombre,
     dar, recibir
   };
 
