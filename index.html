@@ -1942,8 +1942,8 @@ function renderCanjesPendientesList(){
         ${cj.fecha?`<div class="cp-fecha">${cj.fecha}</div>`:''}
       </div>
       <div class="cp-cols">
-        <div><div class="cp-col-label">📤 Yo le doy</div><div class="cp-chips">${darChips||'—'}</div></div>
-        <div><div class="cp-col-label">📥 Yo recibo</div><div class="cp-chips">${recChips||'—'}</div></div>
+        <div><div class="cp-col-label">📤 Yo le doy (${cj.dar.length})</div><div class="cp-chips">${darChips||'—'}</div></div>
+        <div><div class="cp-col-label">📥 Yo recibo (${cj.recibir.length})</div><div class="cp-chips">${recChips||'—'}</div></div>
       </div>
       <div class="cp-actions">
         <button class="btn" data-i="${i}" data-action="confirm" style="background:var(--green);border-color:var(--green);font-size:11px">✓ Confirmar</button>
