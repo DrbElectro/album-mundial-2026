@@ -1907,7 +1907,8 @@ function buildEcGrid(){
       const sel = isDar ? ecDarSel : ecRecibirSel;
       if(sel.has(id)) s.classList.add(isDar ? 'sel-dar' : 'sel-recibir');
       s.textContent = displayId(id);
-      s.addEventListener('click', ()=>{
+      s.addEventListener('click', e=>{
+        e.stopPropagation();
         if(sel.has(id)){ sel.delete(id); s.classList.remove('sel-dar','sel-recibir'); }
         else           { sel.add(id);    s.classList.add(isDar ? 'sel-dar' : 'sel-recibir'); }
         ecUpdateCounts();
@@ -2054,7 +2055,7 @@ document.getElementById('ecGuardar').addEventListener('click',()=>{
 
 document.getElementById('ecCancelar').addEventListener('click',()=>{ document.getElementById('editCanjeModal').classList.add('hidden'); editCanjeId=null; });
 document.getElementById('editCanjeClose').addEventListener('click',()=>{ document.getElementById('editCanjeModal').classList.add('hidden'); editCanjeId=null; });
-document.getElementById('editCanjeModal').addEventListener('click',e=>{ if(e.target===document.getElementById('editCanjeModal')){ document.getElementById('editCanjeModal').classList.add('hidden'); editCanjeId=null; }});
+// editCanjeModal: no cerrar al tocar el fondo (evita cierres accidentales en mobile)
 
 document.getElementById('canjesPendientesBtn').addEventListener('click',()=>{
   renderCanjesPendientesList();
