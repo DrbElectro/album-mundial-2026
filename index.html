@@ -826,8 +826,15 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
       <div id="canjeConfirmList" style="max-height:55vh;overflow-y:auto;padding-right:4px"></div>
       <div id="canjeConfirmSummary" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-soft);margin-top:14px;letter-spacing:.06em"></div>
       <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
-        <button class="btn" id="canjeConfirmOk">✓ Confirmar</button>
+        <button class="btn" id="canjeConfirmOk">✓ Intercambiar ahora</button>
         <button class="btn ghost" id="canjeConfirmCancel">Cancelar</button>
+      </div>
+      <div style="border-top:1px solid var(--rule);margin-top:14px;padding-top:12px">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px">O guardar como cambio futuro</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input type="text" id="canjeConfirmNombre" class="canje-input" placeholder="Nombre del amigo…" style="flex:1;min-width:140px">
+          <button class="btn" id="canjeConfirmFuturo" style="background:#d4650a;border-color:#d4650a;white-space:nowrap">📌 Guardar como futuro</button>
+        </div>
       </div>
     </div>
   </div>
@@ -2243,6 +2250,7 @@ function openCanjeConfirm(){
   confirmDarSel     = new Set(confirmDarIds.map(x=>x.id));
   confirmRecibirSel = new Set(confirmRecibirIds.map(x=>x.id));
   renderConfirmList();
+  document.getElementById('canjeConfirmNombre').value = '';
   document.getElementById('canjeConfirmModal').classList.remove('hidden');
 }
 
@@ -2293,9 +2301,28 @@ function applyCanjeConfirm(){
   showToast('¡Intercambio aplicado!');
 }
 
+function saveCanjeComoFuturo(){
+  const nombre = document.getElementById('canjeConfirmNombre').value.trim();
+  if(!nombre){ showToast('Ingresá el nombre del amigo'); return; }
+  const cj = {
+    id: Date.now().toString(36),
+    nombre,
+    dar:     [...confirmDarSel],
+    recibir: [...confirmRecibirSel]
+  };
+  if(!cj.dar.length && !cj.recibir.length){ showToast('No hay figuritas seleccionadas'); return; }
+  state.canjes = state.canjes||[];
+  state.canjes.push(cj);
+  saveData(); refreshAllStickers(); updateCanjesPendientesBtn(); scheduleWrite();
+  document.getElementById('canjeConfirmModal').classList.add('hidden');
+  document.getElementById('canjeModal').classList.add('hidden');
+  showToast('¡Guardado como cambio futuro!');
+}
+
 document.getElementById('canjeConfirmBtn').addEventListener('click', openCanjeConfirm);
 document.getElementById('canjeConfirmClose').addEventListener('click',()=>document.getElementById('canjeConfirmModal').classList.add('hidden'));
 document.getElementById('canjeConfirmCancel').addEventListener('click',()=>document.getElementById('canjeConfirmModal').classList.add('hidden'));
+document.getElementById('canjeConfirmFuturo').addEventListener('click', saveCanjeComoFuturo);
 document.getElementById('canjeConfirmOk').addEventListener('click', applyCanjeConfirm);
 document.getElementById('canjeConfirmModal').addEventListener('click',e=>{if(e.target===document.getElementById('canjeConfirmModal')) document.getElementById('canjeConfirmModal').classList.add('hidden');});
 function openCanje(){
