@@ -823,7 +823,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
       <button class="modal-close" id="canjeConfirmClose">✕</button>
     </div>
     <div class="modal-body">
-      <div id="canjeConfirmList" style="max-height:55vh;overflow-y:auto;padding-right:4px"></div>
+      <div id="canjeConfirmList" style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px;max-height:55vh;overflow-y:auto;padding-right:4px"></div>
       <div id="canjeConfirmSummary" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-soft);margin-top:14px;letter-spacing:.06em"></div>
       <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
         <button class="btn" id="canjeConfirmOk" style="background:var(--green);border-color:var(--green)">✓ Cambiar ahora</button>
@@ -2259,27 +2259,29 @@ function openCanjeConfirm(){
 function renderConfirmList(){
   const c = document.getElementById('canjeConfirmList');
   c.innerHTML = '';
-  const makeSection = (title, items, sel) => {
-    if(!items.length) return;
+  const makeCol = (title, items, sel) => {
+    const col = document.createElement('div');
+    col.style.cssText = 'min-width:0';
     const h = document.createElement('div');
     h.className = 'confirm-section-title'; h.textContent = title;
-    c.appendChild(h);
+    col.appendChild(h);
     items.forEach(({id, sec})=>{
       const row = document.createElement('div');
       row.className = 'confirm-row';
       const on = sel.has(id);
-      row.innerHTML = `<button class="confirm-toggle ${on?'on':'off'}">${on?'✓ incluir':'✗ no'}</button><span class="confirm-id">${displayId(id)}</span><span class="confirm-sec">${sec.name}</span>`;
+      row.innerHTML = `<button class="confirm-toggle ${on?'on':'off'}">${on?'✓':'✗'}</button><span class="confirm-id">${displayId(id)}</span>`;
       row.querySelector('.confirm-toggle').addEventListener('click', e=>{
         const btn = e.currentTarget;
-        if(sel.has(id)){ sel.delete(id); btn.className='confirm-toggle off'; btn.textContent='✗ no'; }
-        else            { sel.add(id);    btn.className='confirm-toggle on';  btn.textContent='✓ incluir'; }
+        if(sel.has(id)){ sel.delete(id); btn.className='confirm-toggle off'; btn.textContent='✗'; }
+        else            { sel.add(id);    btn.className='confirm-toggle on';  btn.textContent='✓'; }
         updateConfirmSummary();
       });
-      c.appendChild(row);
+      col.appendChild(row);
     });
+    c.appendChild(col);
   };
-  makeSection('📤 Vos das', confirmDarIds, confirmDarSel);
-  makeSection('📥 Vos pegás', confirmRecibirIds, confirmRecibirSel);
+  makeCol('📤 Vos das', confirmDarIds, confirmDarSel);
+  makeCol('📥 Vos recibís', confirmRecibirIds, confirmRecibirSel);
   updateConfirmSummary();
 }
 
@@ -2287,7 +2289,7 @@ function updateConfirmSummary(){
   const d = confirmDarSel.size, r = confirmRecibirSel.size;
   document.getElementById('canjeConfirmSummary').textContent =
     `Das ${d} figurita${d!==1?'s':''} · Recibís ${r} figurita${r!==1?'s':''}`;
-  document.getElementById('canjeConfirmOk').textContent = `✓ Confirmar (${d+r} en total)`;
+  document.getElementById('canjeConfirmOk').textContent = `✓ Cambiar ahora (${d+r} en total)`;
 }
 
 function applyCanjeConfirm(){
