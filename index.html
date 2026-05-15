@@ -626,6 +626,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
         </div>
         <div class="ctrl-row">
           <button class="btn" id="exportTxtBtn">📝 Exportar Lista</button>
+          <button class="btn ghost" id="copyListBtn">📋 Copiar Lista</button>
           <button class="btn ghost" id="autosaveBtn">💾 Auto-Guardado</button>
           <button class="btn ghost" id="importTxtBtn">📥 Importar Lista</button>
           <input type="file" id="importTxtInput" accept=".txt" style="display:none">
@@ -1507,6 +1508,36 @@ function exportarTxt(){
   showToast('Lista exportada');
 }
 document.getElementById('exportTxtBtn').addEventListener('click', exportarTxt);
+
+function generarTextoLista(){
+  const lines = [];
+  lines.push('ÁLBUM MUNDIAL 2026');
+  lines.push('');
+  lines.push('========== FALTANTES ==========');
+  lines.push('');
+  SECTIONS.forEach(sec=>{
+    const ids = getIds(sec);
+    const faltan = ids.filter(id=>(state.stickers[id]||0)===0 && !recibirReservado(id)).map(formatStickerLabel);
+    if(faltan.length){ lines.push(sec.name+':'); lines.push(faltan.join(' - ')); lines.push(''); }
+  });
+  lines.push('========== REPETIDAS ==========');
+  lines.push('');
+  SECTIONS.forEach(sec=>{
+    const ids = getIds(sec);
+    const reps = ids.map(id=>{
+      const extras = Math.max(0,(state.stickers[id]||0)-1-darReservadoCount(id));
+      return extras>0 ? (extras>1?`${formatStickerLabel(id)} (${extras})`:formatStickerLabel(id)) : null;
+    }).filter(Boolean);
+    if(reps.length){ lines.push(sec.name+':'); lines.push(reps.join(' - ')); lines.push(''); }
+  });
+  return lines.join('\n');
+}
+document.getElementById('copyListBtn').addEventListener('click', async ()=>{
+  try{
+    await navigator.clipboard.writeText(generarTextoLista());
+    showToast('¡Lista copiada!');
+  }catch(e){ showToast('No se pudo copiar'); }
+});
 
 // ===== IMPORT TXT =====
 function parseTxtImport(text){
