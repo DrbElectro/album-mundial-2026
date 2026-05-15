@@ -626,7 +626,8 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
         </div>
         <div class="ctrl-row">
           <button class="btn" id="exportTxtBtn">📝 Exportar Lista</button>
-          <button class="btn ghost" id="copyListBtn">📋 Copiar Lista</button>
+          <button class="btn ghost" id="copyFaltantesBtn">📋 Copiar Faltantes</button>
+          <button class="btn ghost" id="copyRepetidasBtn">📋 Copiar Repetidas</button>
           <button class="btn ghost" id="autosaveBtn">💾 Auto-Guardado</button>
           <button class="btn ghost" id="importTxtBtn">📥 Importar Lista</button>
           <input type="file" id="importTxtInput" accept=".txt" style="display:none">
@@ -1509,19 +1510,17 @@ function exportarTxt(){
 }
 document.getElementById('exportTxtBtn').addEventListener('click', exportarTxt);
 
-function generarTextoLista(){
-  const lines = [];
-  lines.push('ÁLBUM MUNDIAL 2026');
-  lines.push('');
-  lines.push('========== FALTANTES ==========');
-  lines.push('');
+function generarFaltantes(){
+  const lines = ['FALTANTES · ÁLBUM MUNDIAL 2026',''];
   SECTIONS.forEach(sec=>{
     const ids = getIds(sec);
     const faltan = ids.filter(id=>(state.stickers[id]||0)===0 && !recibirReservado(id)).map(formatStickerLabel);
     if(faltan.length){ lines.push(sec.name+':'); lines.push(faltan.join(' - ')); lines.push(''); }
   });
-  lines.push('========== REPETIDAS ==========');
-  lines.push('');
+  return lines.join('\n');
+}
+function generarRepetidas(){
+  const lines = ['REPETIDAS · ÁLBUM MUNDIAL 2026',''];
   SECTIONS.forEach(sec=>{
     const ids = getIds(sec);
     const reps = ids.map(id=>{
@@ -1532,11 +1531,13 @@ function generarTextoLista(){
   });
   return lines.join('\n');
 }
-document.getElementById('copyListBtn').addEventListener('click', async ()=>{
-  try{
-    await navigator.clipboard.writeText(generarTextoLista());
-    showToast('¡Lista copiada!');
-  }catch(e){ showToast('No se pudo copiar'); }
+document.getElementById('copyFaltantesBtn').addEventListener('click', async ()=>{
+  try{ await navigator.clipboard.writeText(generarFaltantes()); showToast('¡Faltantes copiadas!'); }
+  catch(e){ showToast('No se pudo copiar'); }
+});
+document.getElementById('copyRepetidasBtn').addEventListener('click', async ()=>{
+  try{ await navigator.clipboard.writeText(generarRepetidas()); showToast('¡Repetidas copiadas!'); }
+  catch(e){ showToast('No se pudo copiar'); }
 });
 
 // ===== IMPORT TXT =====
