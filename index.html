@@ -265,6 +265,8 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 .ctrl-row input[type=text]{flex:1;min-width:0;}
 .ctrl-row select{flex:1;min-width:0;}
 .ctrl-row .btn{flex:1;min-width:0;text-align:center;}
+.ctrl-row.stretch{align-items:stretch;}
+.ctrl-row.stretch .btn{display:flex;align-items:center;justify-content:center;}
 .controls input[type=text],.controls select{
   padding:8px 12px;border:1px solid var(--ink);background:var(--paper);
   font-family:'Archivo',sans-serif;font-weight:500;font-size:13px;color:var(--ink);
@@ -632,7 +634,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
           <button class="btn ghost" id="importTxtBtn">📥 Importar Lista</button>
           <input type="file" id="importTxtInput" accept=".txt" style="display:none">
         </div>
-        <div class="ctrl-row">
+        <div class="ctrl-row stretch">
           <button class="btn" id="canjeBtn" style="background:var(--teal);border-color:var(--teal)">🔄 Cambio x Código</button>
           <button class="btn" id="canjeRapidoBtn" style="background:var(--gold-deep);border-color:var(--gold-deep)">⚡ Cambio Rápido</button>
           <button class="btn" id="canjesPendientesBtn" style="background:#d4650a;border-color:#d4650a">📌 Cambios Futuros</button>
