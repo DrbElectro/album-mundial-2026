@@ -2877,14 +2877,23 @@ renderChart();
         </div>
         <!-- Fase 1: avanzar -->
         <button class="btn" id="scanTradeNextBtn" style="width:100%;background:var(--red);border-color:var(--red)">Siguiente: lo que recibo ›</button>
-        <!-- Fase 2: nombre + dos opciones -->
+        <!-- Fase 2: dos opciones -->
         <div id="scanTradeConfirmWrap" style="display:none">
-          <input type="text" id="scanTradePartnerName"
-            placeholder="¿Con quién cambiás? (opcional)"
-            style="width:100%;border:2px solid var(--ink);padding:8px 10px;font-family:'Archivo',sans-serif;font-size:13px;background:var(--paper);color:var(--ink);margin-bottom:8px;outline:none;box-sizing:border-box">
           <div style="display:flex;gap:8px">
             <button class="btn" id="scanTradeApplyNowBtn" style="flex:1;background:var(--green);border-color:var(--green)">✅ Aplicar ahora</button>
             <button class="btn" id="scanTradeFutureBtn" style="flex:1;background:#d4650a;border-color:#d4650a">📌 Cambio Futuro</button>
+          </div>
+        </div>
+        <!-- Paso nombre (aparece al tocar Cambio Futuro) -->
+        <div id="scanTradeNameWrap" style="display:none;margin-top:4px">
+          <p style="font-family:'Archivo Black',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;color:var(--ink)">¿Con quién cambiás?</p>
+          <input type="text" id="scanTradePartnerName"
+            placeholder="Nombre del amigo"
+            autocomplete="off"
+            style="width:100%;border:2px solid var(--ink);padding:10px 12px;font-family:'Archivo',sans-serif;font-size:15px;background:var(--paper);color:var(--ink);margin-bottom:8px;outline:none;box-sizing:border-box;-webkit-user-select:text;user-select:text">
+          <div style="display:flex;gap:8px">
+            <button class="btn ghost" id="scanTradeNameBackBtn" style="flex:1">← Volver</button>
+            <button class="btn" id="scanTradeNameSaveBtn" style="flex:2;background:#d4650a;border-color:#d4650a">📌 Guardar cambio futuro</button>
           </div>
         </div>
       </div>
@@ -3247,12 +3256,13 @@ function updateScanTradePhaseUI() {
   // botón siguiente (fase 1) vs confirm wrap (fase 2)
   document.getElementById('scanTradeNextBtn').style.display = ph1 ? '' : 'none';
   document.getElementById('scanTradeConfirmWrap').style.display = ph1 ? 'none' : 'block';
+  document.getElementById('scanTradeNameWrap').style.display = 'none';
 }
 
 /* ---- step reset ---- */
 function resetScanTradeStep() {
   ['scanTradeStep0','scanTradeCamView','scanTradePreview',
-   'scanTradeProgressWrap','scanTradeResultsWrap','scanTradeNoResults']
+   'scanTradeProgressWrap','scanTradeResultsWrap','scanTradeNoResults','scanTradeNameWrap']
     .forEach(id => {
       const el = document.getElementById(id);
       if (!el) return;
@@ -3460,7 +3470,18 @@ function applyScanTrade(asFuture) {
 }
 
 document.getElementById('scanTradeApplyNowBtn').addEventListener('click', () => applyScanTrade(false));
-document.getElementById('scanTradeFutureBtn').addEventListener('click',    () => applyScanTrade(true));
+document.getElementById('scanTradeFutureBtn').addEventListener('click', () => {
+  document.getElementById('scanTradeConfirmWrap').style.display = 'none';
+  document.getElementById('scanTradeNameWrap').style.display = 'block';
+  const inp = document.getElementById('scanTradePartnerName');
+  inp.value = '';
+  setTimeout(() => inp.focus(), 100);
+});
+document.getElementById('scanTradeNameBackBtn').addEventListener('click', () => {
+  document.getElementById('scanTradeNameWrap').style.display = 'none';
+  document.getElementById('scanTradeConfirmWrap').style.display = 'block';
+});
+document.getElementById('scanTradeNameSaveBtn').addEventListener('click', () => applyScanTrade(true));
 
 /* ---- event wiring ---- */
 document.getElementById('scanTradeBtn').addEventListener('click', openScanTradeModal);
