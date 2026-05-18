@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Álbum Mundial 2026 · Mi Colección</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mi Álbum Mundial - Edición 2026</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1a1814">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -31,7 +31,8 @@
   --shadow: 0 1px 0 rgba(0,0,0,.08), 0 8px 24px -12px rgba(0,0,0,.25);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{background:var(--paper);color:var(--ink);font-family:'Archivo',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+html{overflow-x:hidden}
+body{background:var(--paper);color:var(--ink);font-family:'Archivo',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 
 /* ===== Paper texture (procedural) ===== */
 body{
@@ -571,6 +572,49 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 }
 .canje-summary strong{color:var(--ink);font-weight:700}
 
+/* ===== FAB (mobile) ===== */
+.fab{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom,0px));right:calc(20px + env(safe-area-inset-right,0px));z-index:90;width:52px;height:52px;border-radius:50%;background:var(--ink);color:var(--paper);border:none;font-size:22px;cursor:pointer;box-shadow:3px 3px 0 var(--red);display:none;align-items:center;justify-content:center;transition:transform .15s;}
+.fab:active{transform:scale(.92);}
+/* Stats modal */
+.stats-modal-overlay{position:fixed;inset:0;z-index:110;background:rgba(26,24,20,.7);display:flex;align-items:flex-end;justify-content:center;}
+.stats-modal-overlay.hidden{display:none}
+.stats-modal{background:var(--paper);border:2px solid var(--ink);border-bottom:none;width:100%;max-width:520px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 -4px 0 var(--ink);}
+.stats-modal-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--ink);color:var(--paper);font-family:'Archivo Black',sans-serif;font-size:13px;text-transform:uppercase;letter-spacing:.08em;}
+.modal-close{background:none;border:none;color:inherit;font-size:18px;cursor:pointer;padding:4px 8px;}
+.stats-tabs{display:flex;border-bottom:2px solid var(--ink);}
+.stats-tab{flex:1;padding:10px;border:none;background:var(--paper-2);font-family:'Archivo Black',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;border-right:1px solid var(--ink);color:var(--ink-soft);}
+.stats-tab.active{background:var(--paper);color:var(--ink);}
+.stats-panel{display:none;flex:1;overflow-y:auto;padding:16px;}
+.stats-panel.active{display:block;}
+
+/* ===== MOBILE ≤600px ===== */
+@media(max-width:600px){
+  .page{padding:12px 10px 80px !important;overflow-x:hidden !important;}
+  .stats{grid-template-columns:repeat(2,1fr) !important;border-bottom:none;}
+  .section{max-width:100%;overflow:hidden;}
+  .sec-head{gap:8px;padding:8px 0;}
+  .sec-title{font-size:16px;}
+  .flag{width:38px;height:26px;}
+  .sec-bar{width:60px;}
+  .stickers{grid-template-columns:repeat(5,1fr) !important;gap:5px !important;}
+  .side{display:none !important;}
+  .fab{display:flex !important;}
+  /* Controls mobile */
+  .controls input[type=text]{min-width:0;max-width:none;width:100%;}
+  .ctrl-row{flex-wrap:wrap;}
+  .ctrl-row .btn{min-width:calc(50% - 4px);flex:none !important;font-size:11px;padding:8px 4px;}
+  .ctrl-row select{flex:1 1 calc(50% - 4px);min-width:0;}
+  /* legend */
+  .leg-pc{display:none !important;}
+  .leg-mobile{display:flex !important;}
+}
+/* Disable sticky hover on touch */
+@media(hover:none){
+  .btn:hover{transform:none;box-shadow:none;}
+  .btn.ghost:hover{box-shadow:none;}
+  .sticker:hover{transform:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.04);}
+}
+
 </style>
 </head>
 <body>
@@ -586,7 +630,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
           <span>· Canadá · México · USA ·</span>
         </div>
         <h1 class="mast-title">Álbum <span class="em">Mundial</span><br>2026</h1>
-        <p class="mast-sub">Mi colección personal — 995 figuritas, 50 selecciones. Click izquierdo para sumar, click derecho para restar. El álbum guarda todo localmente.</p>
+        <p class="mast-sub">Mi colección personal — 994 figuritas, 48 selecciones. Click izquierdo para sumar, click derecho para restar. El álbum guarda todo localmente.</p>
       </div>
       <div class="mast-right">
         <div>Progreso total</div>
@@ -613,7 +657,8 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
         <div class="leg"><div class="leg-sw own"></div>Pegada</div>
         <div class="leg"><div class="leg-sw rep"></div>Repetida</div>
         <div class="leg"><div class="leg-sw res"></div>Cambio futuro</div>
-        <div class="leg" style="margin-left:auto">Click izquierdo: +1 · Click derecho: −1</div>
+        <div class="leg leg-pc" style="margin-left:auto">Click izquierdo: +1 · Click derecho: −1</div>
+        <div class="leg leg-mobile" style="margin-left:auto;display:none">Toque: +1 · Mantener: −1</div>
       </div>
 
       <div class="controls">
@@ -652,9 +697,13 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 
       <div id="sections-container"></div>
 
+      <div style="margin-top:24px;padding-top:16px;border-top:1px dashed var(--rule);text-align:center">
+        <button id="resetBtn" class="btn ghost" style="font-size:10px;color:var(--ink-soft);border-color:var(--rule);padding:6px 16px">🗑 Resetear álbum</button>
+      </div>
+
       <div class="foot">
-        <div>© Mi Álbum · Mundial 2026 · 50 selecciones · 995 figuritas</div>
-        <div id="last-saved">Guardado localmente</div>
+        <div>© Mi Álbum Mundial 2026 · 48 selecciones · 994 figuritas</div>
+        <div>Realizado por DRB ELECTRO</div>
       </div>
     </main>
 
@@ -820,7 +869,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 <!-- ===== Banner canje rápido ===== -->
 <div id="canjeRapidoBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:var(--gold-deep);color:#fff;padding:12px 16px;display:none;align-items:center;gap:10px;flex-wrap:wrap">
   <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;flex:1">
-    ⚡ CAMBIO RÁPIDO · <span style="opacity:.8">Repetidas = tap para dar · Faltan = tap para recibir</span>
+    ⚡ CAMBIO RÁPIDO · <span style="opacity:.8">Repetidas = toque para dar · Faltan = toque para recibir</span>
   </span>
   <button id="canjeRapidoSalir" style="border:2px solid #fff;background:transparent;color:#fff;border-radius:6px;padding:5px 14px;font-weight:700;font-size:12px;cursor:pointer">Salir</button>
 </div>
@@ -853,6 +902,75 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 
 <div class="toast" id="toast">¡Pegada!</div>
 <div class="confetti" id="confetti"></div>
+
+<!-- FAB (solo mobile) -->
+<button class="fab" id="fabBtn" title="Estadísticas">📊</button>
+
+<!-- Stats modal (mobile) -->
+<div class="stats-modal-overlay hidden" id="statsModal">
+  <div class="stats-modal">
+    <div class="stats-modal-head">
+      <span>Mi Álbum Mundial</span>
+      <button class="modal-close" id="statsClose">✕</button>
+    </div>
+    <div class="stats-tabs">
+      <button class="stats-tab active" data-tab="estadisticas">📊 Estadísticas</button>
+      <button class="stats-tab" data-tab="manual">📖 Manual</button>
+    </div>
+    <div class="stats-panel active" id="panel-estadisticas">
+      <div style="margin-bottom:18px">
+        <div style="font-family:'Archivo Black',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Progreso del álbum</div>
+        <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:6px">
+          <span id="sm-pct" style="font-family:'Archivo Black',sans-serif;font-size:40px;line-height:1;letter-spacing:-.03em">0%</span>
+          <span id="sm-frac" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-soft)">0 / 994</span>
+        </div>
+        <div style="height:10px;background:var(--paper-3);border:1px solid var(--ink);position:relative;">
+          <div id="sm-bar" style="position:absolute;inset:0;background:var(--green);width:0%;transition:width .4s"></div>
+        </div>
+      </div>
+      <div style="height:1px;background:var(--rule);margin-bottom:18px"></div>
+      <div style="margin-bottom:14px">
+        <div style="font-family:'Archivo Black',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Precio del álbum</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:13px">$</span>
+          <input type="number" id="sm-precio-album" min="0" step="100"
+            style="flex:1;padding:8px 10px;border:1px solid var(--ink);background:var(--paper);font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;color:var(--ink);border-radius:0"
+            placeholder="19000">
+        </div>
+      </div>
+      <div style="margin-bottom:14px">
+        <div style="font-family:'Archivo Black',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Paquetes comprados</div>
+        <div id="lotes-container-m"></div>
+        <button class="btn ghost" id="addLoteBtn-m" style="width:100%;margin-top:4px;font-size:11px">+ Agregar lote</button>
+      </div>
+      <div style="height:1px;background:var(--rule);margin-bottom:14px"></div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-soft)">Total gastado</span>
+        <span id="sm-gasto-v" style="font-family:'Archivo Black',sans-serif;font-size:24px;letter-spacing:-.02em">$0</span>
+      </div>
+      <div id="sm-gasto-meta" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-soft);margin-bottom:4px"></div>
+      <div id="sm-gasto-cost" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-soft)"></div>
+    </div>
+    <div class="stats-panel" id="panel-manual">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.8;color:var(--ink-soft)">
+        <p style="font-family:'Archivo Black',sans-serif;font-size:13px;color:var(--ink);margin-bottom:12px">¿Cómo usar Mi Álbum Mundial?</p>
+        <p style="margin-bottom:10px"><strong style="color:var(--ink)">Sumar figurita:</strong> Tocá una vez el sticker.</p>
+        <p style="margin-bottom:10px"><strong style="color:var(--ink)">Restar figurita:</strong> Mantené presionado 500ms (mobile) o click derecho (PC).</p>
+        <p style="margin-bottom:10px"><strong style="color:var(--ink)">Colores:</strong><br>
+          · Beige = falta<br>· Verde = pegada<br>· Dorado = repetida<br>· Blanco = reservada para dar en un cambio futuro<br>· Celeste = reservada para recibir en un cambio futuro
+        </p>
+        <p style="margin-bottom:10px"><strong style="color:var(--ink)">Cambio x Código:</strong> Generá un código con tus repetidas y faltantes para intercambiar con un amigo.</p>
+        <p style="margin-bottom:10px"><strong style="color:var(--ink)">Cambios Futuros:</strong> Guardá cambios pactados con amigos.</p>
+        <p style="margin-bottom:10px"><strong style="color:var(--ink)">Sync:</strong> Sincronizá entre dispositivos con un código de sala.</p>
+        <p style="margin-bottom:20px"><strong style="color:var(--ink)">Backup:</strong> Usá Auto-Guardado para exportar tus datos.</p>
+        <div style="padding-top:16px;border-top:1px dashed var(--rule)">
+          <p style="font-family:'Archivo Black',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;color:var(--ink)">¿Encontraste un problema?</p>
+          <button id="reportarBtn" class="btn" style="width:100%;background:#25d366;border-color:#1ebe5d;color:#fff;font-size:12px">📲 Reportar por WhatsApp</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
 // ===== DATA =====
@@ -983,7 +1101,7 @@ const TOTAL = ALL_IDS.length;
 
 function defaultData(){
   const stickers={};ALL_IDS.forEach(id=>stickers[id]=0);
-  return {stickers, lotes:[{qty:25,price:1900}], canjes:[], reservadas:{}};
+  return {stickers, lotes:[], canjes:[], reservadas:{}};
 }
 function loadData(){
   try{
@@ -2440,6 +2558,121 @@ if(location.hash.startsWith('#canje=')){
 document.getElementById('search').addEventListener('input', applyFilters);
 document.getElementById('filterSel').addEventListener('change', applyFilters);
 document.getElementById('sortSel').addEventListener('change', applyFilters);
+
+// ===== PRECIO ÁLBUM =====
+const PRECIO_KEY = 'album_precio_album_v1';
+let precioAlbum = +(localStorage.getItem(PRECIO_KEY)) || 0;
+
+const _origCalcGasto = calcGasto;
+calcGasto = function(){
+  const lotes = state.lotes||[];
+  const totalPaq = lotes.reduce((s,l)=>s+(+l.qty||0),0);
+  const totalGasto = lotes.reduce((s,l)=>s+(+l.qty||0)*(+l.price||0),0)+precioAlbum;
+  const figs = totalPaq*7;
+  const gv=document.getElementById('gasto-v');
+  const gm=document.getElementById('gasto-meta');
+  const gc=document.getElementById('gasto-cost');
+  if(gv) gv.textContent='$'+totalGasto.toLocaleString('es-AR');
+  if(gm) gm.textContent=totalPaq+' paquetes · '+figs+' figuritas recibidas';
+  const owned=computeStats().owned;
+  if(gc) gc.textContent=owned>0?'$'+Math.round(totalGasto/owned).toLocaleString('es-AR')+' por figurita pegada':'';
+  const sv=document.getElementById('sm-gasto-v');
+  const sm_=document.getElementById('sm-gasto-meta');
+  const sc=document.getElementById('sm-gasto-cost');
+  if(sv) sv.textContent='$'+totalGasto.toLocaleString('es-AR');
+  if(sm_) sm_.textContent=totalPaq+' paquetes · '+figs+' figuritas recibidas';
+  if(sc) sc.textContent=owned>0?'$'+Math.round(totalGasto/owned).toLocaleString('es-AR')+' por figurita pegada':'';
+};
+
+function renderLotesModal(){
+  const c=document.getElementById('lotes-container-m');
+  if(!c) return;
+  c.innerHTML='';
+  (state.lotes||[]).forEach((lote,i)=>{
+    const row=document.createElement('div');
+    row.className='lote-row';
+    row.innerHTML=`<input type="number" class="lote-qty" min="0" placeholder="Cant." value="${lote.qty||''}">
+      <span class="lote-sep">paq a $</span>
+      <input type="number" class="lote-price" min="0" placeholder="Precio" value="${lote.price||''}">
+      <button class="lote-del" data-i="${i}" title="Quitar">✕</button>`;
+    row.querySelector('.lote-qty').addEventListener('input',e=>{
+      state.lotes[i].qty=+e.target.value||0; saveData(); calcGasto();
+    });
+    row.querySelector('.lote-price').addEventListener('input',e=>{
+      state.lotes[i].price=+e.target.value||0; saveData(); calcGasto();
+    });
+    row.querySelector('.lote-del').addEventListener('click',()=>{
+      state.lotes.splice(i,1); saveData(); renderLotes(); renderLotesModal(); calcGasto();
+    });
+    c.appendChild(row);
+  });
+}
+
+function updateStatsModal(){
+  const st=computeStats();
+  const pct=st.total>0?Math.round(st.owned/st.total*100):0;
+  const pctEl=document.getElementById('sm-pct');
+  const fracEl=document.getElementById('sm-frac');
+  const barEl=document.getElementById('sm-bar');
+  if(pctEl) pctEl.textContent=pct+'%';
+  if(fracEl) fracEl.textContent=st.owned+' / '+st.total;
+  if(barEl) barEl.style.width=pct+'%';
+  const inp=document.getElementById('sm-precio-album');
+  if(inp && !inp.matches(':focus')) inp.value=precioAlbum>0?precioAlbum:'';
+  renderLotesModal();
+  calcGasto();
+}
+
+// Reset
+document.getElementById('resetBtn').addEventListener('click',()=>{
+  if(!confirm('¿Querés resetear el álbum?\n\nSe van a borrar todas las figuritas pegadas, repetidas y cambios.')) return;
+  if(!confirm('⚠️ Última confirmación.\n\n¿Estás seguro? Esta acción no se puede deshacer.')) return;
+  state=defaultData(); saveData(); refreshAllStickers(); updateStats(); calcGasto(); renderChart();
+  showToast('Álbum reseteado');
+});
+
+// FAB
+document.getElementById('fabBtn').addEventListener('click',()=>{
+  updateStatsModal();
+  document.getElementById('statsModal').classList.remove('hidden');
+});
+document.getElementById('statsClose').addEventListener('click',()=>{
+  document.getElementById('statsModal').classList.add('hidden');
+});
+document.getElementById('statsModal').addEventListener('click',e=>{
+  if(e.target===document.getElementById('statsModal'))
+    document.getElementById('statsModal').classList.add('hidden');
+});
+
+// Tabs
+document.querySelectorAll('.stats-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.stats-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.stats-panel').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-'+tab.dataset.tab).classList.add('active');
+  });
+});
+
+// Precio álbum
+document.getElementById('sm-precio-album').addEventListener('change',e=>{
+  precioAlbum=+(e.target.value)||0;
+  localStorage.setItem(PRECIO_KEY,precioAlbum);
+  calcGasto();
+});
+
+// Lotes modal
+document.getElementById('addLoteBtn-m').addEventListener('click',()=>{
+  state.lotes.push({qty:0,price:0}); saveData(); renderLotes(); renderLotesModal(); calcGasto();
+});
+
+// Reporte WhatsApp
+document.getElementById('reportarBtn').addEventListener('click',()=>{
+  const st=computeStats();
+  const pct=st.total>0?Math.round(st.owned/st.total*100):0;
+  const msg=encodeURIComponent('🐛 *Reporte - Mi Álbum Mundial 2026*\n\n📊 Estado: '+st.owned+'/'+st.total+' figuritas ('+pct+'%)\n\n❓ Descripción del problema:\n_(escribí acá qué pasó)_');
+  window.open('https://wa.me/5491169340242?text='+msg,'_blank');
+});
 
 renderInitial();
 bindGastoInputs();
