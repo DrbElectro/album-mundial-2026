@@ -274,6 +274,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 .ctrl-row .btn{flex:1;min-width:0;text-align:center;}
 .ctrl-row.stretch{align-items:stretch;}
 .ctrl-row.stretch .btn{display:flex;align-items:center;justify-content:center;}
+.ctrl-mobile-only{display:none;}
 .controls input[type=text],.controls select{
   padding:8px 12px;border:1px solid var(--ink);background:var(--paper);
   font-family:'Archivo',sans-serif;font-weight:500;font-size:13px;color:var(--ink);
@@ -599,10 +600,13 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
   .stickers{grid-template-columns:repeat(5,1fr) !important;gap:5px !important;}
   .side{display:none !important;}
   .fab{display:flex !important;}
+  .ctrl-pc-only{display:none !important;}
+  .ctrl-pc-inline{display:none !important;}
+  .ctrl-mobile-only{display:flex !important;}
   /* Controls mobile */
   .controls{gap:6px;}
   .ctrl-row{flex-wrap:wrap;gap:6px;}
-  .ctrl-row input[type=text]{flex:0 0 100%;min-width:0;max-width:100%;width:100%;}
+  .ctrl-row input[type=text]{flex:0 0 100%;min-width:0;max-width:100%;}
   .ctrl-row select{flex:1 1 calc(50% - 3px);min-width:0;}
   .ctrl-row .btn{flex:0 0 calc(50% - 3px);min-width:0;font-size:11px;padding:8px 4px;text-align:center;}
   /* legend */
@@ -664,35 +668,62 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
       </div>
 
       <div class="controls">
+        <!-- fila 1: buscador -->
         <div class="ctrl-row">
           <input type="text" id="search" placeholder="Buscar país, código o número…">
-          <select id="filterSel">
+          <select id="filterSel" class="ctrl-pc-inline">
             <option value="all">Todas</option>
             <option value="missing">Faltan</option>
             <option value="owned">Pegadas</option>
             <option value="repeated">Repetidas</option>
             <option value="reserved">Cambios futuros</option>
           </select>
-          <select id="sortSel">
+          <select id="sortSel" class="ctrl-pc-inline">
             <option value="default">Orden del álbum</option>
             <option value="completion">Por completado %</option>
             <option value="alpha">A → Z</option>
           </select>
         </div>
+        <!-- fila 2: filtros (solo mobile, en PC están arriba) -->
+        <div class="ctrl-row ctrl-mobile-only">
+          <select id="filterSelM">
+            <option value="all">Todas</option>
+            <option value="missing">Faltan</option>
+            <option value="owned">Pegadas</option>
+            <option value="repeated">Repetidas</option>
+            <option value="reserved">Cambios futuros</option>
+          </select>
+          <select id="sortSelM">
+            <option value="default">Orden del álbum</option>
+            <option value="completion">Por completado %</option>
+            <option value="alpha">A → Z</option>
+          </select>
+        </div>
+        <!-- fila 3: copiar -->
         <div class="ctrl-row">
-          <button class="btn" id="exportTxtBtn">📝 Exportar Lista</button>
           <button class="btn ghost" id="copyFaltantesBtn">📋 Copiar Faltantes</button>
           <button class="btn ghost" id="copyRepetidasBtn">📋 Copiar Repetidas</button>
+        </div>
+        <!-- fila 4: extras PC -->
+        <div class="ctrl-row ctrl-pc-only">
+          <button class="btn" id="exportTxtBtn">📝 Exportar Lista</button>
           <button class="btn ghost" id="autosaveBtn">💾 Auto-Guardado</button>
           <button class="btn ghost" id="importTxtBtn">📥 Importar Lista</button>
           <input type="file" id="importTxtInput" accept=".txt" style="display:none">
         </div>
+        <!-- fila 5: cambio -->
         <div class="ctrl-row stretch">
           <button class="btn" id="canjeBtn" style="background:var(--teal);border-color:var(--teal)">🔄 Cambio x Código</button>
           <button class="btn" id="canjeRapidoBtn" style="background:var(--gold-deep);border-color:var(--gold-deep)">⚡ Cambio Rápido</button>
-          <button class="btn" id="canjesPendientesBtn" style="background:#d4650a;border-color:#d4650a">📌 Cambios Futuros</button>
-          <button class="btn" id="syncBtn" style="background:var(--teal);border-color:var(--teal)">☁ Sync</button>
-          <button class="btn ghost" id="lockBtn">🔓 Bloquear</button>
+        </div>
+        <!-- fila 6: futuros + sync -->
+        <div class="ctrl-row stretch">
+          <button class="btn" id="canjesPendientesBtn" style="flex:1;background:#d4650a;border-color:#d4650a;position:relative">📌 Cambios Futuros<span id="canjesPendientesBadge" style="display:none;position:absolute;top:-6px;right:-6px;background:#fff;color:#d4650a;border-radius:10px;font-size:10px;font-weight:700;padding:1px 5px;line-height:1.4;border:1px solid #d4650a"></span></button>
+          <button class="btn" id="syncBtn" style="flex:1;background:var(--teal);border-color:var(--teal)">☁ Sync</button>
+        </div>
+        <!-- fila 7: bloquear -->
+        <div class="ctrl-row">
+          <button class="btn ghost" id="lockBtn" style="width:100%">🔓 Bloquear</button>
         </div>
       </div>
       <div id="sync-status-bar" class="sync-status-bar"></div>
@@ -2560,6 +2591,20 @@ if(location.hash.startsWith('#canje=')){
 document.getElementById('search').addEventListener('input', applyFilters);
 document.getElementById('filterSel').addEventListener('change', applyFilters);
 document.getElementById('sortSel').addEventListener('change', applyFilters);
+
+// Sync mobile selects with desktop selects
+document.getElementById('filterSelM').addEventListener('change', e=>{
+  document.getElementById('filterSel').value = e.target.value; applyFilters();
+});
+document.getElementById('sortSelM').addEventListener('change', e=>{
+  document.getElementById('sortSel').value = e.target.value; applyFilters();
+});
+document.getElementById('filterSel').addEventListener('change', e=>{
+  document.getElementById('filterSelM').value = e.target.value;
+});
+document.getElementById('sortSel').addEventListener('change', e=>{
+  document.getElementById('sortSelM').value = e.target.value;
+});
 
 // ===== PRECIO ÁLBUM =====
 const PRECIO_KEY = 'album_precio_album_v1';
