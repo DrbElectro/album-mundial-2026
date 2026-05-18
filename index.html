@@ -2803,11 +2803,12 @@ renderChart();
       <!-- Resultados -->
       <div id="webScanResultsWrap" style="display:none;margin-top:16px">
         <p class="scan-section-title">Figuritas detectadas</p>
-        <div id="webScanResultsList" style="display:flex;flex-wrap:wrap;gap:8px;max-height:200px;overflow-y:auto;margin-bottom:16px"></div>
-        <div style="display:flex;gap:10px">
-          <button class="btn ghost" id="webScanRetryBtn" style="flex:1">↺ Nueva foto</button>
-          <button class="btn" id="webScanApplyBtn" style="flex:2;background:var(--green);border-color:var(--green)">✅ Marcar Recibidas</button>
+        <div id="webScanResultsList" style="display:flex;flex-wrap:wrap;gap:8px;max-height:200px;overflow-y:auto;margin-bottom:12px"></div>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <button class="btn ghost" id="webScanRetryBtn" style="flex:1;font-size:12px">↺ Limpiar</button>
+          <button class="btn ghost" id="webScanAddBtn" style="flex:1;font-size:12px">📷 + Foto</button>
         </div>
+        <button class="btn" id="webScanApplyBtn" style="width:100%;background:var(--green);border-color:var(--green)">✅ Marcar Recibidas</button>
       </div>
     </div>
   </div>
@@ -2869,11 +2870,12 @@ renderChart();
       <!-- Results -->
       <div id="scanTradeResultsWrap" style="display:none;margin-top:16px">
         <p class="scan-section-title" id="scanTradeResultsTitle">Figuritas que DAS</p>
-        <div id="scanTradeResultsList" style="display:flex;flex-wrap:wrap;gap:8px;max-height:200px;overflow-y:auto;margin-bottom:16px"></div>
-        <div style="display:flex;gap:10px">
-          <button class="btn ghost" id="scanTradeRetryBtn" style="flex:1">↺ Nueva foto</button>
-          <button class="btn" id="scanTradeNextBtn" style="flex:2;background:var(--red);border-color:var(--red)">Siguiente: lo que recibo ›</button>
+        <div id="scanTradeResultsList" style="display:flex;flex-wrap:wrap;gap:8px;max-height:200px;overflow-y:auto;margin-bottom:12px"></div>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <button class="btn ghost" id="scanTradeRetryBtn" style="flex:1;font-size:12px">↺ Limpiar</button>
+          <button class="btn ghost" id="scanTradeAddBtn" style="flex:1;font-size:12px">📷 + Foto</button>
         </div>
+        <button class="btn" id="scanTradeNextBtn" style="width:100%;background:var(--red);border-color:var(--red)">Siguiente: lo que recibo ›</button>
       </div>
     </div>
   </div>
@@ -2897,6 +2899,8 @@ document.getElementById('webScanModal').addEventListener('click', e => {
 });
 // 'scan' | 'trade' — enruta los callbacks de ML Kit al modal correcto
 let currentScanContext = 'scan';
+// true cuando el usuario quiere agregar otra foto sin limpiar la lista
+let scanAddMode = false;
 
 document.getElementById('webScanCameraBtn').addEventListener('click', () => {
   currentScanContext = 'scan';
@@ -2915,7 +2919,17 @@ document.getElementById('webScanGalleryBtn').addEventListener('click', () => {
 });
 document.getElementById('webScanCameraInput').addEventListener('change', e => handleWebScanFile(e.target.files[0]));
 document.getElementById('webScanGalleryInput').addEventListener('change', e => handleWebScanFile(e.target.files[0]));
-document.getElementById('webScanRetryBtn').addEventListener('click', () => { stopWebScanCamera(); resetWebScan(); });
+document.getElementById('webScanRetryBtn').addEventListener('click', () => {
+  scanAddMode = false;
+  stopWebScanCamera();
+  resetWebScan();
+});
+document.getElementById('webScanAddBtn').addEventListener('click', () => {
+  scanAddMode = true;
+  currentScanContext = 'scan';
+  if (typeof Android !== 'undefined') Android.openCamera();
+  else openWebScanCamera();
+});
 
 let webScanStream = null;
 
@@ -2980,7 +2994,8 @@ function handleWebScanFile(file) {
   preview.src = rawUrl;
   preview.style.display = 'block';
   document.getElementById('webScanStep0').style.display = 'none';
-  document.getElementById('webScanResultsWrap').style.display = 'none';
+  document.getElementById('webScanCamView').style.display = 'none';
+  if (!scanAddMode) document.getElementById('webScanResultsWrap').style.display = 'none';
   document.getElementById('webScanNoResults').style.display = 'none';
   document.getElementById('webScanProgressWrap').style.display = 'block';
   document.getElementById('webScanProgressFill').style.width = '5%';
@@ -3040,7 +3055,8 @@ function onOCRTextReady(text) {
         + '<textarea readonly class="scan-debug">' + (text || '(vacío)').substring(0, 600) + '</textarea>';
       el.style.display = 'block';
     } else {
-      renderWebScanResults(found);
+      if (scanAddMode) appendWebScanResults(found);
+      else renderWebScanResults(found);
     }
   } else {
     document.getElementById('scanTradeProgressWrap').style.display = 'none';
@@ -3050,9 +3066,11 @@ function onOCRTextReady(text) {
         + '<textarea readonly class="scan-debug">' + (text || '(vacío)').substring(0, 600) + '</textarea>';
       el.style.display = 'block';
     } else {
-      renderScanTradeResults(found);
+      if (scanAddMode) appendScanTradeResults(found);
+      else renderScanTradeResults(found);
     }
   }
+  scanAddMode = false;
 }
 
 // API key gratuita de OCR.space. La demo 'helloworld' funciona pero está
@@ -3096,8 +3114,10 @@ async function runWebOCR(dataUrl) {
       el.innerHTML = '<p style="font-size:12px;color:var(--ink-soft);text-align:center;line-height:1.5;margin-bottom:8px">No se encontraron códigos. Probá con una foto más cercana y con buena luz.</p><textarea readonly class="scan-debug">' + (text || '(vacío)').substring(0,600) + '</textarea>';
       el.style.display = 'block';
     } else {
-      renderWebScanResults(found);
+      if (scanAddMode) appendWebScanResults(found);
+      else renderWebScanResults(found);
     }
+    scanAddMode = false;
   } catch (err) {
     const msg = (err && (err.message || String(err))) || 'desconocido';
     document.getElementById('webScanProgressText').textContent = 'Error: ' + msg;
@@ -3121,18 +3141,24 @@ function parseStickerCodesWeb(rawText) {
   return allIdsList.filter(id => found.has(id));
 }
 
+function makeScanChip(id) {
+  const realId = Object.keys(state.stickers).find(k => k.toUpperCase() === id) || id;
+  const current = state.stickers[realId] || 0;
+  const label = ['falta','pegada','×1 rep','×2 rep','×3 rep','×4 rep'][Math.min(current, 5)] || `×${current-1} rep`;
+  const chip = document.createElement('label');
+  chip.className = 'scan-chip';
+  chip.innerHTML = `<input type="checkbox" data-id="${id}" checked><span class="sc-id">${displayId(realId)}</span><span class="sc-st">${label}</span>`;
+  return chip;
+}
 function renderWebScanResults(ids) {
   const list = document.getElementById('webScanResultsList');
   list.innerHTML = '';
-  ids.forEach(id => {
-    const realId = Object.keys(state.stickers).find(k => k.toUpperCase() === id) || id;
-    const current = state.stickers[realId] || 0;
-    const label = ['falta','pegada','×1 rep','×2 rep','×3 rep','×4 rep'][Math.min(current, 5)] || `×${current-1} rep`;
-    const chip = document.createElement('label');
-    chip.className = 'scan-chip';
-    chip.innerHTML = `<input type="checkbox" data-id="${id}" checked><span class="sc-id">${displayId(realId)}</span><span class="sc-st">${label}</span>`;
-    list.appendChild(chip);
-  });
+  ids.forEach(id => list.appendChild(makeScanChip(id)));
+  document.getElementById('webScanResultsWrap').style.display = 'block';
+}
+function appendWebScanResults(ids) {
+  const list = document.getElementById('webScanResultsList');
+  ids.forEach(id => list.appendChild(makeScanChip(id)));
   document.getElementById('webScanResultsWrap').style.display = 'block';
 }
 
@@ -3266,7 +3292,8 @@ function handleScanTradeFile(file) {
   preview.src = rawUrl;
   preview.style.display = 'block';
   document.getElementById('scanTradeStep0').style.display = 'none';
-  document.getElementById('scanTradeResultsWrap').style.display = 'none';
+  document.getElementById('scanTradeCamView').style.display = 'none';
+  if (!scanAddMode) document.getElementById('scanTradeResultsWrap').style.display = 'none';
   document.getElementById('scanTradeNoResults').style.display = 'none';
   document.getElementById('scanTradeProgressWrap').style.display = 'block';
   document.getElementById('scanTradeProgressFill').style.width = '5%';
@@ -3317,34 +3344,41 @@ async function runScanTradeOCR(dataUrl) {
         + '<textarea readonly class="scan-debug">' + (text || '(vacío)').substring(0, 600) + '</textarea>';
       el.style.display = 'block';
     } else {
-      renderScanTradeResults(found);
+      if (scanAddMode) appendScanTradeResults(found);
+      else renderScanTradeResults(found);
     }
+    scanAddMode = false;
   } catch (err) {
     document.getElementById('scanTradeProgressText').textContent = 'Error: ' + ((err && err.message) || String(err));
   }
 }
 
 /* ---- render checklist ---- */
+function makeScanTradeChip(id) {
+  const ph1 = scanTradePhase === 1;
+  const realId = Object.keys(state.stickers).find(k => k.toUpperCase() === id) || id;
+  const cur = state.stickers[realId] || 0;
+  const warn = ph1 && cur === 0;
+  const checked = !warn;
+  let label;
+  if (ph1) label = cur === 0 ? '⚠ no tenés' : cur === 1 ? 'pegada' : `×${cur - 1} rep`;
+  else     label = cur === 0 ? 'falta' : cur === 1 ? 'pegada' : `×${cur - 1} rep`;
+  const chip = document.createElement('label');
+  chip.className = 'scan-chip';
+  chip.innerHTML = `<input type="checkbox" data-id="${id}" ${checked ? 'checked' : ''}>`
+    + `<span class="sc-id">${displayId(realId)}</span>`
+    + `<span class="sc-st" style="${warn ? 'color:var(--red)' : ''}">${label}</span>`;
+  return chip;
+}
 function renderScanTradeResults(ids) {
   const list = document.getElementById('scanTradeResultsList');
   list.innerHTML = '';
-  const ph1 = scanTradePhase === 1;
-  ids.forEach(id => {
-    const realId = Object.keys(state.stickers).find(k => k.toUpperCase() === id) || id;
-    const cur = state.stickers[realId] || 0;
-    // En fase 1 (dar): avisar si no tiene la figurita; en fase 2 (recibir): siempre tildada
-    const warn = ph1 && cur === 0;
-    const checked = !warn; // auto-destildar si no la tiene en fase 1
-    let label;
-    if (ph1) label = cur === 0 ? '⚠ no tenés' : cur === 1 ? 'pegada' : `×${cur - 1} rep`;
-    else       label = cur === 0 ? 'falta' : cur === 1 ? 'pegada' : `×${cur - 1} rep`;
-    const chip = document.createElement('label');
-    chip.className = 'scan-chip';
-    chip.innerHTML = `<input type="checkbox" data-id="${id}" ${checked ? 'checked' : ''}>`
-      + `<span class="sc-id">${displayId(realId)}</span>`
-      + `<span class="sc-st" style="${warn ? 'color:var(--red)' : ''}">${label}</span>`;
-    list.appendChild(chip);
-  });
+  ids.forEach(id => list.appendChild(makeScanTradeChip(id)));
+  document.getElementById('scanTradeResultsWrap').style.display = 'block';
+}
+function appendScanTradeResults(ids) {
+  const list = document.getElementById('scanTradeResultsList');
+  ids.forEach(id => list.appendChild(makeScanTradeChip(id)));
   document.getElementById('scanTradeResultsWrap').style.display = 'block';
 }
 
@@ -3430,9 +3464,18 @@ document.getElementById('scanTradeCameraInput').addEventListener('change', e =>
 document.getElementById('scanTradeGalleryInput').addEventListener('change', e =>
   handleScanTradeFile(e.target.files[0]));
 document.getElementById('scanTradeRetryBtn').addEventListener('click', () => {
+  scanAddMode = false;
   stopScanTradeCamera();
+  // limpiar lista de resultados de esta fase
+  document.getElementById('scanTradeResultsList').innerHTML = '';
   resetScanTradeStep();
   updateScanTradePhaseUI();
+});
+document.getElementById('scanTradeAddBtn').addEventListener('click', () => {
+  scanAddMode = true;
+  currentScanContext = 'trade';
+  if (typeof Android !== 'undefined') Android.openCamera();
+  else openScanTradeCamera();
 });
 </script>
 
