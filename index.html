@@ -2819,17 +2819,40 @@ function resetWebScan() {
 
 function handleWebScanFile(file) {
   if (!file) return;
-  const url = URL.createObjectURL(file);
+  const rawUrl = URL.createObjectURL(file);
   const preview = document.getElementById('webScanPreview');
-  preview.src = url;
+  preview.src = rawUrl;
   preview.style.display = 'block';
   document.getElementById('webScanStep0').style.display = 'none';
   document.getElementById('webScanResultsWrap').style.display = 'none';
   document.getElementById('webScanNoResults').style.display = 'none';
   document.getElementById('webScanProgressWrap').style.display = 'block';
   document.getElementById('webScanProgressFill').style.width = '5%';
-  document.getElementById('webScanProgressText').textContent = 'Cargando motor OCR...';
-  runWebOCR(url);
+  document.getElementById('webScanProgressText').textContent = 'Procesando imagen...';
+
+  const img = new Image();
+  img.onload = () => {
+    // Escalar y preprocesar para mejorar OCR
+    const maxW = 1800;
+    let w = img.width, h = img.height;
+    if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, w, h);
+    // Escala de grises + contraste fuerte para resaltar texto blanco sobre fondo negro
+    const id = ctx.getImageData(0, 0, w, h);
+    const d = id.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const gray = 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
+      const c = Math.max(0, Math.min(255, (gray - 128) * 2.2 + 128));
+      d[i] = d[i+1] = d[i+2] = c;
+    }
+    ctx.putImageData(id, 0, 0);
+    URL.revokeObjectURL(rawUrl);
+    runWebOCR(canvas.toDataURL('image/jpeg', 0.95));
+  };
+  img.src = rawUrl;
 }
 
 async function runWebOCR(imageUrl) {
