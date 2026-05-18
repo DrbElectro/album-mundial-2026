@@ -2785,7 +2785,6 @@ renderChart();
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 <script>
 // ===== SCAN WEB =====
 document.getElementById('webScanBtn').addEventListener('click', () => {
@@ -2832,66 +2831,66 @@ function handleWebScanFile(file) {
 
   const img = new Image();
   img.onload = () => {
-    const maxW = 1800;
+    // Reducir tamaño para no superar el límite de 1MB de OCR.space (free)
+    const maxW = 1500;
     let w = img.width, h = img.height;
     if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
-
-    function processCanvas(invert) {
-      const canvas = document.createElement('canvas');
-      canvas.width = w; canvas.height = h;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, w, h);
-      const id = ctx.getImageData(0, 0, w, h);
-      const d = id.data;
-      for (let i = 0; i < d.length; i += 4) {
-        let gray = 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
-        if (invert) gray = 255 - gray;
-        const c = Math.max(0, Math.min(255, (gray - 128) * 2.2 + 128));
-        d[i] = d[i+1] = d[i+2] = c;
-      }
-      ctx.putImageData(id, 0, 0);
-      return canvas.toDataURL('image/jpeg', 0.95);
-    }
-
-    const normalUrl = processCanvas(false);
-    const invertedUrl = processCanvas(true);
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, w, h);
     URL.revokeObjectURL(rawUrl);
-    runWebOCR(normalUrl, invertedUrl);
+    // Foto natural (sin filtros) — el motor real funciona mejor así, como ML Kit
+    let q = 0.82;
+    let dataUrl = canvas.toDataURL('image/jpeg', q);
+    while (dataUrl.length > 1330000 && q > 0.4) { // ~1MB en base64
+      q -= 0.12;
+      dataUrl = canvas.toDataURL('image/jpeg', q);
+    }
+    runWebOCR(dataUrl);
   };
   img.src = rawUrl;
 }
 
-async function runWebOCR(imageUrl, invertedUrl) {
+// API key gratuita de OCR.space. La demo 'helloworld' funciona pero está
+// limitada (10 req/10min). Para uso real registrá una key gratis en:
+// https://ocr.space/ocrapi/freekey  (25.000 escaneos/mes, sin tarjeta)
+const OCR_SPACE_KEY = 'helloworld';
+
+async function runWebOCR(dataUrl) {
   try {
-    function logger(pass) {
-      return m => {
-        if (m.status === 'recognizing text') {
-          const base = pass === 1 ? 0 : 50;
-          const pct = base + Math.round(m.progress * 50);
-          document.getElementById('webScanProgressFill').style.width = pct + '%';
-          document.getElementById('webScanProgressText').textContent = 'Reconociendo... ' + pct + '%';
-        } else if (m.status === 'loading tesseract core') {
-          document.getElementById('webScanProgressText').textContent = 'Cargando motor...';
-          document.getElementById('webScanProgressFill').style.width = '10%';
-        } else if (m.status === 'loading language traineddata') {
-          document.getElementById('webScanProgressText').textContent = 'Cargando idioma...';
-          document.getElementById('webScanProgressFill').style.width = '20%';
-        }
-      };
+    document.getElementById('webScanProgressFill').style.width = '35%';
+    document.getElementById('webScanProgressText').textContent = 'Analizando imagen...';
+
+    const form = new FormData();
+    form.append('apikey', OCR_SPACE_KEY);
+    form.append('base64Image', dataUrl);
+    form.append('language', 'eng');
+    form.append('OCREngine', '2');
+    form.append('scale', 'true');
+    form.append('isOverlayRequired', 'false');
+    form.append('detectOrientation', 'true');
+
+    const resp = await fetch('https://api.ocr.space/parse/image', {
+      method: 'POST',
+      body: form
+    });
+    document.getElementById('webScanProgressFill').style.width = '80%';
+    const json = await resp.json();
+
+    if (json.IsErroredOnProcessing) {
+      const e = Array.isArray(json.ErrorMessage) ? json.ErrorMessage.join(' ') : json.ErrorMessage;
+      throw new Error(e || 'Error del servidor OCR');
     }
-    const ocrOpts = {
-      tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ',
-      tessedit_pageseg_mode: '11'
-    };
-    const { data: { text: text1 } } = await Tesseract.recognize(imageUrl, 'eng', { logger: logger(1), ...ocrOpts });
-    document.getElementById('webScanProgressText').textContent = 'Segunda pasada...';
-    const { data: { text: text2 } } = await Tesseract.recognize(invertedUrl, 'eng', { logger: logger(2), ...ocrOpts });
-    const text = text1 + '\n' + text2;
+
+    const text = (json.ParsedResults && json.ParsedResults[0])
+      ? json.ParsedResults[0].ParsedText : '';
+
     document.getElementById('webScanProgressWrap').style.display = 'none';
     const found = parseStickerCodesWeb(text);
     if (found.length === 0) {
       const el = document.getElementById('webScanNoResults');
-      el.innerHTML = 'No se encontraron códigos.<br><textarea readonly style="width:100%;height:120px;font-size:11px;background:#fff;color:#000;border:1px solid #999;margin-top:6px;padding:4px">' + text.substring(0,600) + '</textarea>';
+      el.innerHTML = 'No se encontraron códigos.<br><textarea readonly style="width:100%;height:120px;font-size:11px;background:#fff;color:#000;border:1px solid #999;margin-top:6px;padding:4px">' + (text || '(vacío)').substring(0,600) + '</textarea>';
       el.style.display = 'block';
     } else {
       renderWebScanResults(found);
