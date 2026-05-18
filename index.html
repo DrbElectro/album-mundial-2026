@@ -2834,10 +2834,7 @@ function handleWebScanFile(file) {
 
 async function runWebOCR(imageUrl) {
   try {
-    const worker = await Tesseract.createWorker('eng', 1, {
-      workerPath: 'https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/worker.min.js',
-      corePath: 'https://cdn.jsdelivr.net/npm/tesseract.js-core@4/tesseract-core.wasm.js',
-      langPath: 'https://tessdata.projectnaptha.com/4.0.0',
+    const { data: { text } } = await Tesseract.recognize(imageUrl, 'eng', {
       logger: m => {
         if (m.status === 'recognizing text') {
           const pct = Math.round(m.progress * 100);
@@ -2852,8 +2849,6 @@ async function runWebOCR(imageUrl) {
         }
       }
     });
-    const { data: { text } } = await worker.recognize(imageUrl);
-    await worker.terminate();
     document.getElementById('webScanProgressWrap').style.display = 'none';
     const found = parseStickerCodesWeb(text);
     if (found.length === 0) {
