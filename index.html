@@ -2046,7 +2046,8 @@ function updateCanjesPendientesBtn(){
   const btn = document.getElementById('canjesPendientesBtn');
   if(!btn) return;
   const n = canjesPendientesCount();
-  btn.textContent = n>0 ? `📌 Cambios Futuros (${n})` : '📌 Cambios Futuros';
+  const badge = document.getElementById('canjesPendientesBadge');
+  if(badge){ badge.textContent = n; badge.style.display = n>0 ? 'inline-block' : 'none'; }
 }
 
 let ecDarSel = new Set();
