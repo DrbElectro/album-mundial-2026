@@ -452,18 +452,64 @@
       <div class="section-num">10</div>
       <div class="section-title">Escanear figuritas con la cámara</div>
     </div>
-    <p style="font-size:10.5pt;color:var(--soft);margin-bottom:12px">Fotografiá tus figuritas y la app detecta automáticamente los códigos usando reconocimiento óptico de texto (OCR). Disponible en la app web y en la app Android.</p>
+    <p style="font-size:10.5pt;color:var(--soft);margin-bottom:14px">Fotografiá tus figuritas y la app detecta automáticamente los códigos (OCR). Disponible en la versión web y en la app Android.</p>
+
+    <!-- mockup: botones en la barra -->
+    <div style="background:var(--paper-2);border:1.5px solid var(--rule);border-radius:6px;padding:14px 16px;margin-bottom:16px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:8pt;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);margin-bottom:10px">Barra de controles</div>
+      <div style="display:flex;gap:8px">
+        <div style="flex:1;background:#15407a;color:#fff;border-radius:5px;padding:9px 8px;text-align:center;font-family:'Archivo',sans-serif;font-weight:700;font-size:10pt">📷 Escanear</div>
+        <div style="flex:1;background:#15407a;color:#fff;border-radius:5px;padding:9px 8px;text-align:center;font-family:'Archivo',sans-serif;font-weight:700;font-size:10pt;opacity:.45">🔄 Cambio x Escaneo</div>
+      </div>
+    </div>
+
+    <!-- mockup: modal de escaneo -->
+    <div style="background:#fff;border:2px solid #1a1814;border-radius:4px;padding:0;margin-bottom:16px;overflow:hidden">
+      <div style="background:#1a1814;color:#fff;padding:10px 14px;font-family:'Archivo Black',sans-serif;font-size:10pt;display:flex;justify-content:space-between;align-items:center">
+        <span>📷 Escanear Figuritas</span><span style="opacity:.5">✕</span>
+      </div>
+      <div style="padding:14px">
+        <p style="font-size:9.5pt;color:var(--soft);text-align:center;margin-bottom:12px">Sacá una foto donde se vean los <strong>códigos</strong> de tus figuritas — ej: <strong>GHA 6</strong>, <strong>PAN 5</strong>.</p>
+        <div style="display:flex;gap:8px;margin-bottom:14px">
+          <div style="flex:1;background:#15407a;color:#fff;border-radius:5px;padding:8px;text-align:center;font-weight:700;font-size:9.5pt">📷 Cámara</div>
+          <div style="flex:1;border:1.5px solid #1a1814;border-radius:5px;padding:8px;text-align:center;font-weight:700;font-size:9.5pt;color:#1a1814">🖼 Galería</div>
+        </div>
+        <!-- chips resultado -->
+        <div style="font-family:'Archivo Black',sans-serif;font-size:9pt;text-transform:uppercase;letter-spacing:.08em;border-bottom:2px solid #1a1814;padding-bottom:5px;margin-bottom:10px">Figuritas detectadas</div>
+        <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px">
+          <div style="display:flex;align-items:center;gap:6px;background:#ede5cc;border:1.5px solid #1a1814;border-radius:3px;padding:5px 9px">
+            <input type="checkbox" checked disabled style="width:13px;height:13px">
+            <span style="font-family:'Archivo Black',sans-serif;font-size:13pt">GHA 6</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:9pt;color:#3d362b">×2 rep</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;background:#ede5cc;border:1.5px solid #1a1814;border-radius:3px;padding:5px 9px">
+            <input type="checkbox" checked disabled style="width:13px;height:13px">
+            <span style="font-family:'Archivo Black',sans-serif;font-size:13pt">PAN 5</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:9pt;color:#3d362b">falta</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;background:#ede5cc;border:1.5px solid #1a1814;border-radius:3px;padding:5px 9px">
+            <input type="checkbox" checked disabled style="width:13px;height:13px">
+            <span style="font-family:'Archivo Black',sans-serif;font-size:13pt">ARG 12</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:9pt;color:#3d362b">pegada</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <div style="flex:1;border:1.5px solid #1a1814;border-radius:5px;padding:8px;text-align:center;font-size:9.5pt;color:#1a1814;font-weight:700">↺ Nueva foto</div>
+          <div style="flex:2;background:#2f7a3e;color:#fff;border-radius:5px;padding:8px;text-align:center;font-weight:700;font-size:9.5pt">✅ Marcar Recibidas</div>
+        </div>
+      </div>
+    </div>
 
     <ol class="steps">
-      <li>Tocá el botón <strong>📷 Escanear</strong> en la barra de controles.</li>
-      <li>Apretá <strong>📷 Cámara</strong> para abrir la cámara trasera en vivo (o <em>🖼 Galería</em> para elegir una foto ya tomada).</li>
-      <li>Encuadrá las figuritas de modo que los <strong>códigos de sección</strong> (ej: <em>GHA 6</em>, <em>ARG 12</em>) sean visibles y nítidos. Tocá <strong>📸 Capturar</strong>.</li>
-      <li>La app analiza la imagen y muestra la lista de figuritas detectadas con un checkbox por cada una.</li>
-      <li>Destildá las que no querés aplicar y tocá <strong>✅ Marcar Recibidas</strong>. Cada figurita seleccionada suma 1 a tu conteo.</li>
+      <li>Tocá <strong>📷 Escanear</strong> en la barra de controles.</li>
+      <li>Elegí <strong>📷 Cámara</strong> (abre la cámara trasera en vivo) o <strong>🖼 Galería</strong> para una foto existente.</li>
+      <li>Encuadrá los <strong>códigos de sección</strong> (ej: <em>GHA 6</em>) de forma nítida y tocá <strong>📸 Capturar</strong>.</li>
+      <li>La app analiza la imagen y lista las figuritas encontradas con checkboxes. Destildá las que no querés.</li>
+      <li>Tocá <strong>✅ Marcar Recibidas</strong>. Cada figurita tildada suma 1 a tu conteo.</li>
     </ol>
 
     <div class="tip">
-      Funciona mejor con buena luz y de cerca. Si no detecta nada, aparece el texto extraído para que puedas ver qué leyó la cámara.
+      Funciona mejor con buena luz y cerca. Si no detecta nada, aparece el texto extraído para que puedas ver qué leyó la cámara.
     </div>
   </div>
 
@@ -473,25 +519,110 @@
       <div class="section-num">11</div>
       <div class="section-title">Cambio x Escaneo</div>
     </div>
-    <p style="font-size:10.5pt;color:var(--soft);margin-bottom:12px">Registrá un intercambio físico en dos pasos: primero escaneás las que <strong>das</strong>, después las que <strong>recibís</strong>. Al confirmar, el álbum se actualiza solo.</p>
+    <p style="font-size:10.5pt;color:var(--soft);margin-bottom:14px">Registrá un intercambio físico escaneando primero las que <strong>das</strong> y luego las que <strong>recibís</strong>. Al confirmar, el álbum se actualiza solo en ambos sentidos.</p>
 
-    <ol class="steps">
-      <li>Tocá <strong>🔄 Cambio x Escaneo</strong> en la barra de controles.</li>
-      <li><strong>Fase 1 — Lo que DOY:</strong> fotografiá las figuritas que le vas a dar a tu amigo. Se muestra la lista detectada; destildá las que no entran en el cambio. Tocá <strong>Siguiente: lo que recibo ›</strong>.</li>
-      <li><strong>Fase 2 — Lo que RECIBO:</strong> fotografiá las figuritas que tu amigo te da. Ajustá los checkboxes si hace falta.</li>
-      <li>Tocá <strong>✓ Confirmar cambio</strong>. Las figuritas que diste bajan 1 en tu conteo; las que recibiste suben 1.</li>
-    </ol>
-
-    <div class="item" style="margin-top:8px">
-      <div class="item-icon">⚠️</div>
-      <div class="item-body">
-        <strong>Aviso de figuritas sin repetidas</strong>
-        <p>En la fase 1, si la app detecta una figurita que solo tenés pegada (sin repetidas) el chip aparece en rojo y sin tildar, para evitar marcarla por error. Podés tildarla manualmente si es lo que querés.</p>
+    <!-- mockup: botones barra -->
+    <div style="background:var(--paper-2);border:1.5px solid var(--rule);border-radius:6px;padding:14px 16px;margin-bottom:16px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:8pt;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);margin-bottom:10px">Barra de controles</div>
+      <div style="display:flex;gap:8px">
+        <div style="flex:1;background:#15407a;color:#fff;border-radius:5px;padding:9px 8px;text-align:center;font-family:'Archivo',sans-serif;font-weight:700;font-size:10pt;opacity:.45">📷 Escanear</div>
+        <div style="flex:1;background:#15407a;color:#fff;border-radius:5px;padding:9px 8px;text-align:center;font-family:'Archivo',sans-serif;font-weight:700;font-size:10pt">🔄 Cambio x Escaneo</div>
       </div>
     </div>
 
+    <!-- mockup: modal fase 1 -->
+    <div style="background:#fff;border:2px solid #1a1814;border-radius:4px;overflow:hidden;margin-bottom:10px">
+      <div style="background:#1a1814;color:#fff;padding:10px 14px;font-family:'Archivo Black',sans-serif;font-size:10pt;display:flex;justify-content:space-between">
+        <span>🔄 Cambio x Escaneo</span><span style="opacity:.5">✕</span>
+      </div>
+      <div style="padding:14px">
+        <!-- tabs -->
+        <div style="display:flex;border:2px solid #1a1814;margin-bottom:12px">
+          <div style="flex:1;background:#c0392b;color:#fff;text-align:center;padding:7px 4px;font-family:'Archivo Black',sans-serif;font-size:9.5pt;letter-spacing:.06em;text-transform:uppercase">1 · Lo que DOY</div>
+          <div style="flex:1;background:#ddd0ad;color:#3d362b;text-align:center;padding:7px 4px;font-family:'Archivo Black',sans-serif;font-size:9.5pt;letter-spacing:.06em;text-transform:uppercase">2 · Lo que RECIBO</div>
+        </div>
+        <p style="font-size:9.5pt;color:var(--soft);text-align:center;margin-bottom:12px">Sacá una foto de las figuritas que vas a <strong>DAR</strong>.</p>
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <div style="flex:1;background:#15407a;color:#fff;border-radius:5px;padding:8px;text-align:center;font-weight:700;font-size:9.5pt">📷 Cámara</div>
+          <div style="flex:1;border:1.5px solid #1a1814;border-radius:5px;padding:8px;text-align:center;font-weight:700;font-size:9.5pt">🖼 Galería</div>
+        </div>
+        <!-- chips con aviso -->
+        <div style="font-family:'Archivo Black',sans-serif;font-size:9pt;text-transform:uppercase;letter-spacing:.08em;border-bottom:2px solid #1a1814;padding-bottom:5px;margin-bottom:10px">Figuritas que DAS</div>
+        <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px">
+          <div style="display:flex;align-items:center;gap:6px;background:#ede5cc;border:1.5px solid #1a1814;border-radius:3px;padding:5px 9px">
+            <input type="checkbox" checked disabled style="width:13px;height:13px">
+            <span style="font-family:'Archivo Black',sans-serif;font-size:13pt">GHA 6</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:9pt;color:#3d362b">×2 rep</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;background:#ede5cc;border:1.5px solid #1a1814;border-radius:3px;padding:5px 9px">
+            <input type="checkbox" disabled style="width:13px;height:13px">
+            <span style="font-family:'Archivo Black',sans-serif;font-size:13pt">PAN 3</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:9pt;color:#c0392b">⚠ no tenés</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <div style="flex:1;border:1.5px solid #1a1814;border-radius:5px;padding:8px;text-align:center;font-size:9.5pt;font-weight:700">↺ Nueva foto</div>
+          <div style="flex:2;background:#c0392b;color:#fff;border-radius:5px;padding:8px;text-align:center;font-weight:700;font-size:9.5pt">Siguiente: lo que recibo ›</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- flecha entre fases -->
+    <div style="text-align:center;font-size:18pt;margin:4px 0 8px;color:var(--soft)">↓</div>
+
+    <!-- mockup: modal fase 2 -->
+    <div style="background:#fff;border:2px solid #1a1814;border-radius:4px;overflow:hidden;margin-bottom:16px">
+      <div style="background:#1a1814;color:#fff;padding:10px 14px;font-family:'Archivo Black',sans-serif;font-size:10pt;display:flex;justify-content:space-between">
+        <span>🔄 Cambio x Escaneo</span><span style="opacity:.5">✕</span>
+      </div>
+      <div style="padding:14px">
+        <!-- tabs -->
+        <div style="display:flex;border:2px solid #1a1814;margin-bottom:12px">
+          <div style="flex:1;background:#ddd0ad;color:#3d362b;text-align:center;padding:7px 4px;font-family:'Archivo Black',sans-serif;font-size:9.5pt;letter-spacing:.06em;text-transform:uppercase">1 · Lo que DOY</div>
+          <div style="flex:1;background:#2f7a3e;color:#fff;text-align:center;padding:7px 4px;font-family:'Archivo Black',sans-serif;font-size:9.5pt;letter-spacing:.06em;text-transform:uppercase">2 · Lo que RECIBO</div>
+        </div>
+        <!-- resumen fase 1 -->
+        <div style="border:1.5px dashed #c9bb95;background:#ede5cc;padding:8px 10px;margin-bottom:12px">
+          <div style="font-family:'Archivo Black',sans-serif;font-size:9pt;text-transform:uppercase;letter-spacing:.08em;color:#3d362b;margin-bottom:7px">Lo que doy</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <span style="background:#c0392b;color:#fff;font-family:'Archivo Black',sans-serif;font-size:10.5pt;padding:2px 8px">GHA 6</span>
+          </div>
+        </div>
+        <p style="font-size:9.5pt;color:var(--soft);text-align:center;margin-bottom:12px">Ahora sacá una foto de las figuritas que vas a <strong>RECIBIR</strong>.</p>
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <div style="flex:1;background:#15407a;color:#fff;border-radius:5px;padding:8px;text-align:center;font-weight:700;font-size:9.5pt">📷 Cámara</div>
+          <div style="flex:1;border:1.5px solid #1a1814;border-radius:5px;padding:8px;text-align:center;font-weight:700;font-size:9.5pt">🖼 Galería</div>
+        </div>
+        <!-- chips recibir -->
+        <div style="font-family:'Archivo Black',sans-serif;font-size:9pt;text-transform:uppercase;letter-spacing:.08em;border-bottom:2px solid #1a1814;padding-bottom:5px;margin-bottom:10px">Figuritas que RECIBÍS</div>
+        <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px">
+          <div style="display:flex;align-items:center;gap:6px;background:#ede5cc;border:1.5px solid #1a1814;border-radius:3px;padding:5px 9px">
+            <input type="checkbox" checked disabled style="width:13px;height:13px">
+            <span style="font-family:'Archivo Black',sans-serif;font-size:13pt">BRA 8</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:9pt;color:#3d362b">falta</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;background:#ede5cc;border:1.5px solid #1a1814;border-radius:3px;padding:5px 9px">
+            <input type="checkbox" checked disabled style="width:13px;height:13px">
+            <span style="font-family:'Archivo Black',sans-serif;font-size:13pt">FRA 2</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:9pt;color:#3d362b">falta</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <div style="flex:1;border:1.5px solid #1a1814;border-radius:5px;padding:8px;text-align:center;font-size:9.5pt;font-weight:700">↺ Nueva foto</div>
+          <div style="flex:2;background:#2f7a3e;color:#fff;border-radius:5px;padding:8px;text-align:center;font-weight:700;font-size:9.5pt">✓ Confirmar cambio</div>
+        </div>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li>Tocá <strong>🔄 Cambio x Escaneo</strong> en la barra de controles.</li>
+      <li><span class="badge b-red">Fase 1</span> Fotografiá las figuritas que le vas a <strong>dar</strong>. Destildá las que no entran. Si una figurita aparece en rojo sin tildar significa que no tenés repetidas de esa. Tocá <strong>Siguiente ›</strong>.</li>
+      <li><span class="badge b-green">Fase 2</span> Fotografiá las que tu amigo te <strong>da</strong>. Ajustá los checkboxes y tocá <strong>✓ Confirmar cambio</strong>.</li>
+      <li>Las figuritas dadas bajan 1 · las recibidas suben 1. Cambio listo.</li>
+    </ol>
+
     <div class="tip">
-      Podés hacer varias fotos por fase: si el resultado no te convence, tocá <em>↺ Nueva foto</em> para escanear de nuevo antes de avanzar.
+      Podés tocar <em>↺ Nueva foto</em> en cualquier fase para volver a escanear sin perder el progreso.
     </div>
   </div>
 
