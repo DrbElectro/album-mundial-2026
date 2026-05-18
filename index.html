@@ -614,9 +614,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
   .legend{flex-wrap:wrap;gap:8px;}
   .leg-pc{display:none !important;}
   .leg-mobile{display:flex !important;}
-  .stamp:not(.stamp-mobile){display:none !important;}
-  .stamp-mobile{display:flex !important;}
-  .mast-num-row{display:flex;align-items:center;justify-content:space-between;}
+  .stamp{position:absolute;bottom:10px;right:0;top:auto;width:64px;height:64px;font-size:7px;}
 }
 /* Disable sticky hover on touch */
 @media(hover:none){
@@ -644,10 +642,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
       </div>
       <div class="mast-right">
         <div>Progreso total</div>
-        <div class="mast-num-row">
-          <div class="num"><span id="big-pct">0</span><small>%</small></div>
-          <div class="stamp stamp-mobile" style="display:none;position:static;transform:rotate(-14deg);width:72px;height:72px;font-size:7px">FIFA<br>WORLD CUP<br>★ 2026 ★</div>
-        </div>
+        <div class="num"><span id="big-pct">0</span><small>%</small></div>
         <div><span id="big-frac">0 / 994</span> figuritas</div>
       </div>
     </div>
