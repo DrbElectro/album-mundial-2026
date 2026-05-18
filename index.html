@@ -2895,14 +2895,24 @@ document.getElementById('webScanModal').addEventListener('click', e => {
     document.getElementById('webScanModal').classList.add('hidden');
   }
 });
-document.getElementById('webScanCameraBtn').addEventListener('click', openWebScanCamera);
+// 'scan' | 'trade' — enruta los callbacks de ML Kit al modal correcto
+let currentScanContext = 'scan';
+
+document.getElementById('webScanCameraBtn').addEventListener('click', () => {
+  currentScanContext = 'scan';
+  if (typeof Android !== 'undefined') Android.openCamera();
+  else openWebScanCamera();
+});
 document.getElementById('webScanCamCancel').addEventListener('click', () => {
   stopWebScanCamera();
   resetWebScan();
 });
 document.getElementById('webScanCamShoot').addEventListener('click', shootWebScanCamera);
-document.getElementById('webScanGalleryBtn').addEventListener('click', () =>
-  document.getElementById('webScanGalleryInput').click());
+document.getElementById('webScanGalleryBtn').addEventListener('click', () => {
+  currentScanContext = 'scan';
+  if (typeof Android !== 'undefined') Android.openGallery();
+  else document.getElementById('webScanGalleryInput').click();
+});
 document.getElementById('webScanCameraInput').addEventListener('change', e => handleWebScanFile(e.target.files[0]));
 document.getElementById('webScanGalleryInput').addEventListener('change', e => handleWebScanFile(e.target.files[0]));
 document.getElementById('webScanRetryBtn').addEventListener('click', () => { stopWebScanCamera(); resetWebScan(); });
@@ -2997,6 +3007,52 @@ function handleWebScanFile(file) {
     runWebOCR(dataUrl);
   };
   img.src = rawUrl;
+}
+
+// ---- Callbacks desde Android (ML Kit) ---- //
+// Llamados por Java vía evaluateJavascript cuando el OCR nativo termina.
+function onScanImageReady() {
+  const b64 = Android.getPendingScan();
+  if (currentScanContext === 'scan') {
+    document.getElementById('webScanStep0').style.display = 'none';
+    document.getElementById('webScanPreview').src = b64;
+    document.getElementById('webScanPreview').style.display = 'block';
+    document.getElementById('webScanProgressWrap').style.display = 'block';
+    document.getElementById('webScanProgressFill').style.width = '40%';
+    document.getElementById('webScanProgressText').textContent = 'Reconociendo texto...';
+  } else {
+    document.getElementById('scanTradeStep0').style.display = 'none';
+    document.getElementById('scanTradePreview').src = b64;
+    document.getElementById('scanTradePreview').style.display = 'block';
+    document.getElementById('scanTradeProgressWrap').style.display = 'block';
+    document.getElementById('scanTradeProgressFill').style.width = '40%';
+    document.getElementById('scanTradeProgressText').textContent = 'Reconociendo texto...';
+  }
+}
+
+function onOCRTextReady(text) {
+  const found = parseStickerCodesWeb(text);
+  if (currentScanContext === 'scan') {
+    document.getElementById('webScanProgressWrap').style.display = 'none';
+    if (!found.length) {
+      const el = document.getElementById('webScanNoResults');
+      el.innerHTML = '<p style="font-size:12px;color:var(--ink-soft);text-align:center;line-height:1.5;margin-bottom:8px">No se encontraron códigos. Probá con una foto más cercana y con buena luz.</p>'
+        + '<textarea readonly class="scan-debug">' + (text || '(vacío)').substring(0, 600) + '</textarea>';
+      el.style.display = 'block';
+    } else {
+      renderWebScanResults(found);
+    }
+  } else {
+    document.getElementById('scanTradeProgressWrap').style.display = 'none';
+    if (!found.length) {
+      const el = document.getElementById('scanTradeNoResults');
+      el.innerHTML = '<p style="font-size:12px;color:var(--ink-soft);text-align:center;line-height:1.5;margin-bottom:8px">No se encontraron códigos. Probá con una foto más cercana y con buena luz.</p>'
+        + '<textarea readonly class="scan-debug">' + (text || '(vacío)').substring(0, 600) + '</textarea>';
+      el.style.display = 'block';
+    } else {
+      renderScanTradeResults(found);
+    }
+  }
 }
 
 // API key gratuita de OCR.space. La demo 'helloworld' funciona pero está
@@ -3353,15 +3409,22 @@ document.getElementById('scanTradeClose').addEventListener('click', closeScanTra
 document.getElementById('scanTradeModal').addEventListener('click', e => {
   if (e.target === document.getElementById('scanTradeModal')) closeScanTradeModal();
 });
-document.getElementById('scanTradeCameraBtn').addEventListener('click', openScanTradeCamera);
+document.getElementById('scanTradeCameraBtn').addEventListener('click', () => {
+  currentScanContext = 'trade';
+  if (typeof Android !== 'undefined') Android.openCamera();
+  else openScanTradeCamera();
+});
 document.getElementById('scanTradeCamCancel').addEventListener('click', () => {
   stopScanTradeCamera();
   resetScanTradeStep();
   updateScanTradePhaseUI();
 });
 document.getElementById('scanTradeCamShoot').addEventListener('click', shootScanTradeCamera);
-document.getElementById('scanTradeGalleryBtn').addEventListener('click', () =>
-  document.getElementById('scanTradeGalleryInput').click());
+document.getElementById('scanTradeGalleryBtn').addEventListener('click', () => {
+  currentScanContext = 'trade';
+  if (typeof Android !== 'undefined') Android.openGallery();
+  else document.getElementById('scanTradeGalleryInput').click();
+});
 document.getElementById('scanTradeCameraInput').addEventListener('change', e =>
   handleScanTradeFile(e.target.files[0]));
 document.getElementById('scanTradeGalleryInput').addEventListener('change', e =>
