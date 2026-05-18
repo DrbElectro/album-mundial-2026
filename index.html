@@ -2778,6 +2778,14 @@ renderChart();
         <input type="file" id="webScanCameraInput" accept="image/*" capture="environment" style="display:none">
         <input type="file" id="webScanGalleryInput" accept="image/*" style="display:none">
       </div>
+      <!-- Cámara en vivo -->
+      <div id="webScanCamView" style="display:none">
+        <video id="webScanVideo" playsinline autoplay muted style="width:100%;border:2px solid var(--ink);background:#000;max-height:50vh;object-fit:cover;box-shadow:4px 4px 0 var(--ink);display:block"></video>
+        <div style="display:flex;gap:10px;margin-top:12px">
+          <button class="btn ghost" id="webScanCamCancel" style="flex:1">Cancelar</button>
+          <button class="btn" id="webScanCamShoot" style="flex:2;background:var(--blue);border-color:var(--blue)">📸 Capturar</button>
+        </div>
+      </div>
       <!-- Preview -->
       <img id="webScanPreview" class="scan-preview" alt="preview">
       <!-- Progress -->
@@ -2809,22 +2817,75 @@ document.getElementById('webScanBtn').addEventListener('click', () => {
   resetWebScan();
 });
 document.getElementById('webScanClose').addEventListener('click', () => {
+  stopWebScanCamera();
   document.getElementById('webScanModal').classList.add('hidden');
 });
 document.getElementById('webScanModal').addEventListener('click', e => {
-  if (e.target === document.getElementById('webScanModal'))
+  if (e.target === document.getElementById('webScanModal')) {
+    stopWebScanCamera();
     document.getElementById('webScanModal').classList.add('hidden');
+  }
 });
-document.getElementById('webScanCameraBtn').addEventListener('click', () =>
-  document.getElementById('webScanCameraInput').click());
+document.getElementById('webScanCameraBtn').addEventListener('click', openWebScanCamera);
+document.getElementById('webScanCamCancel').addEventListener('click', () => {
+  stopWebScanCamera();
+  resetWebScan();
+});
+document.getElementById('webScanCamShoot').addEventListener('click', shootWebScanCamera);
 document.getElementById('webScanGalleryBtn').addEventListener('click', () =>
   document.getElementById('webScanGalleryInput').click());
 document.getElementById('webScanCameraInput').addEventListener('change', e => handleWebScanFile(e.target.files[0]));
 document.getElementById('webScanGalleryInput').addEventListener('change', e => handleWebScanFile(e.target.files[0]));
-document.getElementById('webScanRetryBtn').addEventListener('click', resetWebScan);
+document.getElementById('webScanRetryBtn').addEventListener('click', () => { stopWebScanCamera(); resetWebScan(); });
+
+let webScanStream = null;
+
+async function openWebScanCamera() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    // Fallback: input file con cámara
+    document.getElementById('webScanCameraInput').click();
+    return;
+  }
+  try {
+    webScanStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } },
+      audio: false
+    });
+    const video = document.getElementById('webScanVideo');
+    video.srcObject = webScanStream;
+    await video.play().catch(() => {});
+    document.getElementById('webScanStep0').style.display = 'none';
+    document.getElementById('webScanCamView').style.display = 'block';
+  } catch (err) {
+    // Sin permiso o sin soporte → fallback al input file
+    document.getElementById('webScanCameraInput').click();
+  }
+}
+
+function stopWebScanCamera() {
+  if (webScanStream) {
+    webScanStream.getTracks().forEach(t => t.stop());
+    webScanStream = null;
+  }
+  const video = document.getElementById('webScanVideo');
+  if (video) video.srcObject = null;
+  document.getElementById('webScanCamView').style.display = 'none';
+}
+
+function shootWebScanCamera() {
+  const video = document.getElementById('webScanVideo');
+  if (!video.videoWidth) return;
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  stopWebScanCamera();
+  canvas.toBlob(blob => { if (blob) handleWebScanFile(blob); }, 'image/jpeg', 0.92);
+}
 
 function resetWebScan() {
   document.getElementById('webScanStep0').style.display = 'block';
+  document.getElementById('webScanCamView').style.display = 'none';
   document.getElementById('webScanPreview').style.display = 'none';
   document.getElementById('webScanProgressWrap').style.display = 'none';
   document.getElementById('webScanResultsWrap').style.display = 'none';
