@@ -2875,7 +2875,18 @@ renderChart();
           <button class="btn ghost" id="scanTradeRetryBtn" style="flex:1;font-size:12px">↺ Limpiar</button>
           <button class="btn ghost" id="scanTradeAddBtn" style="flex:1;font-size:12px">📷 + Foto</button>
         </div>
+        <!-- Fase 1: avanzar -->
         <button class="btn" id="scanTradeNextBtn" style="width:100%;background:var(--red);border-color:var(--red)">Siguiente: lo que recibo ›</button>
+        <!-- Fase 2: nombre + dos opciones -->
+        <div id="scanTradeConfirmWrap" style="display:none">
+          <input type="text" id="scanTradePartnerName"
+            placeholder="¿Con quién cambiás? (opcional)"
+            style="width:100%;border:2px solid var(--ink);padding:8px 10px;font-family:'Archivo',sans-serif;font-size:13px;background:var(--paper);color:var(--ink);margin-bottom:8px;outline:none;box-sizing:border-box">
+          <div style="display:flex;gap:8px">
+            <button class="btn" id="scanTradeApplyNowBtn" style="flex:1;background:var(--green);border-color:var(--green)">✅ Aplicar ahora</button>
+            <button class="btn" id="scanTradeFutureBtn" style="flex:1;background:#d4650a;border-color:#d4650a">📌 Cambio Futuro</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -3193,6 +3204,7 @@ let scanTradeStream = null;
 function openScanTradeModal() {
   scanTradePhase = 1;
   scanTradeDarSelected = [];
+  document.getElementById('scanTradePartnerName').value = '';
   document.getElementById('scanTradeModal').classList.remove('hidden');
   resetScanTradeStep();
   updateScanTradePhaseUI();
@@ -3232,6 +3244,9 @@ function updateScanTradePhaseUI() {
   }
   // phase-1 summary strip
   document.getElementById('scanTradePh1Summary').style.display = ph1 ? 'none' : 'block';
+  // botón siguiente (fase 1) vs confirm wrap (fase 2)
+  document.getElementById('scanTradeNextBtn').style.display = ph1 ? '' : 'none';
+  document.getElementById('scanTradeConfirmWrap').style.display = ph1 ? 'none' : 'block';
 }
 
 /* ---- step reset ---- */
@@ -3389,31 +3404,42 @@ function resolveRealId(upperId) {
     || null;
 }
 
-/* ---- next / confirm button ---- */
+/* ---- next button (fase 1 → fase 2) ---- */
 document.getElementById('scanTradeNextBtn').addEventListener('click', () => {
   const checked = Array.from(document.querySelectorAll('#scanTradeResultsList input[type=checkbox]:checked'));
   const selected = checked.map(cb => resolveRealId(cb.dataset.id)).filter(Boolean);
-
-  if (scanTradePhase === 1) {
-    // Save dar list, show summary, move to phase 2
-    scanTradeDarSelected = selected;
-    const sumList = document.getElementById('scanTradePh1SummaryList');
-    if (scanTradeDarSelected.length === 0) {
-      sumList.innerHTML = '<span style="font-size:12px;color:var(--ink-soft)">Ninguna seleccionada</span>';
-    } else {
-      sumList.innerHTML = scanTradeDarSelected.map(id =>
+  scanTradeDarSelected = selected;
+  const sumList = document.getElementById('scanTradePh1SummaryList');
+  sumList.innerHTML = scanTradeDarSelected.length === 0
+    ? '<span style="font-size:12px;color:var(--ink-soft)">Ninguna seleccionada</span>'
+    : scanTradeDarSelected.map(id =>
         `<span class="strade-tag" style="background:var(--red);color:var(--paper)">${displayId(id)}</span>`
       ).join('');
-    }
-    scanTradePhase = 2;
-    updateScanTradePhaseUI();
-    resetScanTradeStep();
+  scanTradePhase = 2;
+  updateScanTradePhaseUI();
+  resetScanTradeStep();
+});
 
+/* ---- helper: obtener recibir seleccionadas ---- */
+function getScanTradeRecibirSelected() {
+  return Array.from(document.querySelectorAll('#scanTradeResultsList input[type=checkbox]:checked'))
+    .map(cb => resolveRealId(cb.dataset.id)).filter(Boolean);
+}
+
+/* ---- aplicar cambio (ahora o futuro) ---- */
+function applyScanTrade(asFuture) {
+  const recibirSelected = getScanTradeRecibirSelected();
+  if (asFuture) {
+    const nombre = (document.getElementById('scanTradePartnerName').value || '').trim() || 'Cambio escaneado';
+    const cj = { id: Date.now(), nombre, dar: [...scanTradeDarSelected], recibir: recibirSelected };
+    state.canjes = state.canjes || [];
+    state.canjes.push(cj);
+    reservarStickers(cj);
+    saveData(); refreshAllStickers(); updateCanjesPendientesBtn(); renderCanjesPendientesList();
+    closeScanTradeModal();
+    showToast(`📌 Cambio futuro guardado · ${nombre}`);
   } else {
-    // Phase 2: apply both sides
-    const recibirSelected = selected;
     let countDar = 0, countRecibir = 0;
-
     scanTradeDarSelected.forEach(id => {
       if (state.stickers[id] !== undefined) {
         state.stickers[id] = Math.max(0, (state.stickers[id] || 0) - 1);
@@ -3424,18 +3450,17 @@ document.getElementById('scanTradeNextBtn').addEventListener('click', () => {
       state.stickers[id] = (state.stickers[id] || 0) + 1;
       countRecibir++;
     });
-
-    saveData();
-    refreshAllStickers();
-    updateStats();
-    recordHistory();
+    saveData(); refreshAllStickers(); updateStats(); recordHistory();
     closeScanTradeModal();
     const parts = [];
     if (countDar > 0)     parts.push(`−${countDar} dada${countDar !== 1 ? 's' : ''}`);
     if (countRecibir > 0) parts.push(`+${countRecibir} recibida${countRecibir !== 1 ? 's' : ''}`);
     showToast('🔄 Cambio aplicado' + (parts.length ? ' · ' + parts.join(' · ') : ''));
   }
-});
+}
+
+document.getElementById('scanTradeApplyNowBtn').addEventListener('click', () => applyScanTrade(false));
+document.getElementById('scanTradeFutureBtn').addEventListener('click',    () => applyScanTrade(true));
 
 /* ---- event wiring ---- */
 document.getElementById('scanTradeBtn').addEventListener('click', openScanTradeModal);
