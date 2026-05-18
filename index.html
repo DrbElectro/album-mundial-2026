@@ -2852,7 +2852,9 @@ async function runWebOCR(imageUrl) {
     document.getElementById('webScanProgressWrap').style.display = 'none';
     const found = parseStickerCodesWeb(text);
     if (found.length === 0) {
-      document.getElementById('webScanNoResults').style.display = 'block';
+      const el = document.getElementById('webScanNoResults');
+      el.innerHTML = 'No se encontraron códigos.<br><small style="font-size:10px;word-break:break-all">' + text.replace(/</g,'&lt;').substring(0,400) + '</small>';
+      el.style.display = 'block';
     } else {
       renderWebScanResults(found);
     }
