@@ -2879,9 +2879,13 @@ async function runWebOCR(imageUrl, invertedUrl) {
         }
       };
     }
-    const { data: { text: text1 } } = await Tesseract.recognize(imageUrl, 'eng', { logger: logger(1) });
+    const ocrOpts = {
+      tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ',
+      tessedit_pageseg_mode: '11'
+    };
+    const { data: { text: text1 } } = await Tesseract.recognize(imageUrl, 'eng', { logger: logger(1), ...ocrOpts });
     document.getElementById('webScanProgressText').textContent = 'Segunda pasada...';
-    const { data: { text: text2 } } = await Tesseract.recognize(invertedUrl, 'eng', { logger: logger(2) });
+    const { data: { text: text2 } } = await Tesseract.recognize(invertedUrl, 'eng', { logger: logger(2), ...ocrOpts });
     const text = text1 + '\n' + text2;
     document.getElementById('webScanProgressWrap').style.display = 'none';
     const found = parseStickerCodesWeb(text);
