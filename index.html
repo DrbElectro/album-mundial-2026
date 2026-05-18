@@ -708,9 +708,10 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
           <button class="btn ghost" id="copyFaltantesBtn">📋 Copiar Faltantes</button>
           <button class="btn ghost" id="copyRepetidasBtn">📋 Copiar Repetidas</button>
         </div>
-        <!-- fila 3b: escanear -->
+        <!-- fila 3b: escanear + cambio x escaneo -->
         <div class="ctrl-row">
-          <button class="btn" id="webScanBtn" style="flex:0 0 100%;background:var(--blue);border-color:var(--blue)">📷 Escanear Figuritas</button>
+          <button class="btn" id="webScanBtn" style="flex:1;background:var(--blue);border-color:var(--blue)">📷 Escanear</button>
+          <button class="btn" id="scanTradeBtn" style="flex:1;background:#d4650a;border-color:#d4650a">🔄 Cambio x Escaneo</button>
         </div>
         <!-- fila 4: extras PC -->
         <div class="ctrl-row ctrl-pc-only">
@@ -2810,6 +2811,72 @@ renderChart();
   </div>
 </div>
 
+<!-- ===== CAMBIO X ESCANEO MODAL ===== -->
+<style>
+#scanTradeModal .modal{max-width:460px;display:flex;flex-direction:column}
+#scanTradeModal .modal-body{padding:20px}
+.strade-tab{flex:1;text-align:center;padding:8px 4px;font-family:'Archivo Black',sans-serif;font-size:11px;letter-spacing:.07em;text-transform:uppercase;transition:background .2s,color .2s}
+.strade-ph1sum{margin-bottom:14px;padding:10px 12px;border:1.5px dashed var(--rule);background:var(--paper-2)}
+.strade-ph1sum .scan-section-title{border-color:var(--rule);color:var(--ink-soft);margin-bottom:8px}
+.strade-tag{font-family:'Archivo Black',sans-serif;font-size:12px;padding:2px 8px}
+</style>
+<div class="modal-overlay hidden" id="scanTradeModal">
+  <div class="modal">
+    <div class="modal-head">
+      <span>🔄 Cambio x Escaneo</span>
+      <button class="modal-close" id="scanTradeClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Phase tabs -->
+      <div style="display:flex;border:2px solid var(--ink);margin-bottom:16px">
+        <div class="strade-tab" id="scanTradePh1Tab" style="background:var(--red);color:var(--paper)">1 · Lo que DOY</div>
+        <div class="strade-tab" id="scanTradePh2Tab" style="background:var(--paper-3);color:var(--ink-soft)">2 · Lo que RECIBO</div>
+      </div>
+      <!-- Phase 1 summary (visible only in phase 2) -->
+      <div class="strade-ph1sum" id="scanTradePh1Summary" style="display:none">
+        <p class="scan-section-title">Lo que doy</p>
+        <div id="scanTradePh1SummaryList" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+      </div>
+      <!-- Step 0: pick source -->
+      <div id="scanTradeStep0">
+        <p id="scanTradeHint" class="scan-hint">Sacá una foto donde se vean los <strong>códigos</strong> de las figuritas que vas a <strong>DAR</strong> en el cambio.</p>
+        <div style="display:flex;gap:10px">
+          <button class="btn" id="scanTradeCameraBtn" style="flex:1;background:var(--blue);border-color:var(--blue)">📷 Cámara</button>
+          <button class="btn ghost" id="scanTradeGalleryBtn" style="flex:1">🖼 Galería</button>
+        </div>
+        <input type="file" id="scanTradeCameraInput" accept="image/*" capture="environment" style="display:none">
+        <input type="file" id="scanTradeGalleryInput" accept="image/*" style="display:none">
+      </div>
+      <!-- Live camera -->
+      <div id="scanTradeCamView" style="display:none">
+        <video id="scanTradeVideo" playsinline autoplay muted style="width:100%;border:2px solid var(--ink);background:#000;max-height:50vh;object-fit:cover;box-shadow:4px 4px 0 var(--ink);display:block"></video>
+        <div style="display:flex;gap:10px;margin-top:12px">
+          <button class="btn ghost" id="scanTradeCamCancel" style="flex:1">Cancelar</button>
+          <button class="btn" id="scanTradeCamShoot" style="flex:2;background:var(--blue);border-color:var(--blue)">📸 Capturar</button>
+        </div>
+      </div>
+      <!-- Preview -->
+      <img id="scanTradePreview" class="scan-preview" alt="preview">
+      <!-- Progress -->
+      <div id="scanTradeProgressWrap" style="display:none;margin-top:16px">
+        <div class="scan-bar"><div id="scanTradeProgressFill" class="scan-bar-fill"></div></div>
+        <p id="scanTradeProgressText" class="scan-bar-text">Iniciando...</p>
+      </div>
+      <!-- No results -->
+      <div id="scanTradeNoResults" style="display:none;margin-top:16px"></div>
+      <!-- Results -->
+      <div id="scanTradeResultsWrap" style="display:none;margin-top:16px">
+        <p class="scan-section-title" id="scanTradeResultsTitle">Figuritas que DAS</p>
+        <div id="scanTradeResultsList" style="display:flex;flex-wrap:wrap;gap:8px;max-height:200px;overflow-y:auto;margin-bottom:16px"></div>
+        <div style="display:flex;gap:10px">
+          <button class="btn ghost" id="scanTradeRetryBtn" style="flex:1">↺ Nueva foto</button>
+          <button class="btn" id="scanTradeNextBtn" style="flex:2;background:var(--red);border-color:var(--red)">Siguiente: lo que recibo ›</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 // ===== SCAN WEB =====
 document.getElementById('webScanBtn').addEventListener('click', () => {
@@ -3029,6 +3096,278 @@ document.getElementById('webScanApplyBtn').addEventListener('click', () => {
   recordHistory();
   document.getElementById('webScanModal').classList.add('hidden');
   if (count > 0) showToast(`✅ ${count} figurita${count !== 1 ? 's' : ''} marcada${count !== 1 ? 's' : ''}`);
+});
+</script>
+
+<script>
+// ===== CAMBIO X ESCANEO =====
+let scanTradePhase = 1;        // 1 = dar, 2 = recibir
+let scanTradeDarSelected = []; // IDs confirmados en fase 1
+let scanTradeStream = null;
+
+/* ---- open / close ---- */
+function openScanTradeModal() {
+  scanTradePhase = 1;
+  scanTradeDarSelected = [];
+  document.getElementById('scanTradeModal').classList.remove('hidden');
+  resetScanTradeStep();
+  updateScanTradePhaseUI();
+}
+function closeScanTradeModal() {
+  stopScanTradeCamera();
+  document.getElementById('scanTradeModal').classList.add('hidden');
+}
+
+/* ---- phase UI ---- */
+function updateScanTradePhaseUI() {
+  const ph1 = scanTradePhase === 1;
+  // tabs
+  const t1 = document.getElementById('scanTradePh1Tab');
+  const t2 = document.getElementById('scanTradePh2Tab');
+  t1.style.background = ph1 ? 'var(--red)' : 'var(--paper-3)';
+  t1.style.color      = ph1 ? 'var(--paper)' : 'var(--ink-soft)';
+  t2.style.background = !ph1 ? 'var(--green)' : 'var(--paper-3)';
+  t2.style.color      = !ph1 ? 'var(--paper)' : 'var(--ink-soft)';
+  // hint
+  document.getElementById('scanTradeHint').innerHTML = ph1
+    ? 'Sacá una foto donde se vean los <strong>códigos</strong> de las figuritas que vas a <strong>DAR</strong> en el cambio.'
+    : 'Ahora sacá una foto de las figuritas que vas a <strong>RECIBIR</strong>.';
+  // results header + next button
+  document.getElementById('scanTradeResultsTitle').textContent = ph1
+    ? 'Figuritas que DAS (desmarcar las que no das)'
+    : 'Figuritas que RECIBÍS (desmarcar las que no recibís)';
+  const nextBtn = document.getElementById('scanTradeNextBtn');
+  if (ph1) {
+    nextBtn.textContent = 'Siguiente: lo que recibo ›';
+    nextBtn.style.background   = 'var(--red)';
+    nextBtn.style.borderColor  = 'var(--red)';
+  } else {
+    nextBtn.textContent = '✓ Confirmar cambio';
+    nextBtn.style.background   = 'var(--green)';
+    nextBtn.style.borderColor  = 'var(--green)';
+  }
+  // phase-1 summary strip
+  document.getElementById('scanTradePh1Summary').style.display = ph1 ? 'none' : 'block';
+}
+
+/* ---- step reset ---- */
+function resetScanTradeStep() {
+  ['scanTradeStep0','scanTradeCamView','scanTradePreview',
+   'scanTradeProgressWrap','scanTradeResultsWrap','scanTradeNoResults']
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (id === 'scanTradeStep0') el.style.display = 'block';
+      else if (id === 'scanTradePreview') el.style.display = 'none';
+      else el.style.display = 'none';
+    });
+  document.getElementById('scanTradeCameraInput').value = '';
+  document.getElementById('scanTradeGalleryInput').value = '';
+}
+
+/* ---- camera ---- */
+async function openScanTradeCamera() {
+  if (!navigator.mediaDevices?.getUserMedia) {
+    document.getElementById('scanTradeCameraInput').click(); return;
+  }
+  try {
+    scanTradeStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } },
+      audio: false
+    });
+    const video = document.getElementById('scanTradeVideo');
+    video.srcObject = scanTradeStream;
+    await video.play().catch(() => {});
+    document.getElementById('scanTradeStep0').style.display = 'none';
+    document.getElementById('scanTradeCamView').style.display = 'block';
+  } catch (err) {
+    document.getElementById('scanTradeCameraInput').click();
+  }
+}
+function stopScanTradeCamera() {
+  if (scanTradeStream) { scanTradeStream.getTracks().forEach(t => t.stop()); scanTradeStream = null; }
+  const v = document.getElementById('scanTradeVideo');
+  if (v) v.srcObject = null;
+  document.getElementById('scanTradeCamView').style.display = 'none';
+}
+function shootScanTradeCamera() {
+  const video = document.getElementById('scanTradeVideo');
+  if (!video.videoWidth) return;
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  stopScanTradeCamera();
+  canvas.toBlob(blob => { if (blob) handleScanTradeFile(blob); }, 'image/jpeg', 0.92);
+}
+
+/* ---- file → OCR ---- */
+function handleScanTradeFile(file) {
+  if (!file) return;
+  const rawUrl = URL.createObjectURL(file);
+  const preview = document.getElementById('scanTradePreview');
+  preview.src = rawUrl;
+  preview.style.display = 'block';
+  document.getElementById('scanTradeStep0').style.display = 'none';
+  document.getElementById('scanTradeResultsWrap').style.display = 'none';
+  document.getElementById('scanTradeNoResults').style.display = 'none';
+  document.getElementById('scanTradeProgressWrap').style.display = 'block';
+  document.getElementById('scanTradeProgressFill').style.width = '5%';
+  document.getElementById('scanTradeProgressText').textContent = 'Procesando imagen...';
+
+  const img = new Image();
+  img.onload = () => {
+    const maxW = 1500;
+    let w = img.width, h = img.height;
+    if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+    URL.revokeObjectURL(rawUrl);
+    let q = 0.82;
+    let dataUrl = canvas.toDataURL('image/jpeg', q);
+    while (dataUrl.length > 1330000 && q > 0.4) { q -= 0.12; dataUrl = canvas.toDataURL('image/jpeg', q); }
+    runScanTradeOCR(dataUrl);
+  };
+  img.src = rawUrl;
+}
+
+async function runScanTradeOCR(dataUrl) {
+  try {
+    document.getElementById('scanTradeProgressFill').style.width = '35%';
+    document.getElementById('scanTradeProgressText').textContent = 'Analizando imagen...';
+    const form = new FormData();
+    form.append('apikey', OCR_SPACE_KEY);
+    form.append('base64Image', dataUrl);
+    form.append('language', 'eng');
+    form.append('OCREngine', '2');
+    form.append('scale', 'true');
+    form.append('isOverlayRequired', 'false');
+    form.append('detectOrientation', 'true');
+    const resp = await fetch('https://api.ocr.space/parse/image', { method: 'POST', body: form });
+    document.getElementById('scanTradeProgressFill').style.width = '80%';
+    const json = await resp.json();
+    if (json.IsErroredOnProcessing) {
+      const e = Array.isArray(json.ErrorMessage) ? json.ErrorMessage.join(' ') : json.ErrorMessage;
+      throw new Error(e || 'Error del servidor OCR');
+    }
+    const text = json.ParsedResults?.[0]?.ParsedText || '';
+    document.getElementById('scanTradeProgressWrap').style.display = 'none';
+    const found = parseStickerCodesWeb(text);
+    if (found.length === 0) {
+      const el = document.getElementById('scanTradeNoResults');
+      el.innerHTML = '<p style="font-size:12px;color:var(--ink-soft);text-align:center;line-height:1.5;margin-bottom:8px">No se encontraron códigos. Probá más cerca y con buena luz.</p>'
+        + '<textarea readonly class="scan-debug">' + (text || '(vacío)').substring(0, 600) + '</textarea>';
+      el.style.display = 'block';
+    } else {
+      renderScanTradeResults(found);
+    }
+  } catch (err) {
+    document.getElementById('scanTradeProgressText').textContent = 'Error: ' + ((err && err.message) || String(err));
+  }
+}
+
+/* ---- render checklist ---- */
+function renderScanTradeResults(ids) {
+  const list = document.getElementById('scanTradeResultsList');
+  list.innerHTML = '';
+  const ph1 = scanTradePhase === 1;
+  ids.forEach(id => {
+    const realId = Object.keys(state.stickers).find(k => k.toUpperCase() === id) || id;
+    const cur = state.stickers[realId] || 0;
+    // En fase 1 (dar): avisar si no tiene la figurita; en fase 2 (recibir): siempre tildada
+    const warn = ph1 && cur === 0;
+    const checked = !warn; // auto-destildar si no la tiene en fase 1
+    let label;
+    if (ph1) label = cur === 0 ? '⚠ no tenés' : cur === 1 ? 'pegada' : `×${cur - 1} rep`;
+    else       label = cur === 0 ? 'falta' : cur === 1 ? 'pegada' : `×${cur - 1} rep`;
+    const chip = document.createElement('label');
+    chip.className = 'scan-chip';
+    chip.innerHTML = `<input type="checkbox" data-id="${id}" ${checked ? 'checked' : ''}>`
+      + `<span class="sc-id">${displayId(realId)}</span>`
+      + `<span class="sc-st" style="${warn ? 'color:var(--red)' : ''}">${label}</span>`;
+    list.appendChild(chip);
+  });
+  document.getElementById('scanTradeResultsWrap').style.display = 'block';
+}
+
+/* ---- resolve real ID helper ---- */
+function resolveRealId(upperId) {
+  return Object.keys(state.stickers).find(k => k.toUpperCase() === upperId)
+    || SECTIONS.flatMap(s => getIds(s)).find(k => k.toUpperCase() === upperId)
+    || null;
+}
+
+/* ---- next / confirm button ---- */
+document.getElementById('scanTradeNextBtn').addEventListener('click', () => {
+  const checked = Array.from(document.querySelectorAll('#scanTradeResultsList input[type=checkbox]:checked'));
+  const selected = checked.map(cb => resolveRealId(cb.dataset.id)).filter(Boolean);
+
+  if (scanTradePhase === 1) {
+    // Save dar list, show summary, move to phase 2
+    scanTradeDarSelected = selected;
+    const sumList = document.getElementById('scanTradePh1SummaryList');
+    if (scanTradeDarSelected.length === 0) {
+      sumList.innerHTML = '<span style="font-size:12px;color:var(--ink-soft)">Ninguna seleccionada</span>';
+    } else {
+      sumList.innerHTML = scanTradeDarSelected.map(id =>
+        `<span class="strade-tag" style="background:var(--red);color:var(--paper)">${displayId(id)}</span>`
+      ).join('');
+    }
+    scanTradePhase = 2;
+    updateScanTradePhaseUI();
+    resetScanTradeStep();
+
+  } else {
+    // Phase 2: apply both sides
+    const recibirSelected = selected;
+    let countDar = 0, countRecibir = 0;
+
+    scanTradeDarSelected.forEach(id => {
+      if (state.stickers[id] !== undefined) {
+        state.stickers[id] = Math.max(0, (state.stickers[id] || 0) - 1);
+        countDar++;
+      }
+    });
+    recibirSelected.forEach(id => {
+      state.stickers[id] = (state.stickers[id] || 0) + 1;
+      countRecibir++;
+    });
+
+    saveData();
+    refreshAllStickers();
+    updateStats();
+    recordHistory();
+    closeScanTradeModal();
+    const parts = [];
+    if (countDar > 0)     parts.push(`−${countDar} dada${countDar !== 1 ? 's' : ''}`);
+    if (countRecibir > 0) parts.push(`+${countRecibir} recibida${countRecibir !== 1 ? 's' : ''}`);
+    showToast('🔄 Cambio aplicado' + (parts.length ? ' · ' + parts.join(' · ') : ''));
+  }
+});
+
+/* ---- event wiring ---- */
+document.getElementById('scanTradeBtn').addEventListener('click', openScanTradeModal);
+document.getElementById('scanTradeClose').addEventListener('click', closeScanTradeModal);
+document.getElementById('scanTradeModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('scanTradeModal')) closeScanTradeModal();
+});
+document.getElementById('scanTradeCameraBtn').addEventListener('click', openScanTradeCamera);
+document.getElementById('scanTradeCamCancel').addEventListener('click', () => {
+  stopScanTradeCamera();
+  resetScanTradeStep();
+  updateScanTradePhaseUI();
+});
+document.getElementById('scanTradeCamShoot').addEventListener('click', shootScanTradeCamera);
+document.getElementById('scanTradeGalleryBtn').addEventListener('click', () =>
+  document.getElementById('scanTradeGalleryInput').click());
+document.getElementById('scanTradeCameraInput').addEventListener('change', e =>
+  handleScanTradeFile(e.target.files[0]));
+document.getElementById('scanTradeGalleryInput').addEventListener('change', e =>
+  handleScanTradeFile(e.target.files[0]));
+document.getElementById('scanTradeRetryBtn').addEventListener('click', () => {
+  stopScanTradeCamera();
+  resetScanTradeStep();
+  updateScanTradePhaseUI();
 });
 </script>
 
