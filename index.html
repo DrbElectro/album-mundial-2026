@@ -2405,11 +2405,15 @@ function decodeCanjeState(encoded){
   }catch(e){ return null; }
 }
 function computeCanje(myS, friendS){
+  // Stickers ya comprometidos en cambios futuros pendientes
+  const reservadasDar     = new Set((state.canjes||[]).flatMap(c => c.dar||[]));
+  const reservadasRecibir = new Set((state.canjes||[]).flatMap(c => c.recibir||[]));
+
   const dar=[], recibir=[];
   SECTIONS.forEach(sec=>{
     const ids = getIds(sec);
-    const darIds     = ids.filter(id => (myS[id]||0)>=2 && (friendS[id]||0)===0);
-    const recibirIds = ids.filter(id => (friendS[id]||0)>=2 && (myS[id]||0)===0);
+    const darIds     = ids.filter(id => (myS[id]||0)>=2 && (friendS[id]||0)===0 && !reservadasDar.has(id));
+    const recibirIds = ids.filter(id => (friendS[id]||0)>=2 && (myS[id]||0)===0 && !reservadasRecibir.has(id));
     if(darIds.length)     dar.push({sec, ids:darIds});
     if(recibirIds.length) recibir.push({sec, ids:recibirIds});
   });
