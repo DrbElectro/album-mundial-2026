@@ -3139,10 +3139,7 @@ function onOCRTextReady(text) {
   scanAddMode = false;
 }
 
-// API key gratuita de OCR.space. La demo 'helloworld' funciona pero está
-// limitada (10 req/10min). Para uso real registrá una key gratis en:
-// https://ocr.space/ocrapi/freekey  (25.000 escaneos/mes, sin tarjeta)
-const OCR_SPACE_KEY = 'helloworld';
+const OCR_SPACE_KEY = 'K8@keypart188957';
 
 async function runWebOCR(dataUrl) {
   try {
@@ -3166,7 +3163,10 @@ async function runWebOCR(dataUrl) {
     const json = await resp.json();
 
     if (json.IsErroredOnProcessing) {
-      const e = Array.isArray(json.ErrorMessage) ? json.ErrorMessage.join(' ') : json.ErrorMessage;
+      const e = Array.isArray(json.ErrorMessage) ? json.ErrorMessage.join(' ') : (json.ErrorMessage || '');
+      if (e.toLowerCase().includes('limit') || e.toLowerCase().includes('quota') || json.OCRExitCode === 3) {
+        throw new Error('Por hoy no se pueden generar más escaneos 📷');
+      }
       throw new Error(e || 'Error del servidor OCR');
     }
 
@@ -3403,7 +3403,10 @@ async function runScanTradeOCR(dataUrl) {
     document.getElementById('scanTradeProgressFill').style.width = '80%';
     const json = await resp.json();
     if (json.IsErroredOnProcessing) {
-      const e = Array.isArray(json.ErrorMessage) ? json.ErrorMessage.join(' ') : json.ErrorMessage;
+      const e = Array.isArray(json.ErrorMessage) ? json.ErrorMessage.join(' ') : (json.ErrorMessage || '');
+      if (e.toLowerCase().includes('limit') || e.toLowerCase().includes('quota') || json.OCRExitCode === 3) {
+        throw new Error('Por hoy no se pueden generar más escaneos 📷');
+      }
       throw new Error(e || 'Error del servidor OCR');
     }
     const text = json.ParsedResults?.[0]?.ParsedText || '';
