@@ -1895,12 +1895,12 @@ function updateAutosaveUI(){
 
 document.getElementById('autosaveBtn').addEventListener('click', async ()=>{
   if(fileHandle){
-    if(confirm('¿Desvincular el archivo? Vas a dejar de auto-guardar.')){
+    showConfirm('Desvincular archivo', '¿Desvincular el archivo? Vas a dejar de auto-guardar.', async ()=>{
       fileHandle = null;
       await clearHandle();
       updateAutosaveUI();
       showToast('Desvinculado');
-    }
+    }, 'Desvincular');
   } else {
     pickAutosaveFile();
   }
@@ -2199,25 +2199,27 @@ function liberarStickers(cj){  /* calculado dinámicamente desde state.canjes */
 function confirmarCanjePendiente(i){
   const cj = state.canjes[i];
   if(!cj) return;
-  if(!confirm(`¿Confirmar cambio con ${cj.nombre}? Se aplicarán los cambios en tu álbum.`)) return;
-  cj.dar.forEach(id=>{ state.stickers[id]=Math.max(0,(state.stickers[id]||0)-1); });
-  cj.recibir.forEach(id=>{ if((state.stickers[id]||0)===0) state.stickers[id]=1; });
-  liberarStickers(cj);
-  state.canjes.splice(i,1);
-  saveData(); refreshAllStickers(); updateStats(); calcGasto(); recordHistory(); renderChart();
-  renderCanjesPendientesList(); updateCanjesPendientesBtn();
-  showToast('✓ Cambio confirmado con '+cj.nombre);
+  showConfirm('Confirmar cambio', `¿Confirmar cambio con ${cj.nombre}? Se aplicarán los cambios en tu álbum.`, ()=>{
+    cj.dar.forEach(id=>{ state.stickers[id]=Math.max(0,(state.stickers[id]||0)-1); });
+    cj.recibir.forEach(id=>{ if((state.stickers[id]||0)===0) state.stickers[id]=1; });
+    liberarStickers(cj);
+    state.canjes.splice(i,1);
+    saveData(); refreshAllStickers(); updateStats(); calcGasto(); recordHistory(); renderChart();
+    renderCanjesPendientesList(); updateCanjesPendientesBtn();
+    showToast('✓ Cambio confirmado con '+cj.nombre);
+  }, 'Confirmar', 'var(--green)');
 }
 
 function cancelarCanjePendiente(i){
   const cj = state.canjes[i];
   if(!cj) return;
-  if(!confirm(`¿Cancelar el cambio con ${cj.nombre}? Las figuritas reservadas quedarán libres.`)) return;
-  liberarStickers(cj);
-  state.canjes.splice(i,1);
-  saveData(); refreshAllStickers(); updateCanjesPendientesBtn();
-  renderCanjesPendientesList();
-  showToast('Cambio cancelado');
+  showConfirm('Cancelar cambio', `¿Cancelar el cambio con ${cj.nombre}? Las figuritas reservadas quedarán libres.`, ()=>{
+    liberarStickers(cj);
+    state.canjes.splice(i,1);
+    saveData(); refreshAllStickers(); updateCanjesPendientesBtn();
+    renderCanjesPendientesList();
+    showToast('Cambio cancelado');
+  }, 'Cancelar cambio');
 }
 
 function abrirEditCanje(i){
@@ -2690,10 +2692,12 @@ function updateStatsModal(){
 
 // Reset
 document.getElementById('resetBtn').addEventListener('click',()=>{
-  if(!confirm('¿Querés resetear el álbum?\n\nSe van a borrar todas las figuritas pegadas, repetidas y cambios.')) return;
-  if(!confirm('⚠️ Última confirmación.\n\n¿Estás seguro? Esta acción no se puede deshacer.')) return;
-  state=defaultData(); saveData(); refreshAllStickers(); updateStats(); calcGasto(); renderChart();
-  showToast('Álbum reseteado');
+  showConfirm('Resetear álbum', 'Se van a borrar todas las figuritas pegadas, repetidas y cambios.', ()=>{
+    showConfirm('⚠️ Última confirmación', '¿Estás seguro? Esta acción no se puede deshacer.', ()=>{
+      state=defaultData(); saveData(); refreshAllStickers(); updateStats(); calcGasto(); renderChart();
+      showToast('Álbum reseteado');
+    }, 'Sí, resetear');
+  }, 'Continuar');
 });
 
 // FAB
@@ -2744,6 +2748,50 @@ bindGastoInputs();
 updateStats();
 calcGasto();
 renderChart();
+</script>
+
+<!-- ===== CONFIRM MODAL (reemplaza confirm() nativo) ===== -->
+<div class="modal-overlay hidden" id="confirmModal" style="z-index:9999">
+  <div class="modal" style="max-width:340px">
+    <div class="modal-head" id="confirmModalHead">
+      <span id="confirmModalTitle">¿Confirmar?</span>
+    </div>
+    <div class="modal-body" style="padding:20px">
+      <p id="confirmModalMsg" style="font-size:13px;line-height:1.6;color:var(--ink-soft);margin-bottom:20px"></p>
+      <div style="display:flex;gap:10px">
+        <button class="btn ghost" id="confirmModalCancel" style="flex:1">Cancelar</button>
+        <button class="btn" id="confirmModalOk" style="flex:1;background:var(--red);border-color:var(--red)">Confirmar</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+// ===== CONFIRM MODAL =====
+let _confirmOkCb = null;
+function showConfirm(title, msg, onOk, okLabel, okColor) {
+  document.getElementById('confirmModalTitle').textContent = title;
+  document.getElementById('confirmModalMsg').textContent = msg;
+  const okBtn = document.getElementById('confirmModalOk');
+  okBtn.textContent = okLabel || 'Confirmar';
+  okBtn.style.background   = okColor || 'var(--red)';
+  okBtn.style.borderColor  = okColor || 'var(--red)';
+  _confirmOkCb = onOk;
+  document.getElementById('confirmModal').classList.remove('hidden');
+}
+document.getElementById('confirmModalOk').addEventListener('click', () => {
+  document.getElementById('confirmModal').classList.add('hidden');
+  if (_confirmOkCb) { const cb = _confirmOkCb; _confirmOkCb = null; cb(); }
+});
+document.getElementById('confirmModalCancel').addEventListener('click', () => {
+  document.getElementById('confirmModal').classList.add('hidden');
+  _confirmOkCb = null;
+});
+document.getElementById('confirmModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('confirmModal')) {
+    document.getElementById('confirmModal').classList.add('hidden');
+    _confirmOkCb = null;
+  }
+});
 </script>
 
 <!-- ===== SCAN MODAL ===== -->
