@@ -2788,6 +2788,56 @@ document.getElementById('confirmModal').addEventListener('click', e => {
     _confirmOkCb = null;
   }
 });
+
+// Llamada desde Java onBackPressed — cierra el modal más al frente
+// Retorna true si cerró algo, false si no había nada abierto
+window.tryCloseTopModal = function() {
+  const isVisible = id => {
+    const el = document.getElementById(id);
+    return el && !el.classList.contains('hidden');
+  };
+  // Orden de prioridad: el más al frente primero
+  if (isVisible('confirmModal')) {
+    document.getElementById('confirmModal').classList.add('hidden');
+    _confirmOkCb = null;
+    return true;
+  }
+  if (isVisible('webScanModal')) {
+    stopWebScanCamera();
+    document.getElementById('webScanModal').classList.add('hidden');
+    return true;
+  }
+  if (isVisible('scanTradeModal')) {
+    closeScanTradeModal();
+    return true;
+  }
+  if (isVisible('canjeConfirmModal')) {
+    document.getElementById('canjeConfirmModal').classList.add('hidden');
+    return true;
+  }
+  if (isVisible('editCanjeModal')) {
+    document.getElementById('editCanjeModal').classList.add('hidden');
+    editCanjeId = null;
+    return true;
+  }
+  if (isVisible('canjesPendientesModal')) {
+    document.getElementById('canjesPendientesModal').classList.add('hidden');
+    return true;
+  }
+  if (isVisible('canjeModal')) {
+    closeCanjeModal();
+    return true;
+  }
+  if (isVisible('syncModal')) {
+    document.getElementById('syncModal').classList.add('hidden');
+    return true;
+  }
+  if (isVisible('statsModal')) {
+    document.getElementById('statsModal').classList.add('hidden');
+    return true;
+  }
+  return false;
+};
 </script>
 
 <!-- ===== SCAN MODAL ===== -->
