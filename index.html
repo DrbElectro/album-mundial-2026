@@ -23,8 +23,8 @@
   --rule:#c9bb95;
   --gold:#c89a3a;
   --gold-deep:#8c6614;
-  --red:#c0392b;
-  --red-deep:#7a1f15;
+  --red:#e06800;
+  --red-deep:#9e4a00;
   --green:#2f7a3e;
   --teal:#0f6e6a;
   --blue:#15407a;
@@ -1432,7 +1432,7 @@ function showToast(msg){
 }
 function popConfetti(){
   const box = document.getElementById('confetti');
-  const colors = ['#c0392b','#c89a3a','#2f7a3e','#15407a','#0f6e6a','#fff','#1a1814'];
+  const colors = ['#e06800','#c89a3a','#2f7a3e','#15407a','#0f6e6a','#fff','#1a1814'];
   for(let i=0;i<70;i++){
     const c=document.createElement('i');
     c.style.left = Math.random()*100+'%';
@@ -1553,7 +1553,7 @@ function renderChart(){
     <g class="chart-axis">${ticksSvg}</g>
     <path d="${area}" fill="url(#grad)"/>
     <path d="${d}" fill="none" stroke="#2f7a3e" stroke-width="1.8" stroke-linejoin="round"/>
-    <circle cx="${x(h[h.length-1].t)}" cy="${y(h[h.length-1].o)}" r="2.6" fill="#c0392b" stroke="#1a1814" stroke-width=".8"/>
+    <circle cx="${x(h[h.length-1].t)}" cy="${y(h[h.length-1].o)}" r="2.6" fill="#e06800" stroke="#1a1814" stroke-width=".8"/>
   `;
 
   const fmt = ts=>{
