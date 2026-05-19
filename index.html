@@ -812,6 +812,10 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 
       <div id="syncStatusArea" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-soft);margin-top:14px;letter-spacing:.06em;min-height:18px;"></div>
 
+      <div id="syncDesincWrap" style="display:none;margin-top:16px;padding-top:14px;border-top:1px dashed var(--rule)">
+        <button class="btn ghost" id="syncDesincBtn" style="width:100%;color:var(--red);border-color:var(--red);font-size:11px">✕ Desincronizar este dispositivo</button>
+      </div>
+
     </div>
   </div>
 </div>
@@ -2049,6 +2053,32 @@ function openSyncModal(){
     fbWrite().then(startSyncPoll);
   }
   disp.textContent = syncRoom;
+  // Mostrar botón desincronizar solo si hay sala activa
+  document.getElementById('syncDesincWrap').style.display = syncRoom ? 'block' : 'none';
+}
+
+function desincronizar(){
+  showConfirm(
+    'Desincronizar',
+    'Este dispositivo dejará de sincronizarse. Tus datos locales no se borran. ¿Confirmás?',
+    () => {
+      clearInterval(syncPollTimer);
+      syncPollTimer = null;
+      clearTimeout(syncWriteTimer);
+      syncWriteTimer = null;
+      syncRoom = null;
+      syncLastAt = null;
+      localStorage.removeItem(SYNC_ROOM_KEY);
+      updateSyncBtn();
+      setSyncStatus('Desincronizado', 'var(--ink-soft)');
+      document.getElementById('syncCodeDisplay').textContent = '—';
+      document.getElementById('syncDesincWrap').style.display = 'none';
+      showToast('✕ Sincronización desactivada');
+      document.getElementById('syncModal').classList.add('hidden');
+    },
+    'Desincronizar',
+    'var(--red)'
+  );
 }
 // ===== CANJES PENDIENTES =====
 let editCanjeId = null; // null = nuevo, string = editar
@@ -2329,6 +2359,7 @@ document.getElementById('canjeRapidoSalir').addEventListener('click', ()=>setCan
 
 document.getElementById('syncBtn').addEventListener('click', openSyncModal);
 document.getElementById('syncClose').addEventListener('click',()=>document.getElementById('syncModal').classList.add('hidden'));
+document.getElementById('syncDesincBtn').addEventListener('click', desincronizar);
 document.getElementById('syncModal').addEventListener('click',e=>{if(e.target===document.getElementById('syncModal')) document.getElementById('syncModal').classList.add('hidden');});
 
 // Generar nuevo código
