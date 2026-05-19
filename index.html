@@ -1149,7 +1149,7 @@ const TOTAL = ALL_IDS.length;
 
 function defaultData(){
   const stickers={};ALL_IDS.forEach(id=>stickers[id]=0);
-  return {stickers, lotes:[], canjes:[], reservadas:{}};
+  return {stickers, lotes:[], canjes:[]};
 }
 function loadData(){
   try{
@@ -1166,7 +1166,7 @@ function loadData(){
       if(p1900>0) lotes.push({qty:p1900,price:1900});
       if(!lotes.length) lotes=[{qty:0,price:2000}];
     }
-    return {stickers:{...def.stickers,...d.stickers}, lotes, canjes:d.canjes||[], reservadas:d.reservadas||{}};
+    return {stickers:{...def.stickers,...d.stickers}, lotes, canjes:d.canjes||[]};
   }catch(e){return defaultData()}
 }
 function saveData(){
