@@ -2191,8 +2191,6 @@ function disponiblesParaDar(id, excludeId=null){
   return Math.max(0,(state.stickers[id]||0)-1) - darReservadoCount(id, excludeId);
 }
 
-function reservarStickers(cj){ /* calculado dinámicamente desde state.canjes */ }
-function liberarStickers(cj){  /* calculado dinámicamente desde state.canjes */ }
 
 function confirmarCanjePendiente(i){
   const cj = state.canjes[i];
@@ -2200,7 +2198,6 @@ function confirmarCanjePendiente(i){
   showConfirm('Confirmar cambio', `¿Confirmar cambio con ${cj.nombre}? Se aplicarán los cambios en tu álbum.`, ()=>{
     cj.dar.forEach(id=>{ state.stickers[id]=Math.max(0,(state.stickers[id]||0)-1); });
     cj.recibir.forEach(id=>{ if((state.stickers[id]||0)===0) state.stickers[id]=1; });
-    liberarStickers(cj);
     state.canjes.splice(i,1);
     saveData(); refreshAllStickers(); updateStats(); calcGasto(); recordHistory(); renderChart();
     renderCanjesPendientesList(); updateCanjesPendientesBtn();
@@ -2212,7 +2209,6 @@ function cancelarCanjePendiente(i){
   const cj = state.canjes[i];
   if(!cj) return;
   showConfirm('Cancelar cambio', `¿Cancelar el cambio con ${cj.nombre}? Las figuritas reservadas quedarán libres.`, ()=>{
-    liberarStickers(cj);
     state.canjes.splice(i,1);
     saveData(); refreshAllStickers(); updateCanjesPendientesBtn();
     renderCanjesPendientesList();
@@ -2246,7 +2242,6 @@ document.getElementById('ecGuardar').addEventListener('click',()=>{
   // Si edita, liberar stickers viejos primero
   if(editCanjeId){
     const old = state.canjes.find(c=>c.id===editCanjeId);
-    if(old) liberarStickers(old);
   }
 
   const cj = {
@@ -2262,7 +2257,6 @@ document.getElementById('ecGuardar').addEventListener('click',()=>{
     state.canjes.push(cj);
   }
 
-  reservarStickers(cj);
   saveData(); refreshAllStickers(); updateCanjesPendientesBtn();
   renderCanjesPendientesList();
   document.getElementById('editCanjeModal').classList.add('hidden');
@@ -3496,7 +3490,6 @@ function applyScanTrade(asFuture) {
     const cj = { id: Date.now(), nombre, dar: [...scanTradeDarSelected], recibir: recibirSelected };
     state.canjes = state.canjes || [];
     state.canjes.push(cj);
-    reservarStickers(cj);
     saveData(); refreshAllStickers(); updateCanjesPendientesBtn(); renderCanjesPendientesList();
     closeScanTradeModal();
     showToast(`📌 Cambio futuro guardado · ${nombre}`);
