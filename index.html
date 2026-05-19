@@ -105,16 +105,14 @@ body::after{
 /* corner stamp */
 .stamp{
   position:absolute;top:-6px;right:-6px;
-  width:96px;height:96px;border:2px solid var(--red);border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  transform:rotate(-14deg);
-  font-family:'Archivo Black',sans-serif;text-align:center;font-size:9px;line-height:1.1;
-  color:var(--red);letter-spacing:.08em;
-  background:rgba(241,234,216,.6);
-  opacity:.85;
-  box-shadow:inset 0 0 0 1px var(--red);
+  width:96px;height:96px;border-radius:50%;
+  overflow:hidden;
+  border:2px solid var(--ink);
+  box-shadow:3px 3px 0 var(--ink);
+  opacity:.92;
+  background:#000;
 }
-.stamp::before{content:"";position:absolute;inset:6px;border:1px dashed var(--red);border-radius:50%;opacity:.5}
+.stamp img{width:100%;height:100%;object-fit:cover;display:block;}
 
 /* ===== Stats strip ===== */
 .stats{
@@ -616,7 +614,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
   .legend{flex-wrap:wrap;gap:8px;}
   .leg-pc{display:none !important;}
   .leg-mobile{display:flex !important;}
-  .stamp{position:absolute;bottom:8px;right:0;top:auto;width:88px;height:88px;font-size:9px;}
+  .stamp{position:absolute;bottom:8px;right:0;top:auto;width:80px;height:80px;}
 }
 /* Disable sticky hover on touch */
 @media(hover:none){
@@ -632,7 +630,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 
   <!-- ===== Masthead ===== -->
   <header class="masthead">
-    <div class="stamp">FIFA<br>WORLD CUP<br>★ 2026 ★</div>
+    <div class="stamp"><img src="wc2026-logo.jpg" alt="FIFA World Cup 2026"></div>
     <div class="mast-row">
       <div class="mast-left">
         <div class="kicker">
@@ -708,8 +706,8 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
           <button class="btn ghost" id="copyFaltantesBtn">📋 Copiar Faltantes</button>
           <button class="btn ghost" id="copyRepetidasBtn">📋 Copiar Repetidas</button>
         </div>
-        <!-- fila 3b: escanear + cambio x escaneo -->
-        <div class="ctrl-row">
+        <!-- fila 3b: escanear + cambio x escaneo (solo mobile/APK) -->
+        <div class="ctrl-row ctrl-mobile-only">
           <button class="btn" id="webScanBtn" style="flex:1;background:var(--blue);border-color:var(--blue)">📷 Escanear</button>
           <button class="btn" id="scanTradeBtn" style="flex:1;background:var(--blue);border-color:var(--blue)">🔄 Cambio x Escaneo</button>
         </div>
