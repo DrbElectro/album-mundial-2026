@@ -3097,6 +3097,7 @@ function handleWebScanFile(file) {
 // ---- Callbacks desde Android (ML Kit) ---- //
 // Llamados por Java vía evaluateJavascript cuando el OCR nativo termina.
 function onScanImageReady() {
+  if (typeof Android === 'undefined') return;
   const b64 = Android.getPendingScan();
   if (currentScanContext === 'scan') {
     document.getElementById('webScanStep0').style.display = 'none';
@@ -3116,6 +3117,7 @@ function onScanImageReady() {
 }
 
 function onOCRTextReady(text) {
+  if (typeof Android === 'undefined') return;
   const found = parseStickerCodesWeb(text);
   if (currentScanContext === 'scan') {
     document.getElementById('webScanProgressWrap').style.display = 'none';
