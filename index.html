@@ -3245,38 +3245,41 @@ function onOCRTextReady(text) {
 
 const OCR_SPACE_KEY = 'K8@keypart188957';
 
+async function callOCRSpace(dataUrl, engine) {
+  const form = new FormData();
+  form.append('apikey', OCR_SPACE_KEY);
+  form.append('base64Image', dataUrl);
+  form.append('language', 'eng');
+  form.append('OCREngine', String(engine));
+  form.append('scale', 'true');
+  form.append('isOverlayRequired', 'false');
+  form.append('detectOrientation', 'true');
+  const resp = await fetch('https://api.ocr.space/parse/image', { method: 'POST', body: form });
+  const json = await resp.json();
+  if (json.IsErroredOnProcessing) {
+    const e = Array.isArray(json.ErrorMessage) ? json.ErrorMessage.join(' ') : (json.ErrorMessage || '');
+    if (e.toLowerCase().includes('limit') || e.toLowerCase().includes('quota') || json.OCRExitCode === 3) {
+      throw new Error('Por hoy no se pueden generar más escaneos 📷');
+    }
+    throw new Error(e || 'Error del servidor OCR');
+  }
+  return (json.ParsedResults && json.ParsedResults[0]) ? json.ParsedResults[0].ParsedText : '';
+}
+
 async function runWebOCR(dataUrl) {
   try {
     document.getElementById('webScanProgressFill').style.width = '35%';
-    document.getElementById('webScanProgressText').textContent = 'Analizando imagen...';
+    document.getElementById('webScanProgressText').textContent = 'Analizando imagen (motor 2)...';
 
-    const form = new FormData();
-    form.append('apikey', OCR_SPACE_KEY);
-    form.append('base64Image', dataUrl);
-    form.append('language', 'eng');
-    form.append('OCREngine', '2');
-    form.append('scale', 'true');
-    form.append('isOverlayRequired', 'false');
-    form.append('detectOrientation', 'true');
+    let text = await callOCRSpace(dataUrl, 2);
 
-    const resp = await fetch('https://api.ocr.space/parse/image', {
-      method: 'POST',
-      body: form
-    });
-    document.getElementById('webScanProgressFill').style.width = '80%';
-    const json = await resp.json();
-
-    if (json.IsErroredOnProcessing) {
-      const e = Array.isArray(json.ErrorMessage) ? json.ErrorMessage.join(' ') : (json.ErrorMessage || '');
-      if (e.toLowerCase().includes('limit') || e.toLowerCase().includes('quota') || json.OCRExitCode === 3) {
-        throw new Error('Por hoy no se pueden generar más escaneos 📷');
-      }
-      throw new Error(e || 'Error del servidor OCR');
+    if (!text.trim()) {
+      document.getElementById('webScanProgressText').textContent = 'Reintentando (motor 1)...';
+      document.getElementById('webScanProgressFill').style.width = '65%';
+      text = await callOCRSpace(dataUrl, 1);
     }
 
-    const text = (json.ParsedResults && json.ParsedResults[0])
-      ? json.ParsedResults[0].ParsedText : '';
-
+    document.getElementById('webScanProgressFill').style.width = '80%';
     document.getElementById('webScanProgressWrap').style.display = 'none';
     const found = parseStickerCodesWeb(text);
     if (found.length === 0) {
@@ -3513,26 +3516,17 @@ async function handleScanTradeFile(file) {
 async function runScanTradeOCR(dataUrl) {
   try {
     document.getElementById('scanTradeProgressFill').style.width = '35%';
-    document.getElementById('scanTradeProgressText').textContent = 'Analizando imagen...';
-    const form = new FormData();
-    form.append('apikey', OCR_SPACE_KEY);
-    form.append('base64Image', dataUrl);
-    form.append('language', 'eng');
-    form.append('OCREngine', '2');
-    form.append('scale', 'true');
-    form.append('isOverlayRequired', 'false');
-    form.append('detectOrientation', 'true');
-    const resp = await fetch('https://api.ocr.space/parse/image', { method: 'POST', body: form });
-    document.getElementById('scanTradeProgressFill').style.width = '80%';
-    const json = await resp.json();
-    if (json.IsErroredOnProcessing) {
-      const e = Array.isArray(json.ErrorMessage) ? json.ErrorMessage.join(' ') : (json.ErrorMessage || '');
-      if (e.toLowerCase().includes('limit') || e.toLowerCase().includes('quota') || json.OCRExitCode === 3) {
-        throw new Error('Por hoy no se pueden generar más escaneos 📷');
-      }
-      throw new Error(e || 'Error del servidor OCR');
+    document.getElementById('scanTradeProgressText').textContent = 'Analizando imagen (motor 2)...';
+
+    let text = await callOCRSpace(dataUrl, 2);
+
+    if (!text.trim()) {
+      document.getElementById('scanTradeProgressText').textContent = 'Reintentando (motor 1)...';
+      document.getElementById('scanTradeProgressFill').style.width = '65%';
+      text = await callOCRSpace(dataUrl, 1);
     }
-    const text = json.ParsedResults?.[0]?.ParsedText || '';
+
+    document.getElementById('scanTradeProgressFill').style.width = '80%';
     document.getElementById('scanTradeProgressWrap').style.display = 'none';
     const found = parseStickerCodesWeb(text);
     if (found.length === 0) {
