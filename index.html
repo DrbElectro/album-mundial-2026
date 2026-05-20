@@ -3132,7 +3132,7 @@ function resetWebScan() {
   document.getElementById('webScanGalleryInput').value = '';
 }
 
-function handleWebScanFile(file) {
+async function handleWebScanFile(file) {
   if (!file) return;
   const rawUrl = URL.createObjectURL(file);
   const preview = document.getElementById('webScanPreview');
@@ -3146,27 +3146,50 @@ function handleWebScanFile(file) {
   document.getElementById('webScanProgressFill').style.width = '5%';
   document.getElementById('webScanProgressText').textContent = 'Procesando imagen...';
 
-  const img = new Image();
-  img.onload = () => {
-    // Reducir tamaño para no superar el límite de 1MB de OCR.space (free)
-    const maxW = 1500;
-    let w = img.width, h = img.height;
-    if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+  try {
+    // 1) Decodificar la imagen aplicando la orientación EXIF (clave para iPhone)
+    let bitmap = null;
+    try {
+      bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+    } catch (_) {
+      // Fallback: navegadores viejos que no soportan imageOrientation
+      bitmap = await new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = rawUrl;
+      });
+    }
+
+    // 2) Redimensionar acotando el lado MÁS LARGO (no solo el ancho)
+    const maxSide = 1600;
+    let w = bitmap.width, h = bitmap.height;
+    const longest = Math.max(w, h);
+    if (longest > maxSide) {
+      const scale = maxSide / longest;
+      w = Math.round(w * scale);
+      h = Math.round(h * scale);
+    }
     const canvas = document.createElement('canvas');
     canvas.width = w; canvas.height = h;
     const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0, w, h);
+    ctx.drawImage(bitmap, 0, 0, w, h);
     URL.revokeObjectURL(rawUrl);
-    // Foto natural (sin filtros) — el motor real funciona mejor así, como ML Kit
-    let q = 0.82;
+    if (bitmap.close) bitmap.close();
+
+    // 3) Comprimir a JPEG <~1MB para OCR.space free
+    let q = 0.85;
     let dataUrl = canvas.toDataURL('image/jpeg', q);
-    while (dataUrl.length > 1330000 && q > 0.4) { // ~1MB en base64
+    while (dataUrl.length > 1330000 && q > 0.4) {
       q -= 0.12;
       dataUrl = canvas.toDataURL('image/jpeg', q);
     }
+    const kb = Math.round(dataUrl.length * 0.75 / 1024);
+    document.getElementById('webScanProgressText').textContent = 'Enviando (' + w + 'x' + h + ', ~' + kb + 'KB)...';
     runWebOCR(dataUrl);
-  };
-  img.src = rawUrl;
+  } catch (err) {
+    document.getElementById('webScanProgressText').textContent = 'Error procesando imagen: ' + (err.message || err);
+  }
 }
 
 // ---- Callbacks desde Android (ML Kit) ---- //
@@ -3437,7 +3460,7 @@ function shootScanTradeCamera() {
 }
 
 /* ---- file → OCR ---- */
-function handleScanTradeFile(file) {
+async function handleScanTradeFile(file) {
   if (!file) return;
   const rawUrl = URL.createObjectURL(file);
   const preview = document.getElementById('scanTradePreview');
@@ -3451,21 +3474,40 @@ function handleScanTradeFile(file) {
   document.getElementById('scanTradeProgressFill').style.width = '5%';
   document.getElementById('scanTradeProgressText').textContent = 'Procesando imagen...';
 
-  const img = new Image();
-  img.onload = () => {
-    const maxW = 1500;
-    let w = img.width, h = img.height;
-    if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+  try {
+    let bitmap = null;
+    try {
+      bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+    } catch (_) {
+      bitmap = await new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = rawUrl;
+      });
+    }
+    const maxSide = 1600;
+    let w = bitmap.width, h = bitmap.height;
+    const longest = Math.max(w, h);
+    if (longest > maxSide) {
+      const scale = maxSide / longest;
+      w = Math.round(w * scale);
+      h = Math.round(h * scale);
+    }
     const canvas = document.createElement('canvas');
     canvas.width = w; canvas.height = h;
-    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+    canvas.getContext('2d').drawImage(bitmap, 0, 0, w, h);
     URL.revokeObjectURL(rawUrl);
-    let q = 0.82;
+    if (bitmap.close) bitmap.close();
+    let q = 0.85;
     let dataUrl = canvas.toDataURL('image/jpeg', q);
     while (dataUrl.length > 1330000 && q > 0.4) { q -= 0.12; dataUrl = canvas.toDataURL('image/jpeg', q); }
+    const kb = Math.round(dataUrl.length * 0.75 / 1024);
+    document.getElementById('scanTradeProgressText').textContent = 'Enviando (' + w + 'x' + h + ', ~' + kb + 'KB)...';
     runScanTradeOCR(dataUrl);
-  };
-  img.src = rawUrl;
+  } catch (err) {
+    document.getElementById('scanTradeProgressText').textContent = 'Error procesando imagen: ' + (err.message || err);
+  }
 }
 
 async function runScanTradeOCR(dataUrl) {
