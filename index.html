@@ -3185,6 +3185,8 @@ async function handleWebScanFile(file) {
       dataUrl = canvas.toDataURL('image/jpeg', q);
     }
     const kb = Math.round(dataUrl.length * 0.75 / 1024);
+    // Mostrar la imagen procesada (post-canvas) para verificar que no sea blanca
+    document.getElementById('webScanPreview').src = dataUrl;
     document.getElementById('webScanProgressText').textContent = 'Enviando (' + w + 'x' + h + ', ~' + kb + 'KB)...';
     runWebOCR(dataUrl);
   } catch (err) {
