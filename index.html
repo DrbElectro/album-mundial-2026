@@ -784,6 +784,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://unpkg.com/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <!-- ===== Sync modal ===== -->
 <div class="modal-overlay hidden" id="syncModal">
@@ -3196,10 +3197,10 @@ async function handleWebScanFile(file) {
       dataUrl = canvas.toDataURL('image/jpeg', q);
     }
     const kb = Math.round(dataUrl.length * 0.75 / 1024);
-    // Mostrar la imagen procesada (post-canvas) para verificar que no sea blanca
+    // Mostrar la imagen procesada (post-canvas)
     document.getElementById('webScanPreview').src = dataUrl;
-    document.getElementById('webScanProgressText').textContent = 'Enviando (' + w + 'x' + h + ', ~' + kb + 'KB)...';
-    runWebOCR(dataUrl);
+    document.getElementById('webScanProgressText').textContent = 'Preparando (' + w + 'x' + h + ', ~' + kb + 'KB)...';
+    runWebOCR(dataUrl, canvas);
   } catch (err) {
     document.getElementById('webScanProgressText').textContent = 'Error procesando imagen: ' + (err.message || err);
   }
@@ -3257,6 +3258,24 @@ function onOCRTextReady(text) {
 }
 
 const OCR_SPACE_KEY = 'K8@keypart188957';
+let _tesseractWorker = null;
+
+async function getTesseractWorker() {
+  if (_tesseractWorker) return _tesseractWorker;
+  _tesseractWorker = await Tesseract.createWorker('eng', 1, {
+    logger: () => {}
+  });
+  await _tesseractWorker.setParameters({
+    tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ',
+  });
+  return _tesseractWorker;
+}
+
+async function runTesseract(canvas) {
+  const worker = await getTesseractWorker();
+  const { data: { text } } = await worker.recognize(canvas);
+  return text || '';
+}
 
 async function callOCRSpace(dataUrl, engine) {
   const form = new FormData();
@@ -3279,20 +3298,32 @@ async function callOCRSpace(dataUrl, engine) {
   return (json.ParsedResults && json.ParsedResults[0]) ? json.ParsedResults[0].ParsedText : '';
 }
 
-async function runWebOCR(dataUrl) {
+async function runWebOCR(dataUrl, canvas) {
   try {
-    document.getElementById('webScanProgressFill').style.width = '35%';
-    document.getElementById('webScanProgressText').textContent = 'Analizando imagen (motor 2)...';
+    document.getElementById('webScanProgressFill').style.width = '30%';
+    document.getElementById('webScanProgressText').textContent = 'Iniciando reconocimiento...';
 
-    let text = await callOCRSpace(dataUrl, 2);
+    // 1) Tesseract (corre en el browser, sin límites)
+    let text = '';
+    try {
+      document.getElementById('webScanProgressText').textContent = 'Leyendo texto...';
+      text = await runTesseract(canvas);
+    } catch (_) {}
 
+    // 2) Fallback: OCR.space Engine 2
     if (!text.trim()) {
-      document.getElementById('webScanProgressText').textContent = 'Reintentando (motor 1)...';
-      document.getElementById('webScanProgressFill').style.width = '65%';
-      text = await callOCRSpace(dataUrl, 1);
+      document.getElementById('webScanProgressText').textContent = 'Reintentando (motor externo)...';
+      document.getElementById('webScanProgressFill').style.width = '60%';
+      try { text = await callOCRSpace(dataUrl, 2); } catch (_) {}
     }
 
-    document.getElementById('webScanProgressFill').style.width = '80%';
+    // 3) Fallback: OCR.space Engine 1
+    if (!text.trim()) {
+      document.getElementById('webScanProgressFill').style.width = '80%';
+      try { text = await callOCRSpace(dataUrl, 1); } catch (_) {}
+    }
+
+    document.getElementById('webScanProgressFill').style.width = '100%';
     document.getElementById('webScanProgressWrap').style.display = 'none';
     const found = parseStickerCodesWeb(text);
     if (found.length === 0) {
@@ -3529,27 +3560,36 @@ async function handleScanTradeFile(file) {
     let dataUrl = canvas.toDataURL('image/jpeg', q);
     while (dataUrl.length > 1330000 && q > 0.4) { q -= 0.12; dataUrl = canvas.toDataURL('image/jpeg', q); }
     const kb = Math.round(dataUrl.length * 0.75 / 1024);
-    document.getElementById('scanTradeProgressText').textContent = 'Enviando (' + w + 'x' + h + ', ~' + kb + 'KB)...';
-    runScanTradeOCR(dataUrl);
+    document.getElementById('scanTradeProgressText').textContent = 'Preparando (' + w + 'x' + h + ', ~' + kb + 'KB)...';
+    runScanTradeOCR(dataUrl, canvas);
   } catch (err) {
     document.getElementById('scanTradeProgressText').textContent = 'Error procesando imagen: ' + (err.message || err);
   }
 }
 
-async function runScanTradeOCR(dataUrl) {
+async function runScanTradeOCR(dataUrl, canvas) {
   try {
-    document.getElementById('scanTradeProgressFill').style.width = '35%';
-    document.getElementById('scanTradeProgressText').textContent = 'Analizando imagen (motor 2)...';
+    document.getElementById('scanTradeProgressFill').style.width = '30%';
+    document.getElementById('scanTradeProgressText').textContent = 'Iniciando reconocimiento...';
 
-    let text = await callOCRSpace(dataUrl, 2);
+    let text = '';
+    try {
+      document.getElementById('scanTradeProgressText').textContent = 'Leyendo texto...';
+      text = await runTesseract(canvas);
+    } catch (_) {}
 
     if (!text.trim()) {
-      document.getElementById('scanTradeProgressText').textContent = 'Reintentando (motor 1)...';
-      document.getElementById('scanTradeProgressFill').style.width = '65%';
-      text = await callOCRSpace(dataUrl, 1);
+      document.getElementById('scanTradeProgressText').textContent = 'Reintentando (motor externo)...';
+      document.getElementById('scanTradeProgressFill').style.width = '60%';
+      try { text = await callOCRSpace(dataUrl, 2); } catch (_) {}
     }
 
-    document.getElementById('scanTradeProgressFill').style.width = '80%';
+    if (!text.trim()) {
+      document.getElementById('scanTradeProgressFill').style.width = '80%';
+      try { text = await callOCRSpace(dataUrl, 1); } catch (_) {}
+    }
+
+    document.getElementById('scanTradeProgressFill').style.width = '100%';
     document.getElementById('scanTradeProgressWrap').style.display = 'none';
     const found = parseStickerCodesWeb(text);
     if (found.length === 0) {
