@@ -3177,8 +3177,19 @@ async function handleWebScanFile(file) {
     URL.revokeObjectURL(rawUrl);
     if (bitmap.close) bitmap.close();
 
-    // 3) Comprimir a JPEG <~1MB para OCR.space free
-    let q = 0.85;
+    // 3) Preprocesar: escala de grises + aumento de contraste para mejorar OCR
+    const imageData = ctx.getImageData(0, 0, w, h);
+    const d = imageData.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const gray = 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
+      // Contraste alto: empuja los grises hacia negro/blanco
+      const c = Math.max(0, Math.min(255, (gray - 128) * 1.8 + 128));
+      d[i] = d[i+1] = d[i+2] = c;
+    }
+    ctx.putImageData(imageData, 0, 0);
+
+    // 4) Comprimir a JPEG <~1MB para OCR.space free
+    let q = 0.88;
     let dataUrl = canvas.toDataURL('image/jpeg', q);
     while (dataUrl.length > 1330000 && q > 0.4) {
       q -= 0.12;
@@ -3501,10 +3512,20 @@ async function handleScanTradeFile(file) {
     }
     const canvas = document.createElement('canvas');
     canvas.width = w; canvas.height = h;
-    canvas.getContext('2d').drawImage(bitmap, 0, 0, w, h);
+    const ctx2 = canvas.getContext('2d');
+    ctx2.drawImage(bitmap, 0, 0, w, h);
     URL.revokeObjectURL(rawUrl);
     if (bitmap.close) bitmap.close();
-    let q = 0.85;
+    // Escala de grises + contraste alto para mejorar OCR
+    const id2 = ctx2.getImageData(0, 0, w, h);
+    const d2 = id2.data;
+    for (let i = 0; i < d2.length; i += 4) {
+      const gray = 0.299 * d2[i] + 0.587 * d2[i+1] + 0.114 * d2[i+2];
+      const c = Math.max(0, Math.min(255, (gray - 128) * 1.8 + 128));
+      d2[i] = d2[i+1] = d2[i+2] = c;
+    }
+    ctx2.putImageData(id2, 0, 0);
+    let q = 0.88;
     let dataUrl = canvas.toDataURL('image/jpeg', q);
     while (dataUrl.length > 1330000 && q > 0.4) { q -= 0.12; dataUrl = canvas.toDataURL('image/jpeg', q); }
     const kb = Math.round(dataUrl.length * 0.75 / 1024);
