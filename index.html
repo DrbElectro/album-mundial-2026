@@ -3196,13 +3196,13 @@ async function handleWebScanFile(file) {
     }
     ocrCtx.putImageData(imageData, 0, 0);
 
-    // 5) Comprimir OCR canvas a JPEG <~1MB para fallback OCR.space
+    // 5) Comprimir canvas OCR (B&W) para Tesseract
     let q = 0.88;
     let dataUrl = ocrCanvas.toDataURL('image/jpeg', q);
     while (dataUrl.length > 1330000 && q > 0.4) { q -= 0.12; dataUrl = ocrCanvas.toDataURL('image/jpeg', q); }
     const kb = Math.round(dataUrl.length * 0.75 / 1024);
     document.getElementById('webScanProgressText').textContent = 'Preparando (' + w + 'x' + h + ', ~' + kb + 'KB)...';
-    runWebOCR(dataUrl, ocrCanvas);
+    runWebOCR(dataUrl, ocrCanvas, previewUrl);
   } catch (err) {
     document.getElementById('webScanProgressText').textContent = 'Error procesando imagen: ' + (err.message || err);
   }
@@ -3259,17 +3259,15 @@ function onOCRTextReady(text) {
   scanAddMode = false;
 }
 
-const OCR_SPACE_KEY = 'K8@keypart188957';
+const CLOUD_VISION_KEY = 'AIzaSyAfxofzzOphIG4mq7gtshuWJ5N4pBBZ_bk';
 let _tesseractWorker = null;
 
 async function getTesseractWorker() {
   if (_tesseractWorker) return _tesseractWorker;
-  _tesseractWorker = await Tesseract.createWorker('eng', 1, {
-    logger: () => {}
-  });
+  _tesseractWorker = await Tesseract.createWorker('eng', 1, { logger: () => {} });
   await _tesseractWorker.setParameters({
     tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ',
-    tessedit_pageseg_mode: '6', // Bloque uniforme de texto
+    tessedit_pageseg_mode: '6',
   });
   return _tesseractWorker;
 }
@@ -3277,7 +3275,6 @@ async function getTesseractWorker() {
 async function runTesseract(canvas) {
   const worker = await getTesseractWorker();
   const { data } = await worker.recognize(canvas);
-  // Solo tomar palabras con confianza > 70% para reducir falsos positivos
   const confident = (data.words || [])
     .filter(w => w.confidence > 70)
     .map(w => w.text)
@@ -3285,55 +3282,50 @@ async function runTesseract(canvas) {
   return confident;
 }
 
-async function callOCRSpace(dataUrl, engine) {
-  const form = new FormData();
-  form.append('apikey', OCR_SPACE_KEY);
-  form.append('base64Image', dataUrl);
-  form.append('language', 'eng');
-  form.append('OCREngine', String(engine));
-  form.append('scale', 'true');
-  form.append('isOverlayRequired', 'false');
-  form.append('detectOrientation', 'true');
-  const resp = await fetch('https://api.ocr.space/parse/image', { method: 'POST', body: form });
+async function callCloudVision(colorDataUrl) {
+  // Quitar prefijo data:image/jpeg;base64,
+  const base64 = colorDataUrl.split(',')[1];
+  const body = JSON.stringify({
+    requests: [{
+      image: { content: base64 },
+      features: [{ type: 'TEXT_DETECTION', maxResults: 1 }]
+    }]
+  });
+  const resp = await fetch(
+    'https://vision.googleapis.com/v1/images:annotate?key=' + CLOUD_VISION_KEY,
+    { method: 'POST', headers: { 'Content-Type': 'application/json' }, body }
+  );
   const json = await resp.json();
-  if (json.IsErroredOnProcessing) {
-    const e = Array.isArray(json.ErrorMessage) ? json.ErrorMessage.join(' ') : (json.ErrorMessage || '');
-    if (e.toLowerCase().includes('limit') || e.toLowerCase().includes('quota') || json.OCRExitCode === 3) {
-      throw new Error('Por hoy no se pueden generar más escaneos 📷');
-    }
-    throw new Error(e || 'Error del servidor OCR');
-  }
-  return (json.ParsedResults && json.ParsedResults[0]) ? json.ParsedResults[0].ParsedText : '';
+  if (json.error) throw new Error(json.error.message || 'Error Cloud Vision');
+  const annotations = json.responses && json.responses[0] && json.responses[0].textAnnotations;
+  return (annotations && annotations[0]) ? annotations[0].description : '';
 }
 
-async function runWebOCR(dataUrl, canvas) {
+async function runWebOCR(dataUrl, canvas, colorDataUrl) {
   try {
     document.getElementById('webScanProgressFill').style.width = '30%';
-    document.getElementById('webScanProgressText').textContent = 'Iniciando reconocimiento...';
+    document.getElementById('webScanProgressText').textContent = 'Leyendo texto...';
 
-    // 1) Tesseract (corre en el browser, sin límites)
+    // 1) Tesseract local (rápido, sin límites)
     let text = '';
+    let found = [];
     try {
-      document.getElementById('webScanProgressText').textContent = 'Leyendo texto...';
       text = await runTesseract(canvas);
+      found = parseStickerCodesWeb(text);
     } catch (_) {}
 
-    // 2) Fallback: OCR.space Engine 2
-    if (!text.trim()) {
-      document.getElementById('webScanProgressText').textContent = 'Reintentando (motor externo)...';
-      document.getElementById('webScanProgressFill').style.width = '60%';
-      try { text = await callOCRSpace(dataUrl, 2); } catch (_) {}
-    }
-
-    // 3) Fallback: OCR.space Engine 1
-    if (!text.trim()) {
-      document.getElementById('webScanProgressFill').style.width = '80%';
-      try { text = await callOCRSpace(dataUrl, 1); } catch (_) {}
+    // 2) Si Tesseract no encontró códigos → Cloud Vision (mismo motor que ML Kit)
+    if (found.length === 0) {
+      document.getElementById('webScanProgressText').textContent = 'Mejorando precisión...';
+      document.getElementById('webScanProgressFill').style.width = '65%';
+      try {
+        text = await callCloudVision(colorDataUrl);
+        found = parseStickerCodesWeb(text);
+      } catch (_) {}
     }
 
     document.getElementById('webScanProgressFill').style.width = '100%';
     document.getElementById('webScanProgressWrap').style.display = 'none';
-    const found = parseStickerCodesWeb(text);
     if (found.length === 0) {
       const el = document.getElementById('webScanNoResults');
       el.innerHTML = '<p style="font-size:12px;color:var(--ink-soft);text-align:center;line-height:1.5;margin-bottom:8px">No se encontraron códigos. Probá con una foto más cercana y con buena luz.</p><textarea readonly class="scan-debug">' + (text || '(vacío)').substring(0,600) + '</textarea>';
@@ -3557,7 +3549,8 @@ async function handleScanTradeFile(file) {
     URL.revokeObjectURL(rawUrl);
     if (bitmap.close) bitmap.close();
     // Preview en color
-    document.getElementById('scanTradePreview').src = canvas.toDataURL('image/jpeg', 0.75);
+    const tradeColorUrl = canvas.toDataURL('image/jpeg', 0.75);
+    document.getElementById('scanTradePreview').src = tradeColorUrl;
     // Canvas OCR: escala de grises + contraste alto
     const ocrCanvas2 = document.createElement('canvas');
     ocrCanvas2.width = w; ocrCanvas2.height = h;
@@ -3576,37 +3569,35 @@ async function handleScanTradeFile(file) {
     while (dataUrl.length > 1330000 && q > 0.4) { q -= 0.12; dataUrl = ocrCanvas2.toDataURL('image/jpeg', q); }
     const kb = Math.round(dataUrl.length * 0.75 / 1024);
     document.getElementById('scanTradeProgressText').textContent = 'Preparando (' + w + 'x' + h + ', ~' + kb + 'KB)...';
-    runScanTradeOCR(dataUrl, ocrCanvas2);
+    runScanTradeOCR(dataUrl, ocrCanvas2, tradeColorUrl);
   } catch (err) {
     document.getElementById('scanTradeProgressText').textContent = 'Error procesando imagen: ' + (err.message || err);
   }
 }
 
-async function runScanTradeOCR(dataUrl, canvas) {
+async function runScanTradeOCR(dataUrl, canvas, colorDataUrl) {
   try {
     document.getElementById('scanTradeProgressFill').style.width = '30%';
-    document.getElementById('scanTradeProgressText').textContent = 'Iniciando reconocimiento...';
+    document.getElementById('scanTradeProgressText').textContent = 'Leyendo texto...';
 
     let text = '';
+    let found = [];
     try {
-      document.getElementById('scanTradeProgressText').textContent = 'Leyendo texto...';
       text = await runTesseract(canvas);
+      found = parseStickerCodesWeb(text);
     } catch (_) {}
 
-    if (!text.trim()) {
-      document.getElementById('scanTradeProgressText').textContent = 'Reintentando (motor externo)...';
-      document.getElementById('scanTradeProgressFill').style.width = '60%';
-      try { text = await callOCRSpace(dataUrl, 2); } catch (_) {}
-    }
-
-    if (!text.trim()) {
-      document.getElementById('scanTradeProgressFill').style.width = '80%';
-      try { text = await callOCRSpace(dataUrl, 1); } catch (_) {}
+    if (found.length === 0) {
+      document.getElementById('scanTradeProgressText').textContent = 'Mejorando precisión...';
+      document.getElementById('scanTradeProgressFill').style.width = '65%';
+      try {
+        text = await callCloudVision(colorDataUrl);
+        found = parseStickerCodesWeb(text);
+      } catch (_) {}
     }
 
     document.getElementById('scanTradeProgressFill').style.width = '100%';
     document.getElementById('scanTradeProgressWrap').style.display = 'none';
-    const found = parseStickerCodesWeb(text);
     if (found.length === 0) {
       const el = document.getElementById('scanTradeNoResults');
       el.innerHTML = '<p style="font-size:12px;color:var(--ink-soft);text-align:center;line-height:1.5;margin-bottom:8px">No se encontraron códigos. Probá más cerca y con buena luz.</p>'
