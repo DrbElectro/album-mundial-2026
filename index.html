@@ -3303,26 +3303,15 @@ async function callCloudVision(colorDataUrl) {
 
 async function runWebOCR(dataUrl, canvas, colorDataUrl) {
   try {
-    document.getElementById('webScanProgressFill').style.width = '30%';
-    document.getElementById('webScanProgressText').textContent = 'Leyendo texto...';
+    document.getElementById('webScanProgressFill').style.width = '40%';
+    document.getElementById('webScanProgressText').textContent = 'Analizando imagen...';
 
-    // 1) Tesseract local (rápido, sin límites)
     let text = '';
     let found = [];
     try {
-      text = await runTesseract(canvas);
+      text = await callCloudVision(colorDataUrl);
       found = parseStickerCodesWeb(text);
     } catch (_) {}
-
-    // 2) Si Tesseract no encontró códigos → Cloud Vision (mismo motor que ML Kit)
-    if (found.length === 0) {
-      document.getElementById('webScanProgressText').textContent = 'Mejorando precisión...';
-      document.getElementById('webScanProgressFill').style.width = '65%';
-      try {
-        text = await callCloudVision(colorDataUrl);
-        found = parseStickerCodesWeb(text);
-      } catch (_) {}
-    }
 
     document.getElementById('webScanProgressFill').style.width = '100%';
     document.getElementById('webScanProgressWrap').style.display = 'none';
@@ -3577,24 +3566,16 @@ async function handleScanTradeFile(file) {
 
 async function runScanTradeOCR(dataUrl, canvas, colorDataUrl) {
   try {
-    document.getElementById('scanTradeProgressFill').style.width = '30%';
-    document.getElementById('scanTradeProgressText').textContent = 'Leyendo texto...';
+    document.getElementById('scanTradeProgressFill').style.width = '40%';
+    document.getElementById('scanTradeProgressText').textContent = 'Analizando imagen...';
 
     let text = '';
     let found = [];
     try {
-      text = await runTesseract(canvas);
+      text = await callCloudVision(colorDataUrl);
       found = parseStickerCodesWeb(text);
     } catch (_) {}
 
-    if (found.length === 0) {
-      document.getElementById('scanTradeProgressText').textContent = 'Mejorando precisión...';
-      document.getElementById('scanTradeProgressFill').style.width = '65%';
-      try {
-        text = await callCloudVision(colorDataUrl);
-        found = parseStickerCodesWeb(text);
-      } catch (_) {}
-    }
 
     document.getElementById('scanTradeProgressFill').style.width = '100%';
     document.getElementById('scanTradeProgressWrap').style.display = 'none';
