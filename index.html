@@ -2828,6 +2828,54 @@ document.getElementById('confirmModal').addEventListener('click', e => {
   }
 });
 
+// ===== Bloqueo de scroll del fondo cuando hay un modal abierto =====
+(function(){
+  let lockedScrollY = 0;
+  let isLocked = false;
+
+  function anyModalOpen(){
+    const overlays = document.querySelectorAll('.modal-overlay, .stats-modal-overlay');
+    for (const el of overlays) {
+      if (!el.classList.contains('hidden')) return true;
+    }
+    return false;
+  }
+  function lock(){
+    if (isLocked) return;
+    isLocked = true;
+    lockedScrollY = window.scrollY || window.pageYOffset || 0;
+    document.body.style.position = 'fixed';
+    document.body.style.top = '-' + lockedScrollY + 'px';
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.width = '100%';
+  }
+  function unlock(){
+    if (!isLocked) return;
+    isLocked = false;
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    document.body.style.width = '';
+    window.scrollTo(0, lockedScrollY);
+  }
+  function sync(){ anyModalOpen() ? lock() : unlock(); }
+
+  function attachObservers(){
+    const observer = new MutationObserver(sync);
+    document.querySelectorAll('.modal-overlay, .stats-modal-overlay').forEach(el => {
+      observer.observe(el, { attributes: true, attributeFilter: ['class'] });
+    });
+  }
+  // Esperar a que todos los modales existan en el DOM
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', attachObservers);
+  } else {
+    attachObservers();
+  }
+})();
+
 // Llamada desde Java onBackPressed — cierra el modal más al frente
 // Retorna true si cerró algo, false si no había nada abierto
 window.tryCloseTopModal = function() {
