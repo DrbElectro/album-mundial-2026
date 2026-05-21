@@ -3279,7 +3279,7 @@ async function runTesseract(canvas) {
   const { data } = await worker.recognize(canvas);
   // Solo tomar palabras con confianza > 70% para reducir falsos positivos
   const confident = (data.words || [])
-    .filter(w => w.confidence > 70)
+    .filter(w => w.confidence > 85)
     .map(w => w.text)
     .join(' ');
   return confident;
