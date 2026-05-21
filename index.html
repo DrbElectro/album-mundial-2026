@@ -32,7 +32,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{overflow-x:hidden;max-width:100%}
-body{background:var(--paper);color:var(--ink);font-family:'Archivo',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+body{background:var(--paper);color:var(--ink);font-family:'Archivo',system-ui,sans-serif;-webkit-font-smoothing:antialiased;padding-bottom:env(safe-area-inset-bottom,0px)}
 
 /* ===== Paper texture (procedural) ===== */
 body{
@@ -3269,14 +3269,19 @@ async function getTesseractWorker() {
   });
   await _tesseractWorker.setParameters({
     tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ',
+    tessedit_pageseg_mode: '11', // Texto disperso: busca texto en cualquier parte de la imagen
   });
   return _tesseractWorker;
 }
 
 async function runTesseract(canvas) {
   const worker = await getTesseractWorker();
-  const { data: { text } } = await worker.recognize(canvas);
-  return text || '';
+  // Intentar dos veces con distintos modos y combinar resultados
+  const { data: { text: text11 } } = await worker.recognize(canvas);
+  await worker.setParameters({ tessedit_pageseg_mode: '6' }); // Bloque uniforme
+  const { data: { text: text6 } } = await worker.recognize(canvas);
+  await worker.setParameters({ tessedit_pageseg_mode: '11' }); // Restaurar modo disperso
+  return (text11 || '') + ' ' + (text6 || '');
 }
 
 async function callOCRSpace(dataUrl, engine) {
