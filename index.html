@@ -3276,12 +3276,8 @@ async function getTesseractWorker() {
 
 async function runTesseract(canvas) {
   const worker = await getTesseractWorker();
-  // Intentar dos veces con distintos modos y combinar resultados
-  const { data: { text: text11 } } = await worker.recognize(canvas);
-  await worker.setParameters({ tessedit_pageseg_mode: '6' }); // Bloque uniforme
-  const { data: { text: text6 } } = await worker.recognize(canvas);
-  await worker.setParameters({ tessedit_pageseg_mode: '11' }); // Restaurar modo disperso
-  return (text11 || '') + ' ' + (text6 || '');
+  const { data: { text } } = await worker.recognize(canvas);
+  return text || '';
 }
 
 async function callOCRSpace(dataUrl, engine) {
@@ -3356,27 +3352,12 @@ function parseStickerCodesWeb(rawText) {
 
   const text = rawText.toUpperCase().replace(/[^A-Z0-9\s]/g, ' ').replace(/\s+/g, ' ');
   const found = new Set();
-  const pattern = /\b([A-Z]{1,4})\s*(\d{1,2})\b/g;
+  const pattern = /\b([A-Z]{2,4})\s*(\d{1,2})\b/g;
   let m;
   while ((m = pattern.exec(text)) !== null) {
-    const prefix = m[1];
-    const num = String(parseInt(m[2]));
-    const candidate = prefix + num;
-
-    // 1) Coincidencia exacta
-    if (allIds.has(candidate)) { found.add(candidate); continue; }
-
-    // 2) Coincidencia por sufijo: OCR cortó 1-2 letras del inicio
-    // Ej: "RO4" → "CRO4", "RA4" → "FRA4", "AR4" → "MAR4"
-    for (const id of allIds) {
-      if (
-        id.endsWith(candidate) &&
-        id.length > candidate.length &&
-        id.length <= candidate.length + 2
-      ) {
-        found.add(id);
-      }
-    }
+    const noSpace = m[1] + m[2];
+    const noLeadZero = m[1] + String(parseInt(m[2]));
+    [noSpace, noLeadZero].forEach(c => { if (allIds.has(c)) found.add(c); });
   }
   return allIdsList.filter(id => found.has(id));
 }
