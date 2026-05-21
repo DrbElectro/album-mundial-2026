@@ -3269,15 +3269,20 @@ async function getTesseractWorker() {
   });
   await _tesseractWorker.setParameters({
     tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ',
-    tessedit_pageseg_mode: '11', // Texto disperso: busca texto en cualquier parte de la imagen
+    tessedit_pageseg_mode: '6', // Bloque uniforme de texto
   });
   return _tesseractWorker;
 }
 
 async function runTesseract(canvas) {
   const worker = await getTesseractWorker();
-  const { data: { text } } = await worker.recognize(canvas);
-  return text || '';
+  const { data } = await worker.recognize(canvas);
+  // Solo tomar palabras con confianza > 70% para reducir falsos positivos
+  const confident = (data.words || [])
+    .filter(w => w.confidence > 70)
+    .map(w => w.text)
+    .join(' ');
+  return confident;
 }
 
 async function callOCRSpace(dataUrl, engine) {
