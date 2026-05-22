@@ -2636,7 +2636,6 @@ function openCanje(){
 }
 function closeCanjeModal(){
   if(typeof stopCanjeQRScan === 'function') stopCanjeQRScan();
-  document.getElementById('canjeQRWrap').style.display = 'none';
   document.getElementById('canjeModal').classList.add('hidden');
   if(location.hash.startsWith('#canje='))
     history.replaceState(null,'', location.pathname+location.search);
