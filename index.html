@@ -835,33 +835,27 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 <div class="modal-overlay hidden" id="canjeModal">
   <div class="modal">
     <div class="modal-head">
-      <span>🔄 Intercambio de Figuritas</span>
+      <span>🔄 Cambio x QR</span>
       <button class="modal-close" id="canjeClose">✕</button>
     </div>
     <div class="modal-body">
 
       <div class="canje-step">
-        <h3><span class="step-num">1</span> Tu código de cambio</h3>
-        <div class="canje-code-box" id="canjeMyCode">—</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
-          <button class="btn" id="canjeCopyCode">📋 Copiar código</button>
-          <button class="btn ghost" id="canjeCopyLink">🔗 Copiar link directo</button>
-          <button class="btn ghost" id="canjeShowQR">📱 Mostrar QR</button>
-        </div>
-        <div id="canjeQRWrap" style="display:none;text-align:center;margin-bottom:10px;padding:14px;background:#fff;border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink)">
+        <h3><span class="step-num">1</span> Tu QR de cambio</h3>
+        <div id="canjeQRWrap" style="text-align:center;margin-bottom:10px;padding:14px;background:#fff;border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink)">
           <div id="canjeQR" style="display:inline-block"></div>
-          <div style="font-size:11px;color:var(--ink-soft);margin-top:8px">Tu amigo escanea este QR para ver el cambio</div>
         </div>
-        <div class="canje-hint">Compartí este código, el link, o mostrá el QR a tu amigo. Él lo pega/escanea y ve al instante qué pueden cambiar.</div>
+        <button class="btn" id="canjeShareBtn" style="width:100%;background:#25D366;border-color:#1da851">📤 Compartir por WhatsApp</button>
+        <div class="canje-hint">Mostrale este QR a tu amigo o compartilo. Él lo escanea y ven al instante qué pueden cambiar.</div>
       </div>
 
       <div class="canje-step">
-        <h3><span class="step-num">2</span> Código de tu amigo</h3>
-        <input type="text" class="canje-input" id="canjeFriendInput" placeholder="Pegá el código de cambio de tu amigo acá…">
+        <h3><span class="step-num">2</span> Escanear QR de tu amigo</h3>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn" id="canjeCompareBtn">🔍 Ver qué podemos cambiar</button>
-          <button class="btn ghost" id="canjeScanQR">📷 Escanear QR</button>
+          <button class="btn" id="canjeScanQR">📷 Escanear con cámara</button>
+          <button class="btn ghost" id="canjeGalleryQR">🖼 Subir de galería</button>
         </div>
+        <input type="file" id="canjeQRGalleryInput" accept="image/*" style="display:none">
       </div>
 
       <!-- Escáner de QR -->
@@ -2617,15 +2611,26 @@ document.getElementById('canjeConfirmFuturoBtn').addEventListener('click',()=>{
 document.getElementById('canjeConfirmFuturo').addEventListener('click', saveCanjeComoFuturo);
 document.getElementById('canjeConfirmOk').addEventListener('click', applyCanjeConfirm);
 document.getElementById('canjeConfirmModal').addEventListener('click',e=>{if(e.target===document.getElementById('canjeConfirmModal')) document.getElementById('canjeConfirmModal').classList.add('hidden');});
+let _canjeQRObj = null;
+function renderMyCanjeQR(){
+  const cont = document.getElementById('canjeQR');
+  cont.innerHTML = '';
+  try{
+    _canjeQRObj = new QRCode(cont, {
+      text: encodeCanjeCompressed(),
+      width: 240, height: 240,
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  }catch(e){ cont.textContent = 'Error generando QR'; }
+}
 function openCanje(){
-  document.getElementById('canjeMyCode').textContent = encodeCanjeState();
+  renderMyCanjeQR();
   document.getElementById('canjeResults').style.display='none';
   document.getElementById('canjeModal').classList.remove('hidden');
   // auto-load from URL hash if friend shared a link
   const hash = location.hash;
   if(hash.startsWith('#canje=')){
     const code = decodeURIComponent(hash.slice(7));
-    document.getElementById('canjeFriendInput').value = code;
     runCanje(code);
   }
 }
@@ -2642,35 +2647,44 @@ document.getElementById('canjeClose').addEventListener('click', closeCanjeModal)
 document.getElementById('canjeModal').addEventListener('click', e=>{
   if(e.target===document.getElementById('canjeModal')) closeCanjeModal();
 });
-document.getElementById('canjeCopyCode').addEventListener('click',()=>{
-  navigator.clipboard.writeText(encodeCanjeState()).then(()=>showToast('Código copiado'));
-});
-document.getElementById('canjeCopyLink').addEventListener('click',()=>{
-  const url = location.href.split('#')[0]+'#canje='+encodeURIComponent(encodeCanjeState());
-  navigator.clipboard.writeText(url).then(()=>showToast('Link copiado'));
-});
-
-// ===== QR: generar =====
-let _canjeQRObj = null;
-document.getElementById('canjeShowQR').addEventListener('click',()=>{
-  const wrap = document.getElementById('canjeQRWrap');
-  if(wrap.style.display !== 'none'){ wrap.style.display='none'; return; }
-  const cont = document.getElementById('canjeQR');
-  cont.innerHTML = '';
-  try{
-    _canjeQRObj = new QRCode(cont, {
-      text: encodeCanjeCompressed(),
-      width: 240,
-      height: 240,
-      correctLevel: QRCode.CorrectLevel.M
-    });
-    wrap.style.display = 'block';
-  }catch(e){
-    showToast('Error generando QR');
+// ===== Compartir por WhatsApp (link directo) =====
+async function shareCanje(){
+  const link = location.href.split('#')[0] + '#canje=' + encodeURIComponent(encodeCanjeCompressed());
+  const msg = '🔄 ¡Cambiemos figuritas del Mundial 2026! Abrí este link y vas a ver al instante qué podemos cambiar:\n' + link;
+  if(navigator.share){
+    try{ await navigator.share({ title:'Cambio de figuritas', text: msg }); return; }
+    catch(e){ if(e.name === 'AbortError') return; }
   }
+  // Fallback: abrir WhatsApp directamente
+  window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+}
+document.getElementById('canjeShareBtn').addEventListener('click', shareCanje);
+
+// ===== QR: subir desde galería =====
+document.getElementById('canjeGalleryQR').addEventListener('click',()=>{
+  document.getElementById('canjeQRGalleryInput').click();
+});
+document.getElementById('canjeQRGalleryInput').addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  e.target.value = '';
+  if(!file) return;
+  try{
+    const bitmap = await createImageBitmap(file);
+    const canvas = document.createElement('canvas');
+    canvas.width = bitmap.width; canvas.height = bitmap.height;
+    canvas.getContext('2d').drawImage(bitmap, 0, 0);
+    const imgData = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
+    const result = jsQR(imgData.data, imgData.width, imgData.height);
+    if(result && result.data && decodeCanjeState(result.data.trim())){
+      runCanje(result.data.trim());
+      showToast('¡QR leído de la galería!');
+    } else {
+      showToast('No se detectó un QR válido en la imagen');
+    }
+  }catch(err){ showToast('Error leyendo la imagen'); }
 });
 
-// ===== QR: escanear =====
+// ===== QR: escanear con cámara =====
 let _canjeQRStream = null;
 let _canjeQRRAF = null;
 async function startCanjeQRScan(){
@@ -2707,7 +2721,6 @@ function scanCanjeQRFrame(){
       // Validar que sea un código de canje válido
       if(decodeCanjeState(code)){
         stopCanjeQRScan();
-        document.getElementById('canjeFriendInput').value = code;
         runCanje(code);
         showToast('¡QR escaneado!');
         return;
@@ -2745,13 +2758,6 @@ document.getElementById('canjeShareMyCode').addEventListener('click',()=>{
   txt += document.getElementById('canjeSummary')?.textContent||'';
   navigator.clipboard.writeText(txt).then(()=>showToast('¡Copiado! Pegalo donde quieras'));
 });
-document.getElementById('canjeCompareBtn').addEventListener('click',()=>{
-  const code = document.getElementById('canjeFriendInput').value.trim();
-  if(!code) return;
-  runCanje(code);
-  history.replaceState(null,'', location.pathname+location.search+'#canje='+encodeURIComponent(code));
-});
-
 // Auto-open canje modal if page loaded with a friend's link
 if(location.hash.startsWith('#canje=')){
   window.addEventListener('load', ()=>setTimeout(openCanje, 600));
