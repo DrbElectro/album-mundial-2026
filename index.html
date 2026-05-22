@@ -792,6 +792,9 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://unpkg.com/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 
 <!-- ===== Sync modal ===== -->
 <div class="modal-overlay hidden" id="syncModal">
@@ -843,14 +846,29 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
           <button class="btn" id="canjeCopyCode">📋 Copiar código</button>
           <button class="btn ghost" id="canjeCopyLink">🔗 Copiar link directo</button>
+          <button class="btn ghost" id="canjeShowQR">📱 Mostrar QR</button>
         </div>
-        <div class="canje-hint">Compartí este código (o el link) con tu amigo. Él lo pega abajo y ve al instante qué pueden cambiar.</div>
+        <div id="canjeQRWrap" style="display:none;text-align:center;margin-bottom:10px;padding:14px;background:#fff;border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink)">
+          <div id="canjeQR" style="display:inline-block"></div>
+          <div style="font-size:11px;color:var(--ink-soft);margin-top:8px">Tu amigo escanea este QR para ver el cambio</div>
+        </div>
+        <div class="canje-hint">Compartí este código, el link, o mostrá el QR a tu amigo. Él lo pega/escanea y ve al instante qué pueden cambiar.</div>
       </div>
 
       <div class="canje-step">
         <h3><span class="step-num">2</span> Código de tu amigo</h3>
         <input type="text" class="canje-input" id="canjeFriendInput" placeholder="Pegá el código de cambio de tu amigo acá…">
-        <button class="btn" id="canjeCompareBtn">🔍 Ver qué podemos cambiar</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" id="canjeCompareBtn">🔍 Ver qué podemos cambiar</button>
+          <button class="btn ghost" id="canjeScanQR">📷 Escanear QR</button>
+        </div>
+      </div>
+
+      <!-- Escáner de QR -->
+      <div id="canjeQRScanner" style="display:none;margin-top:12px">
+        <video id="canjeQRVideo" playsinline autoplay muted style="width:100%;border:2px solid var(--ink);background:#000;max-height:60vh;object-fit:cover;box-shadow:4px 4px 0 var(--ink);display:block"></video>
+        <p id="canjeQRScanStatus" style="font-family:'JetBrains Mono',monospace;font-size:11px;text-align:center;color:var(--ink-soft);margin-top:8px">Apuntá la cámara al QR de tu amigo…</p>
+        <button class="btn ghost" id="canjeQRScanCancel" style="width:100%;margin-top:6px">Cancelar</button>
       </div>
 
       <div id="canjeResults" style="display:none">
@@ -2407,7 +2425,7 @@ document.getElementById('syncConnectBtn').addEventListener('click', async()=>{
 });
 
 // ===== CANJE =====
-function encodeCanjeState(){
+function buildCanjeBytes(){
   const n = ALL_IDS.length;
   const bytes = Math.ceil(n / 8);
   const dar    = new Uint8Array(bytes);
@@ -2419,12 +2437,31 @@ function encodeCanjeState(){
   });
   const merged = new Uint8Array(bytes * 2);
   merged.set(dar); merged.set(faltan, bytes);
-  return btoa(String.fromCharCode(...merged));
+  return merged;
+}
+function encodeCanjeState(){
+  // Formato clásico (sin comprimir) — compatible con códigos/links ya compartidos
+  return btoa(String.fromCharCode(...buildCanjeBytes()));
+}
+function encodeCanjeCompressed(){
+  // Formato comprimido para QR (prefijo '~', mucho más corto)
+  const compressed = pako.deflate(buildCanjeBytes());
+  return '~' + btoa(String.fromCharCode(...compressed));
 }
 function decodeCanjeState(encoded){
   try{
-    const raw = atob(encoded.trim());
-    const merged = Uint8Array.from(raw, c => c.charCodeAt(0));
+    encoded = encoded.trim();
+    let merged;
+    if(encoded[0] === '~'){
+      // Comprimido (QR)
+      const raw = atob(encoded.slice(1));
+      const comp = Uint8Array.from(raw, c => c.charCodeAt(0));
+      merged = pako.inflate(comp);
+    } else {
+      // Clásico
+      const raw = atob(encoded);
+      merged = Uint8Array.from(raw, c => c.charCodeAt(0));
+    }
     const bytes = merged.length / 2;
     const dar    = merged.slice(0, bytes);
     const faltan = merged.slice(bytes);
@@ -2593,6 +2630,8 @@ function openCanje(){
   }
 }
 function closeCanjeModal(){
+  if(typeof stopCanjeQRScan === 'function') stopCanjeQRScan();
+  document.getElementById('canjeQRWrap').style.display = 'none';
   document.getElementById('canjeModal').classList.add('hidden');
   if(location.hash.startsWith('#canje='))
     history.replaceState(null,'', location.pathname+location.search);
@@ -2610,6 +2649,82 @@ document.getElementById('canjeCopyLink').addEventListener('click',()=>{
   const url = location.href.split('#')[0]+'#canje='+encodeURIComponent(encodeCanjeState());
   navigator.clipboard.writeText(url).then(()=>showToast('Link copiado'));
 });
+
+// ===== QR: generar =====
+let _canjeQRObj = null;
+document.getElementById('canjeShowQR').addEventListener('click',()=>{
+  const wrap = document.getElementById('canjeQRWrap');
+  if(wrap.style.display !== 'none'){ wrap.style.display='none'; return; }
+  const cont = document.getElementById('canjeQR');
+  cont.innerHTML = '';
+  try{
+    _canjeQRObj = new QRCode(cont, {
+      text: encodeCanjeCompressed(),
+      width: 240,
+      height: 240,
+      correctLevel: QRCode.CorrectLevel.M
+    });
+    wrap.style.display = 'block';
+  }catch(e){
+    showToast('Error generando QR');
+  }
+});
+
+// ===== QR: escanear =====
+let _canjeQRStream = null;
+let _canjeQRRAF = null;
+async function startCanjeQRScan(){
+  const scanner = document.getElementById('canjeQRScanner');
+  const video = document.getElementById('canjeQRVideo');
+  const status = document.getElementById('canjeQRScanStatus');
+  scanner.style.display = 'block';
+  status.textContent = 'Iniciando cámara…';
+  try{
+    _canjeQRStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment' }
+    });
+    video.srcObject = _canjeQRStream;
+    await video.play();
+    status.textContent = 'Apuntá la cámara al QR de tu amigo…';
+    scanCanjeQRFrame();
+  }catch(e){
+    status.textContent = 'No se pudo abrir la cámara: ' + (e.message||e);
+  }
+}
+function scanCanjeQRFrame(){
+  const video = document.getElementById('canjeQRVideo');
+  if(!_canjeQRStream){ return; }
+  if(video.readyState === video.HAVE_ENOUGH_DATA){
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const result = jsQR(imgData.data, imgData.width, imgData.height);
+    if(result && result.data){
+      const code = result.data.trim();
+      // Validar que sea un código de canje válido
+      if(decodeCanjeState(code)){
+        stopCanjeQRScan();
+        document.getElementById('canjeFriendInput').value = code;
+        runCanje(code);
+        showToast('¡QR escaneado!');
+        return;
+      }
+    }
+  }
+  _canjeQRRAF = requestAnimationFrame(scanCanjeQRFrame);
+}
+function stopCanjeQRScan(){
+  if(_canjeQRRAF){ cancelAnimationFrame(_canjeQRRAF); _canjeQRRAF = null; }
+  if(_canjeQRStream){ _canjeQRStream.getTracks().forEach(t=>t.stop()); _canjeQRStream = null; }
+  const video = document.getElementById('canjeQRVideo');
+  video.srcObject = null;
+  document.getElementById('canjeQRScanner').style.display = 'none';
+}
+document.getElementById('canjeScanQR').addEventListener('click', startCanjeQRScan);
+document.getElementById('canjeQRScanCancel').addEventListener('click', stopCanjeQRScan);
 document.getElementById('canjeShareMyCode').addEventListener('click',()=>{
   const dar     = document.getElementById('canjeDar');
   const recibir = document.getElementById('canjeRecibir');
