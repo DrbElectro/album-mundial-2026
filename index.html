@@ -3885,5 +3885,79 @@ if('serviceWorker' in navigator){
   });
 }
 </script>
+
+<!-- ===== POPUP NOVEDADES ===== -->
+<div id="novedadesOverlay" style="
+  display:none;position:fixed;inset:0;z-index:10100;
+  background:rgba(0,0,0,.55);
+  padding:calc(16px + var(--safe-top)) calc(16px + var(--safe-right)) calc(16px + var(--safe-bottom)) calc(16px + var(--safe-left));
+  align-items:center;justify-content:center;
+">
+  <div style="
+    background:var(--paper);
+    border:2px solid var(--ink);
+    box-shadow:6px 6px 0 var(--ink);
+    max-width:360px;width:100%;
+    font-family:'JetBrains Mono',monospace;
+    position:relative;
+    overflow:hidden;
+  ">
+    <!-- Franja superior -->
+    <div style="background:var(--ink);padding:14px 18px 12px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-family:'Archivo Black',sans-serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:3px">Novedades</div>
+        <div style="font-family:'Archivo Black',sans-serif;font-size:17px;color:#fff;line-height:1">Mi Álbum Mundial</div>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,.5);letter-spacing:.1em">v1.4</div>
+    </div>
+    <!-- Contenido -->
+    <div style="padding:18px 18px 0">
+
+      <!-- Cambio x QR — destacado verde -->
+      <div style="background:#eafaf0;border:1.5px solid #3da855;border-left:4px solid #3da855;padding:12px 14px;margin-bottom:12px">
+        <div style="font-family:'Archivo Black',sans-serif;font-size:12px;color:#226a3a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">🔄 Cambio x QR</div>
+        <div style="font-size:11px;color:#1a3d22;line-height:1.6">Mostrá tu QR o compartilo por WhatsApp. Tu amigo lo escanea y ven al instante qué figuritas pueden cambiar.</div>
+      </div>
+
+      <!-- Importar de otra App — destacado púrpura -->
+      <div style="background:#f0e8ff;border:1.5px solid #7546b0;border-left:4px solid #7546b0;padding:12px 14px;margin-bottom:18px">
+        <div style="font-family:'Archivo Black',sans-serif;font-size:12px;color:#4a2680;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">📲 Importar de otra App</div>
+        <div style="font-size:11px;color:#2e1060;line-height:1.6">¿Tenés tus figuritas en otra app? Importalas con un toque, sin perder nada de lo que ya cargaste acá.</div>
+      </div>
+
+    </div>
+    <!-- Botón -->
+    <div style="padding:0 18px 18px">
+      <button id="novedadesOk" style="
+        width:100%;background:var(--ink);color:#fff;
+        font-family:'Archivo Black',sans-serif;font-size:12px;
+        text-transform:uppercase;letter-spacing:.08em;
+        border:none;padding:13px;cursor:pointer;
+      ">¡Entendido!</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const VERSION = '1.4';
+  const KEY = 'novedades_seen_v';
+  if(localStorage.getItem(KEY) !== VERSION){
+    const el = document.getElementById('novedadesOverlay');
+    el.style.display = 'flex';
+    document.getElementById('novedadesOk').addEventListener('click', function(){
+      el.style.display = 'none';
+      localStorage.setItem(KEY, VERSION);
+    });
+    el.addEventListener('click', function(e){
+      if(e.target === el){
+        el.style.display = 'none';
+        localStorage.setItem(KEY, VERSION);
+      }
+    });
+  }
+})();
+</script>
+
 </body>
 </html>
