@@ -12,7 +12,10 @@
     --gold-deep:#8c6614;
     --teal:#0f6e6a;
     --green:#2f7a3e;
-    --red:#e06800;
+    --red:#c0392b;
+    --purple:#7546b0;
+    --purple-deep:#4a2680;
+    --purple-light:#f0e8ff;
     --rule:#c9bb95;
     --paper:#f7f2e4;
     --paper-2:#ede5cc;
@@ -36,7 +39,6 @@
     background:var(--ink);
     color:#fff;
     padding:36px 40px;
-    border-radius:8px;
     margin-bottom:32px;
   }
   .cover-tag{
@@ -120,13 +122,29 @@
     color:var(--soft);
     margin:10px 0 14px;
   }
+  .tip-new{
+    background:var(--purple-light);
+    border-left:4px solid var(--purple);
+    padding:10px 14px;
+    font-size:10.5pt;
+    color:var(--purple-deep);
+    margin:10px 0 14px;
+  }
+  .tip-new strong{
+    font-family:'Archivo Black',sans-serif;
+    font-size:10pt;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:var(--purple);
+    display:block;
+    margin-bottom:4px;
+  }
   .badge{
     display:inline-block;
     font-family:'JetBrains Mono',monospace;
     font-size:8.5pt;
     font-weight:700;
     padding:2px 7px;
-    border-radius:4px;
     vertical-align:middle;
     margin-right:3px;
   }
@@ -135,6 +153,17 @@
   .b-green{background:var(--green);color:#fff}
   .b-red{background:var(--red);color:#fff}
   .b-gray{background:#888;color:#fff}
+  .b-white{background:#fff;color:var(--ink);border:1px solid #bbb}
+  .b-celeste{background:#4db8e8;color:#0a2a3d}
+  .b-orange{background:#d4650a;color:#fff}
+  .b-purple{background:var(--purple);color:#fff}
+  .leg-split{
+    display:inline-flex;width:16px;height:16px;
+    border:1px solid #bbb;overflow:hidden;vertical-align:middle;margin-right:4px;
+  }
+  .leg-split span{flex:1}
+  .leg-split .ls-w{background:#fff}
+  .leg-split .ls-c{background:#4db8e8}
 
   /* ---- Steps ---- */
   .steps{
@@ -157,7 +186,6 @@
     font-size:9pt;
     background:var(--ink);
     color:#fff;
-    border-radius:50%;
     min-width:20px;
     height:20px;
     display:flex;
@@ -207,7 +235,6 @@
     background:var(--ink);
     color:#fff;
     border:none;
-    border-radius:6px;
     padding:8px 20px;
     font-family:'Archivo',sans-serif;
     font-weight:700;
@@ -228,7 +255,7 @@
 <div class="page">
 
   <div class="cover">
-    <div class="cover-tag">Manual de uso · v1.1</div>
+    <div class="cover-tag">Manual de uso · v1.4</div>
     <h1>Álbum Mundial 2026</h1>
     <div class="cover-sub">drbelectro.github.io/album-mundial-2026 · Mayo 2026</div>
   </div>
@@ -243,27 +270,24 @@
     <div class="item">
       <div class="item-icon">🖱️</div>
       <div class="item-body">
-        <strong>Click izquierdo (PC)</strong>
-        <p>Suma 1 al contador de la figurita. Si estaba en 0 pasa a pegada, si ya estaba pegada pasa a repetida (+1 cada vez).</p>
-      </div>
-    </div>
-    <div class="item">
-      <div class="item-icon">👆</div>
-      <div class="item-body">
-        <strong>Tap (celular)</strong>
-        <p>Mismo comportamiento que el click izquierdo.</p>
+        <strong>Click izquierdo (PC) / Tap (celular)</strong>
+        <p>Suma 1 al contador. Si estaba en 0 pasa a pegada; si ya estaba pegada pasa a repetida (+1 cada vez).</p>
       </div>
     </div>
     <div class="item">
       <div class="item-icon">🖱️</div>
       <div class="item-body">
-        <strong>Click derecho (PC) / Long press (celular)</strong>
+        <strong>Click derecho (PC) / Mantener presionado 500ms (celular)</strong>
         <p>Resta 1 al contador. Si está en 1 vuelve a faltar. Mínimo: 0.</p>
       </div>
     </div>
 
     <div class="tip">
-      Los colores indican el estado: <span class="badge b-gray">gris</span> falta · <span class="badge b-green">verde</span> pegada · <span class="badge b-gold">dorado</span> repetida con badge ×N
+      Colores: <span class="badge b-gray">beige</span> falta ·
+      <span class="badge b-green">verde</span> pegada ·
+      <span class="badge b-gold">dorado</span> repetida ×N ·
+      <span class="leg-split"><span class="ls-w"></span><span class="ls-c"></span></span>
+      reservada para cambio pactado (<span class="badge b-white">blanco</span> = das · <span class="badge b-celeste">celeste</span> = recibís)
     </div>
   </div>
 
@@ -277,14 +301,14 @@
       <div class="item-icon">📊</div>
       <div class="item-body">
         <strong>Barra superior</strong>
-        <p>Muestra en tiempo real: total de figuritas del álbum · cuántas pegaste · cuántas te faltan · cuántas repetidas tenés.</p>
+        <p>Muestra en tiempo real: total del álbum · cuántas pegaste · cuántas faltan · cuántas repetidas tenés.</p>
       </div>
     </div>
     <div class="item">
       <div class="item-icon">📈</div>
       <div class="item-body">
         <strong>Gráfico de progreso</strong>
-        <p>Panel derecho. Registra automáticamente cuántas figuritas tenías cada día que usaste la app. Muestra la evolución en el tiempo.</p>
+        <p>Panel derecho. Registra automáticamente cuántas figuritas tenías cada día que usaste la app y muestra la evolución en el tiempo.</p>
       </div>
     </div>
   </div>
@@ -299,7 +323,7 @@
       <div class="item-icon">💰</div>
       <div class="item-body">
         <strong>Lotes personalizados</strong>
-        <p>Panel derecho. Ingresá cuántos paquetes compraste y a qué precio. Podés agregar tantos lotes como quieras con el botón <em>+ Agregar lote</em>. El total incluye el costo del álbum ($19.000) y calcula el costo por figurita pegada.</p>
+        <p>Panel derecho. Ingresá cuántos paquetes compraste y a qué precio. Podés agregar tantos lotes como quieras con <em>+ Agregar lote</em>. El total incluye el costo del álbum y calcula el costo por figurita pegada.</p>
       </div>
     </div>
   </div>
@@ -321,7 +345,7 @@
       <div class="item-icon">🔽</div>
       <div class="item-body">
         <strong>Filtros</strong>
-        <p>Mostrá solo las figuritas que <em>Faltan</em>, las <em>Pegadas</em>, las <em>Repetidas</em>, o <em>Todas</em>. Combinable con la búsqueda.</p>
+        <p>Mostrá solo las que <em>Faltan</em>, las <em>Pegadas</em>, las <em>Repetidas</em>, las de <em>Cambios pactados</em>, o <em>Todas</em>. Combinable con la búsqueda.</p>
       </div>
     </div>
     <div class="item">
@@ -335,23 +359,23 @@
 
   <div class="divider"></div>
 
-  <!-- 5. SINCRONIZACIÓN -->
+  <!-- 5. SYNC -->
   <div class="section">
     <div class="section-head">
       <div class="section-num">5</div>
-      <div class="section-title">Sync entre dispositivos</div>
+      <div class="section-title">Sincronizar entre dispositivos</div>
     </div>
-    <p style="font-size:10.5pt;color:var(--soft);margin-bottom:12px">Mantiene sincronizado el álbum entre tu celular y tu PC (o cualquier otro dispositivo) en tiempo real, sin login ni contraseña.</p>
+    <p style="font-size:10.5pt;color:var(--soft);margin-bottom:12px">Mantiene el álbum sincronizado entre celular y PC en tiempo real, sin login ni contraseña.</p>
 
     <ol class="steps">
-      <li>En el dispositivo principal tocá <strong>☁ Sync</strong> → se genera automáticamente un código de 6 letras (ej: <em>AB3X7K</em>).</li>
+      <li>Tocá <strong>☁ Sincronizar</strong> → se genera un código de sala automáticamente (ej: <em>AB3X7K</em>).</li>
       <li>Copiá ese código y pasáselo al otro dispositivo.</li>
-      <li>En el otro dispositivo, abrí <strong>☁ Sync</strong> → pegá el código en el campo → <em>Conectar y sincronizar</em>.</li>
+      <li>En el otro dispositivo abrí <strong>☁ Sincronizar</strong> → pegá el código → <em>Conectar y sincronizar</em>.</li>
       <li>A partir de ahí sincronizan automáticamente cada 10 segundos.</li>
     </ol>
 
     <div class="tip">
-      El código de sala queda guardado. Al refrescar la página la sincronización se retoma sola, sin volver a ingresar el código.
+      El código queda guardado. Al refrescar la página la sincronización se retoma sola, sin volver a ingresar el código.
     </div>
   </div>
 
@@ -359,270 +383,134 @@
   <div class="section">
     <div class="section-head">
       <div class="section-num">6</div>
-      <div class="section-title">Auto-Guardado en archivo</div>
+      <div class="section-title">Auto-Guardado en archivo (solo PC)</div>
     </div>
     <div class="item">
       <div class="item-icon">💾</div>
       <div class="item-body">
         <strong>Vincular un archivo .json</strong>
-        <p>Tocá <em>💾 Auto-Guardado</em> → elegí o creá un archivo <em>album_mundial_2026.json</em> en tu PC. A partir de ahí cada cambio se guarda automáticamente en ese archivo, además del almacenamiento local del navegador.</p>
+        <p>Tocá <em>💾 Auto-Guardado</em> → elegí o creá un archivo en tu PC. Cada cambio se guarda automáticamente en ese archivo además del almacenamiento local del navegador.</p>
       </div>
     </div>
     <div class="tip">
-      Solo disponible en Chrome, Edge y Opera. No funciona en Firefox ni Safari. Útil como backup local además del sync.
+      Solo disponible en Chrome, Edge y Opera. No funciona en Firefox ni Safari ni en el celular.
     </div>
   </div>
 
-  <!-- 7. EXPORTAR -->
+  <!-- 7. EXPORTAR / IMPORTAR -->
   <div class="section">
     <div class="section-head">
       <div class="section-num">7</div>
-      <div class="section-title">Exportar lista</div>
+      <div class="section-title">Exportar e Importar lista</div>
     </div>
     <div class="item">
       <div class="item-icon">📝</div>
       <div class="item-body">
         <strong>Exportar Lista</strong>
-        <p>Genera un archivo de texto con todas tus figuritas faltantes y repetidas, agrupadas por selección. Podés editarlo y reimportarlo con <em>📥 Importar Lista</em>.</p>
+        <p>Genera un archivo de texto con tus figuritas faltantes y repetidas agrupadas por selección.</p>
+      </div>
+    </div>
+    <div class="item">
+      <div class="item-icon">📥</div>
+      <div class="item-body">
+        <strong>Importar Lista</strong>
+        <p>Cargá un archivo de texto exportado previamente para restaurar o combinar colecciones.</p>
       </div>
     </div>
   </div>
 
   <div class="divider"></div>
 
-  <!-- 8. CANJE -->
+  <!-- 8. CAMBIO x QR -->
   <div class="section">
     <div class="section-head">
       <div class="section-num">8</div>
-      <div class="section-title">Canje con código</div>
+      <div class="section-title">Cambio x QR</div>
     </div>
-    <p style="font-size:10.5pt;color:var(--soft);margin-bottom:12px">Compará tu colección con la de un amigo para ver exactamente qué pueden intercambiar.</p>
+    <p style="font-size:10.5pt;color:var(--soft);margin-bottom:12px">Compará tu colección con la de un amigo para ver exactamente qué pueden intercambiar, usando un código QR.</p>
 
     <ol class="steps">
-      <li>Abrí el menú <strong>🔄 Canje</strong>. Se muestra tu código de canje.</li>
-      <li>Copiá el código y mandáselo a tu amigo (o copiá el link directo).</li>
-      <li>Tu amigo abre el link o pega el código en el campo <em>Código de tu amigo</em>.</li>
-      <li>La app muestra qué figuritas podés dar y cuáles recibir.</li>
-      <li>Tocá <strong>✓ Confirmar intercambio</strong> para revisar y aplicar los cambios.</li>
+      <li>Tocá <strong>🔄 Cambio x QR</strong>. Se genera tu QR de cambio automáticamente.</li>
+      <li>Mostráselo a tu amigo en pantalla o compartilo por WhatsApp.</li>
+      <li>Tu amigo escanea tu QR con su cámara o lo sube desde la galería.</li>
+      <li>La app muestra al instante qué figuritas pueden intercambiar: las que vos das y las que recibís.</li>
     </ol>
 
     <div class="item" style="margin-top:8px">
       <div class="item-icon">✓</div>
       <div class="item-body">
         <strong>Confirmación parcial</strong>
-        <p>En el modal de confirmación podés togglear cada figurita individual para incluirla o no. Solo se aplican las marcadas como <em>✓ incluir</em>. Al confirmar: las que diste bajan 1, las que recibiste se marcan como pegadas.</p>
+        <p>Podés destildar figuritas individuales antes de confirmar. Solo se aplican las marcadas. Al confirmar: las que diste bajan 1, las que recibiste se marcan como pegadas.</p>
       </div>
     </div>
     <div class="item">
       <div class="item-icon">📋</div>
       <div class="item-body">
         <strong>Copiar resumen</strong>
-        <p>El botón <em>📋 Copiar</em> en los resultados copia un texto formateado con el detalle del intercambio para pegar en WhatsApp u otro mensajero.</p>
+        <p>El botón <em>📋 Copiar</em> en los resultados copia un texto con el detalle del intercambio para pegar en WhatsApp u otro mensajero.</p>
       </div>
     </div>
   </div>
 
-  <!-- 9. CANJE RÁPIDO -->
+  <!-- 9. CAMBIOS PACTADOS -->
   <div class="section">
     <div class="section-head">
       <div class="section-num">9</div>
-      <div class="section-title">Canje rápido (sin código)</div>
+      <div class="section-title">Cambios Pactados</div>
     </div>
-    <p style="font-size:10.5pt;color:var(--soft);margin-bottom:12px">Para cuando sabés de palabra qué van a intercambiar y querés aplicar los cambios directamente en el álbum.</p>
+    <p style="font-size:10.5pt;color:var(--soft);margin-bottom:12px">Reservá figuritas para cambios acordados con amigos que todavía no se concretaron. Así no las usás en otro cambio por error.</p>
 
     <ol class="steps">
-      <li>Tocá <strong>⚡ Canje rápido</strong> en la barra de herramientas.</li>
-      <li>Aparece un banner dorado en la parte inferior indicando que el modo está activo.</li>
-      <li>Las figuritas con <span class="badge b-gold">borde dorado</span> son tus repetidas → tap para dar (baja 1).</li>
-      <li>Las figuritas con <span class="badge b-teal">borde teal</span> son las que te faltan → tap para recibir (sube a 1).</li>
-      <li>Las atenuadas (tenés exactamente 1) no hacen nada.</li>
-      <li>Para salir tocá <strong>Salir</strong> en el banner o el botón rojo en la barra.</li>
+      <li>Tocá <strong>📌 Cambios Pactados</strong> → <em>+ Nuevo cambio</em>, ingresá el nombre del amigo y fecha (opcional).</li>
+      <li>En la pestaña <strong>📤 Doy</strong> seleccioná las figuritas que le vas a dar (solo aparecen tus repetidas disponibles).</li>
+      <li>En la pestaña <strong>📥 Recibo</strong> seleccioná las que vas a recibir (solo las que faltan y no están reservadas para otro cambio).</li>
+      <li>Tocá <strong>Guardar</strong>. El cambio queda registrado como pendiente.</li>
     </ol>
 
+    <div class="item" style="margin-top:8px">
+      <div class="item-icon">🎨</div>
+      <div class="item-body">
+        <strong>Colores en el álbum</strong>
+        <p>Las figuritas reservadas cambian de color: <span class="badge b-white">blanco</span> = las que vos das · <span class="badge b-celeste">celeste</span> = las que vas a recibir.</p>
+      </div>
+    </div>
+    <div class="item">
+      <div class="item-icon">✓</div>
+      <div class="item-body">
+        <strong>Confirmar el cambio</strong>
+        <p>Cuando el intercambio se concrete, tocá <strong>Confirmar</strong>. Las figuritas que diste bajan 1, las que recibiste se marcan como pegadas y el cambio se elimina de la lista.</p>
+      </div>
+    </div>
     <div class="tip">
-      Cada cambio se guarda y se sincroniza automáticamente en tiempo real.
+      También podés <em>Editar</em> un cambio o <em>Cancelar</em> si no se realizó. Las reservas se liberan automáticamente.
     </div>
   </div>
 
-  <div class="divider"></div>
-
-  <!-- 10. ESCANEAR FIGURITAS -->
+  <!-- 10. IMPORTAR DE OTRA APP -->
   <div class="section">
     <div class="section-head">
       <div class="section-num">10</div>
-      <div class="section-title">Escanear figuritas con la cámara</div>
-    </div>
-    <p style="font-size:10.5pt;color:var(--soft);margin-bottom:14px">Fotografiá tus figuritas y la app detecta automáticamente los códigos (OCR). Disponible en la versión web y en la app Android.</p>
-
-    <!-- mockup: botones en la barra -->
-    <div style="background:var(--paper-2);border:1.5px solid var(--rule);border-radius:6px;padding:14px 16px;margin-bottom:16px">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:8pt;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);margin-bottom:10px">Barra de controles</div>
-      <div style="display:flex;gap:8px">
-        <div style="flex:1;background:#15407a;color:#fff;border-radius:5px;padding:9px 8px;text-align:center;font-family:'Archivo',sans-serif;font-weight:700;font-size:10pt">📷 Escanear</div>
-        <div style="flex:1;background:#15407a;color:#fff;border-radius:5px;padding:9px 8px;text-align:center;font-family:'Archivo',sans-serif;font-weight:700;font-size:10pt;opacity:.45">🔄 Cambio x Escaneo</div>
-      </div>
+      <div class="section-title">Importar de otra App</div>
     </div>
 
-    <!-- mockup: modal de escaneo -->
-    <div style="background:#fff;border:2px solid #1a1814;border-radius:4px;padding:0;margin-bottom:16px;overflow:hidden">
-      <div style="background:#1a1814;color:#fff;padding:10px 14px;font-family:'Archivo Black',sans-serif;font-size:10pt;display:flex;justify-content:space-between;align-items:center">
-        <span>📷 Escanear Figuritas</span><span style="opacity:.5">✕</span>
-      </div>
-      <div style="padding:14px">
-        <p style="font-size:9.5pt;color:var(--soft);text-align:center;margin-bottom:12px">Sacá una foto donde se vean los <strong>códigos</strong> de tus figuritas — ej: <strong>GHA 6</strong>, <strong>PAN 5</strong>.</p>
-        <div style="display:flex;gap:8px;margin-bottom:14px">
-          <div style="flex:1;background:#15407a;color:#fff;border-radius:5px;padding:8px;text-align:center;font-weight:700;font-size:9.5pt">📷 Cámara</div>
-          <div style="flex:1;border:1.5px solid #1a1814;border-radius:5px;padding:8px;text-align:center;font-weight:700;font-size:9.5pt;color:#1a1814">🖼 Galería</div>
-        </div>
-        <!-- chips resultado -->
-        <div style="font-family:'Archivo Black',sans-serif;font-size:9pt;text-transform:uppercase;letter-spacing:.08em;border-bottom:2px solid #1a1814;padding-bottom:5px;margin-bottom:10px">Figuritas detectadas</div>
-        <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px">
-          <div style="display:flex;align-items:center;gap:6px;background:#ede5cc;border:1.5px solid #1a1814;border-radius:3px;padding:5px 9px">
-            <input type="checkbox" checked disabled style="width:13px;height:13px">
-            <span style="font-family:'Archivo Black',sans-serif;font-size:13pt">GHA 6</span>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:9pt;color:#3d362b">×2 rep</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:6px;background:#ede5cc;border:1.5px solid #1a1814;border-radius:3px;padding:5px 9px">
-            <input type="checkbox" checked disabled style="width:13px;height:13px">
-            <span style="font-family:'Archivo Black',sans-serif;font-size:13pt">PAN 5</span>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:9pt;color:#3d362b">falta</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:6px;background:#ede5cc;border:1.5px solid #1a1814;border-radius:3px;padding:5px 9px">
-            <input type="checkbox" checked disabled style="width:13px;height:13px">
-            <span style="font-family:'Archivo Black',sans-serif;font-size:13pt">ARG 12</span>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:9pt;color:#3d362b">pegada</span>
-          </div>
-        </div>
-        <div style="display:flex;gap:8px">
-          <div style="flex:1;border:1.5px solid #1a1814;border-radius:5px;padding:8px;text-align:center;font-size:9.5pt;color:#1a1814;font-weight:700">↺ Nueva foto</div>
-          <div style="flex:2;background:#2f7a3e;color:#fff;border-radius:5px;padding:8px;text-align:center;font-weight:700;font-size:9.5pt">✅ Marcar Recibidas</div>
-        </div>
-      </div>
+    <div class="tip-new">
+      <strong>¡Novedad en v1.4!</strong>
+      Si tenés tus figuritas cargadas en otra app, podés traerlas a Mi Álbum Mundial sin perder nada de lo que ya tenés acá.
     </div>
 
     <ol class="steps">
-      <li>Tocá <strong>📷 Escanear</strong> en la barra de controles.</li>
-      <li>Elegí <strong>📷 Cámara</strong> (abre la cámara trasera en vivo) o <strong>🖼 Galería</strong> para una foto existente.</li>
-      <li>Encuadrá los <strong>códigos de sección</strong> (ej: <em>GHA 6</em>) de forma nítida y tocá <strong>📸 Capturar</strong>.</li>
-      <li>La app analiza la imagen y lista las figuritas encontradas con checkboxes. Destildá las que no querés.</li>
-      <li>Tocá <strong>✅ Marcar Recibidas</strong>. Cada figurita tildada suma 1 a tu conteo.</li>
+      <li>Tocá <strong>📲 Importar de otra App</strong>.</li>
+      <li>Desde la otra app, exportá o copiá tu lista de figuritas.</li>
+      <li>Pegá el texto en el cuadro que aparece y tocá <em>Importar</em>.</li>
+      <li>La app detecta automáticamente las figuritas que te faltan y las que tenés repetidas y las suma a tu álbum.</li>
     </ol>
 
-    <div class="tip">
-      Funciona mejor con buena luz y cerca. Si no detecta nada, aparece el texto extraído para que puedas ver qué leyó la cámara.
-    </div>
-  </div>
-
-  <!-- 11. CAMBIO X ESCANEO -->
-  <div class="section">
-    <div class="section-head">
-      <div class="section-num">11</div>
-      <div class="section-title">Cambio x Escaneo</div>
-    </div>
-    <p style="font-size:10.5pt;color:var(--soft);margin-bottom:14px">Registrá un intercambio físico escaneando primero las que <strong>das</strong> y luego las que <strong>recibís</strong>. Al confirmar, el álbum se actualiza solo en ambos sentidos.</p>
-
-    <!-- mockup: botones barra -->
-    <div style="background:var(--paper-2);border:1.5px solid var(--rule);border-radius:6px;padding:14px 16px;margin-bottom:16px">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:8pt;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);margin-bottom:10px">Barra de controles</div>
-      <div style="display:flex;gap:8px">
-        <div style="flex:1;background:#15407a;color:#fff;border-radius:5px;padding:9px 8px;text-align:center;font-family:'Archivo',sans-serif;font-weight:700;font-size:10pt;opacity:.45">📷 Escanear</div>
-        <div style="flex:1;background:#15407a;color:#fff;border-radius:5px;padding:9px 8px;text-align:center;font-family:'Archivo',sans-serif;font-weight:700;font-size:10pt">🔄 Cambio x Escaneo</div>
+    <div class="item" style="margin-top:4px">
+      <div class="item-icon">📱</div>
+      <div class="item-body">
+        <strong>Compatibilidad</strong>
+        <p>Funciona con el formato de exportación de <em>Figuritas App</em> y otros formatos similares con listas de "Me faltan" / "Repetidas" separadas por sección.</p>
       </div>
-    </div>
-
-    <!-- mockup: modal fase 1 -->
-    <div style="background:#fff;border:2px solid #1a1814;border-radius:4px;overflow:hidden;margin-bottom:10px">
-      <div style="background:#1a1814;color:#fff;padding:10px 14px;font-family:'Archivo Black',sans-serif;font-size:10pt;display:flex;justify-content:space-between">
-        <span>🔄 Cambio x Escaneo</span><span style="opacity:.5">✕</span>
-      </div>
-      <div style="padding:14px">
-        <!-- tabs -->
-        <div style="display:flex;border:2px solid #1a1814;margin-bottom:12px">
-          <div style="flex:1;background:#e06800;color:#fff;text-align:center;padding:7px 4px;font-family:'Archivo Black',sans-serif;font-size:9.5pt;letter-spacing:.06em;text-transform:uppercase">1 · Lo que DOY</div>
-          <div style="flex:1;background:#ddd0ad;color:#3d362b;text-align:center;padding:7px 4px;font-family:'Archivo Black',sans-serif;font-size:9.5pt;letter-spacing:.06em;text-transform:uppercase">2 · Lo que RECIBO</div>
-        </div>
-        <p style="font-size:9.5pt;color:var(--soft);text-align:center;margin-bottom:12px">Sacá una foto de las figuritas que vas a <strong>DAR</strong>.</p>
-        <div style="display:flex;gap:8px;margin-bottom:12px">
-          <div style="flex:1;background:#15407a;color:#fff;border-radius:5px;padding:8px;text-align:center;font-weight:700;font-size:9.5pt">📷 Cámara</div>
-          <div style="flex:1;border:1.5px solid #1a1814;border-radius:5px;padding:8px;text-align:center;font-weight:700;font-size:9.5pt">🖼 Galería</div>
-        </div>
-        <!-- chips con aviso -->
-        <div style="font-family:'Archivo Black',sans-serif;font-size:9pt;text-transform:uppercase;letter-spacing:.08em;border-bottom:2px solid #1a1814;padding-bottom:5px;margin-bottom:10px">Figuritas que DAS</div>
-        <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px">
-          <div style="display:flex;align-items:center;gap:6px;background:#ede5cc;border:1.5px solid #1a1814;border-radius:3px;padding:5px 9px">
-            <input type="checkbox" checked disabled style="width:13px;height:13px">
-            <span style="font-family:'Archivo Black',sans-serif;font-size:13pt">GHA 6</span>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:9pt;color:#3d362b">×2 rep</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:6px;background:#ede5cc;border:1.5px solid #1a1814;border-radius:3px;padding:5px 9px">
-            <input type="checkbox" disabled style="width:13px;height:13px">
-            <span style="font-family:'Archivo Black',sans-serif;font-size:13pt">PAN 3</span>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:9pt;color:#e06800">⚠ no tenés</span>
-          </div>
-        </div>
-        <div style="display:flex;gap:8px">
-          <div style="flex:1;border:1.5px solid #1a1814;border-radius:5px;padding:8px;text-align:center;font-size:9.5pt;font-weight:700">↺ Nueva foto</div>
-          <div style="flex:2;background:#e06800;color:#fff;border-radius:5px;padding:8px;text-align:center;font-weight:700;font-size:9.5pt">Siguiente: lo que recibo ›</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- flecha entre fases -->
-    <div style="text-align:center;font-size:18pt;margin:4px 0 8px;color:var(--soft)">↓</div>
-
-    <!-- mockup: modal fase 2 -->
-    <div style="background:#fff;border:2px solid #1a1814;border-radius:4px;overflow:hidden;margin-bottom:16px">
-      <div style="background:#1a1814;color:#fff;padding:10px 14px;font-family:'Archivo Black',sans-serif;font-size:10pt;display:flex;justify-content:space-between">
-        <span>🔄 Cambio x Escaneo</span><span style="opacity:.5">✕</span>
-      </div>
-      <div style="padding:14px">
-        <!-- tabs -->
-        <div style="display:flex;border:2px solid #1a1814;margin-bottom:12px">
-          <div style="flex:1;background:#ddd0ad;color:#3d362b;text-align:center;padding:7px 4px;font-family:'Archivo Black',sans-serif;font-size:9.5pt;letter-spacing:.06em;text-transform:uppercase">1 · Lo que DOY</div>
-          <div style="flex:1;background:#2f7a3e;color:#fff;text-align:center;padding:7px 4px;font-family:'Archivo Black',sans-serif;font-size:9.5pt;letter-spacing:.06em;text-transform:uppercase">2 · Lo que RECIBO</div>
-        </div>
-        <!-- resumen fase 1 -->
-        <div style="border:1.5px dashed #c9bb95;background:#ede5cc;padding:8px 10px;margin-bottom:12px">
-          <div style="font-family:'Archivo Black',sans-serif;font-size:9pt;text-transform:uppercase;letter-spacing:.08em;color:#3d362b;margin-bottom:7px">Lo que doy</div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap">
-            <span style="background:#e06800;color:#fff;font-family:'Archivo Black',sans-serif;font-size:10.5pt;padding:2px 8px">GHA 6</span>
-          </div>
-        </div>
-        <p style="font-size:9.5pt;color:var(--soft);text-align:center;margin-bottom:12px">Ahora sacá una foto de las figuritas que vas a <strong>RECIBIR</strong>.</p>
-        <div style="display:flex;gap:8px;margin-bottom:12px">
-          <div style="flex:1;background:#15407a;color:#fff;border-radius:5px;padding:8px;text-align:center;font-weight:700;font-size:9.5pt">📷 Cámara</div>
-          <div style="flex:1;border:1.5px solid #1a1814;border-radius:5px;padding:8px;text-align:center;font-weight:700;font-size:9.5pt">🖼 Galería</div>
-        </div>
-        <!-- chips recibir -->
-        <div style="font-family:'Archivo Black',sans-serif;font-size:9pt;text-transform:uppercase;letter-spacing:.08em;border-bottom:2px solid #1a1814;padding-bottom:5px;margin-bottom:10px">Figuritas que RECIBÍS</div>
-        <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px">
-          <div style="display:flex;align-items:center;gap:6px;background:#ede5cc;border:1.5px solid #1a1814;border-radius:3px;padding:5px 9px">
-            <input type="checkbox" checked disabled style="width:13px;height:13px">
-            <span style="font-family:'Archivo Black',sans-serif;font-size:13pt">BRA 8</span>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:9pt;color:#3d362b">falta</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:6px;background:#ede5cc;border:1.5px solid #1a1814;border-radius:3px;padding:5px 9px">
-            <input type="checkbox" checked disabled style="width:13px;height:13px">
-            <span style="font-family:'Archivo Black',sans-serif;font-size:13pt">FRA 2</span>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:9pt;color:#3d362b">falta</span>
-          </div>
-        </div>
-        <div style="display:flex;gap:8px">
-          <div style="flex:1;border:1.5px solid #1a1814;border-radius:5px;padding:8px;text-align:center;font-size:9.5pt;font-weight:700">↺ Nueva foto</div>
-          <div style="flex:2;background:#2f7a3e;color:#fff;border-radius:5px;padding:8px;text-align:center;font-weight:700;font-size:9.5pt">✓ Confirmar cambio</div>
-        </div>
-      </div>
-    </div>
-
-    <ol class="steps">
-      <li>Tocá <strong>🔄 Cambio x Escaneo</strong> en la barra de controles.</li>
-      <li><span class="badge b-red">Fase 1</span> Fotografiá las figuritas que le vas a <strong>dar</strong>. Destildá las que no entran. Si una figurita aparece en rojo sin tildar significa que no tenés repetidas de esa. Tocá <strong>Siguiente ›</strong>.</li>
-      <li><span class="badge b-green">Fase 2</span> Fotografiá las que tu amigo te <strong>da</strong>. Ajustá los checkboxes y tocá <strong>✓ Confirmar cambio</strong>.</li>
-      <li>Las figuritas dadas bajan 1 · las recibidas suben 1. Cambio listo.</li>
-    </ol>
-
-    <div class="tip">
-      Podés tocar <em>↺ Nueva foto</em> en cualquier fase para volver a escanear sin perder el progreso.
     </div>
   </div>
 
@@ -639,34 +527,34 @@
       <div class="item-icon">🔄</div>
       <div class="item-body">
         <strong>¿Si refresco la página se pierde todo?</strong>
-        <p>No. Los datos se guardan automáticamente en el almacenamiento local del navegador. Solo se perderían si borrás los datos del sitio desde la configuración del navegador. Para mayor seguridad usá Sync o Auto-Guardado.</p>
+        <p>No. Los datos se guardan automáticamente en el almacenamiento local del navegador. Solo se perderían si borrás los datos del sitio. Para mayor seguridad usá Sincronizar o Auto-Guardado (PC).</p>
       </div>
     </div>
     <div class="item">
       <div class="item-icon">📱</div>
       <div class="item-body">
         <strong>¿Funciona en el celular?</strong>
-        <p>Sí, está optimizada para mobile. Tap para sumar, mantené presionado para restar. El Sync funciona igual que en la PC.</p>
+        <p>Sí. Disponible como app en Google Play (Mi Álbum Mundial 2026) y como web mobile en el navegador. El Sync funciona igual en todos los dispositivos.</p>
       </div>
     </div>
     <div class="item">
       <div class="item-icon">🌐</div>
       <div class="item-body">
         <strong>¿Necesita internet?</strong>
-        <p>Para usar el álbum no. Para el Sync sí (necesita conectarse a Firebase cada 10 segundos).</p>
+        <p>Para usar el álbum no. Para Sincronizar y el escaneo de figuritas (OCR) sí necesita conexión.</p>
       </div>
     </div>
     <div class="item">
       <div class="item-icon">💬</div>
       <div class="item-body">
-        <strong>¿El código de canje se corta en WhatsApp?</strong>
-        <p>No, el código es corto (~240 caracteres). Funciona en cualquier mensajero.</p>
+        <strong>¿El QR de cambio funciona sin internet?</strong>
+        <p>El QR se genera localmente sin conexión. Para escanearlo con la cámara desde la web sí necesita internet (para el OCR). En la app Android funciona sin conexión.</p>
       </div>
     </div>
   </div>
 
   <div class="footer">
-    <span>Álbum Mundial 2026 · Manual de uso</span>
+    <span>Álbum Mundial 2026 · Manual de uso · v1.4</span>
     <span>drbelectro.github.io/album-mundial-2026</span>
   </div>
 
