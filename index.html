@@ -850,7 +850,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
       </div>
 
       <div class="canje-step">
-        <h3><span class="step-num">2</span> Escanear QR de tu amigo</h3>
+        <h3><span class="step-num">2</span> <span id="canjeStep2Title">Escanear QR de tu amigo</span></h3>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button class="btn" id="canjeScanQR">📷 Escanear con cámara</button>
           <button class="btn ghost" id="canjeGalleryQR">🖼 Subir de galería</button>
@@ -2623,8 +2623,30 @@ function renderMyCanjeQR(){
     });
   }catch(e){ cont.textContent = 'Error generando QR'; }
 }
+function isMobileDevice(){
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+    || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent));
+}
 function openCanje(){
   renderMyCanjeQR();
+  // PC (escritorio): sin cámara, solo subir QR de galería
+  const mobile = isMobileDevice();
+  const scanBtn = document.getElementById('canjeScanQR');
+  const galBtn  = document.getElementById('canjeGalleryQR');
+  const step2Title = document.getElementById('canjeStep2Title');
+  if(mobile){
+    scanBtn.style.display = '';
+    galBtn.className = 'btn ghost';
+    galBtn.textContent = '🖼 Subir de galería';
+    galBtn.style.width = '';
+    step2Title.textContent = 'Escanear QR de tu amigo';
+  } else {
+    scanBtn.style.display = 'none';
+    galBtn.className = 'btn';
+    galBtn.textContent = '🖼 Subir QR de un amigo';
+    galBtn.style.width = '100%';
+    step2Title.textContent = 'Cargar QR de tu amigo';
+  }
   document.getElementById('canjeResults').style.display='none';
   document.getElementById('canjeModal').classList.remove('hidden');
   // auto-load from URL hash if friend shared a link
