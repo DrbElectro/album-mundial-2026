@@ -671,7 +671,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
         <div class="leg"><div class="leg-sw miss"></div>Falta</div>
         <div class="leg"><div class="leg-sw own"></div>Pegada</div>
         <div class="leg"><div class="leg-sw rep"></div>Repetida</div>
-        <div class="leg"><div class="leg-sw res"></div>Cambio futuro</div>
+        <div class="leg"><div class="leg-sw res"></div>Cambio pactado</div>
         <div class="leg leg-pc" style="margin-left:auto">Click izquierdo: +1 · Click derecho: −1</div>
         <div class="leg leg-mobile" style="margin-left:auto;display:none">Toque: +1 · Mantener: −1</div>
       </div>
@@ -685,7 +685,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
             <option value="missing">Faltan</option>
             <option value="owned">Pegadas</option>
             <option value="repeated">Repetidas</option>
-            <option value="reserved">Cambios futuros</option>
+            <option value="reserved">Cambios pactados</option>
           </select>
           <select id="sortSel" class="ctrl-pc-inline">
             <option value="default">Orden del álbum</option>
@@ -700,7 +700,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
             <option value="missing">Faltan</option>
             <option value="owned">Pegadas</option>
             <option value="repeated">Repetidas</option>
-            <option value="reserved">Cambios futuros</option>
+            <option value="reserved">Cambios pactados</option>
           </select>
           <select id="sortSelM">
             <option value="default">Orden del álbum</option>
@@ -713,10 +713,9 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
           <button class="btn ghost" id="copyFaltantesBtn">📋 Copiar Faltantes</button>
           <button class="btn ghost" id="copyRepetidasBtn">📋 Copiar Repetidas</button>
         </div>
-        <!-- fila 3b: escanear + cambio x escaneo (solo mobile/APK) -->
+        <!-- fila 3b: escanear figuritas (solo mobile/APK) -->
         <div class="ctrl-row ctrl-mobile-only">
-          <button class="btn" id="webScanBtn" style="flex:1;background:var(--blue);border-color:var(--blue)">📷 ESCANEA FIGUS</button>
-          <button class="btn" id="scanTradeBtn" style="flex:1;background:var(--blue);border-color:var(--blue)">🔄 Cambio x Escaneo</button>
+          <button class="btn" id="webScanBtn" style="width:100%;background:var(--blue);border-color:var(--blue)">📷 ESCANEA FIGUS</button>
         </div>
         <!-- fila 4: extras PC -->
         <div class="ctrl-row ctrl-pc-only">
@@ -921,7 +920,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
     </div>
     <div class="modal-body">
       <div id="canjesPendientesList"></div>
-      <button class="btn" id="nuevoCanjePendienteBtn" style="width:100%;margin-top:8px;background:#d4650a;border-color:#d4650a">+ Nuevo cambio futuro</button>
+      <button class="btn" id="nuevoCanjePendienteBtn" style="width:100%;margin-top:8px;background:#d4650a;border-color:#d4650a">+ Nuevo cambio pactado</button>
     </div>
   </div>
 </div>
@@ -930,7 +929,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 <div class="modal-overlay hidden" id="editCanjeModal">
   <div class="modal">
     <div class="modal-head">
-      <span id="editCanjeTitle">+ Nuevo cambio futuro</span>
+      <span id="editCanjeTitle">+ Nuevo cambio pactado</span>
       <button class="modal-close" id="editCanjeClose">✕</button>
     </div>
     <div class="modal-body">
@@ -972,7 +971,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
       <div id="canjeConfirmSummary" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-soft);margin-top:14px;letter-spacing:.06em"></div>
       <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
         <button class="btn" id="canjeConfirmOk" style="background:var(--green);border-color:var(--green)">✓ Cambiar ahora</button>
-        <button class="btn" id="canjeConfirmFuturoBtn" style="background:#d4650a;border-color:#d4650a">📌 Cambio a futuro</button>
+        <button class="btn" id="canjeConfirmFuturoBtn" style="background:#d4650a;border-color:#d4650a">📌 Cambio pactado</button>
         <button class="btn ghost" id="canjeConfirmCancel">Cancelar</button>
       </div>
       <div id="canjeConfirmFuturoPanel" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--rule)">
@@ -1043,7 +1042,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
         <p style="margin-bottom:10px"><strong style="color:var(--ink)">Sumar figurita:</strong> Tocá una vez el sticker.</p>
         <p style="margin-bottom:10px"><strong style="color:var(--ink)">Restar figurita:</strong> Mantené presionado 500ms (mobile) o click derecho (PC).</p>
         <p style="margin-bottom:10px"><strong style="color:var(--ink)">Colores:</strong><br>
-          · Beige = falta<br>· Verde = pegada<br>· Dorado = repetida<br>· Blanco = reservada para dar en un cambio futuro<br>· Celeste = reservada para recibir en un cambio futuro
+          · Beige = falta<br>· Verde = pegada<br>· Dorado = repetida<br>· Blanco = reservada para dar en un cambio pactado<br>· Celeste = reservada para recibir en un cambio pactado
         </p>
         <p style="margin-bottom:10px"><strong style="color:var(--ink)">🔄 Cambio x QR:</strong> Mostrá tu QR o compartilo por WhatsApp. Tu amigo lo escanea (con cámara o desde la galería) y ven al instante qué figuritas pueden cambiar.</p>
         <p style="margin-bottom:10px"><strong style="color:var(--ink)">📷 Escanea Figus:</strong> Fotografiá tus figuritas con la cámara y la app detecta los códigos automáticamente. Tildá las que querés sumar y tocá <em>Marcar Recibidas</em>.</p>
@@ -2294,7 +2293,7 @@ document.getElementById('ecTabRecibir').addEventListener('click', ()=>switchEcTa
 function renderCanjesPendientesList(){
   const c = document.getElementById('canjesPendientesList');
   const canjes = state.canjes||[];
-  if(!canjes.length){ c.innerHTML='<div class="cp-empty">No hay cambios futuros.<br>Creá uno con el botón de abajo.</div>'; return; }
+  if(!canjes.length){ c.innerHTML='<div class="cp-empty">No hay cambios pactados.<br>Creá uno con el botón de abajo.</div>'; return; }
   c.innerHTML='';
   canjes.forEach((cj,i)=>{
     const card = document.createElement('div');
@@ -2368,7 +2367,7 @@ function cancelarCanjePendiente(i){
 function abrirEditCanje(i){
   const cj = i!=null ? state.canjes[i] : null;
   editCanjeId = cj ? cj.id : null;
-  document.getElementById('editCanjeTitle').textContent = cj ? '✏️ Editar cambio' : '+ Nuevo cambio futuro';
+  document.getElementById('editCanjeTitle').textContent = cj ? '✏️ Editar cambio' : '+ Nuevo cambio pactado';
   document.getElementById('ecNombre').value = cj?.nombre||'';
   document.getElementById('ecSearch').value = '';
   ecDarSel     = new Set(cj?.dar||[]);
@@ -2699,7 +2698,7 @@ function saveCanjeComoFuturo(){
   saveData(); refreshAllStickers(); updateCanjesPendientesBtn(); scheduleWrite();
   document.getElementById('canjeConfirmModal').classList.add('hidden');
   document.getElementById('canjeModal').classList.add('hidden');
-  showToast('¡Guardado como cambio futuro!');
+  showToast('¡Guardado como cambio pactado!');
 }
 
 document.getElementById('canjeConfirmBtn').addEventListener('click', openCanjeConfirm);
@@ -3969,7 +3968,7 @@ function applyScanTrade(asFuture) {
     state.canjes.push(cj);
     saveData(); refreshAllStickers(); updateCanjesPendientesBtn(); renderCanjesPendientesList();
     closeScanTradeModal();
-    showToast(`📌 Cambio futuro guardado · ${nombre}`);
+    showToast(`📌 Cambio pactado guardado · ${nombre}`);
   } else {
     let countDar = 0, countRecibir = 0;
     scanTradeDarSelected.forEach(id => {
@@ -4006,7 +4005,7 @@ document.getElementById('scanTradeNameBackBtn').addEventListener('click', () => 
 document.getElementById('scanTradeNameSaveBtn').addEventListener('click', () => applyScanTrade(true));
 
 /* ---- event wiring ---- */
-document.getElementById('scanTradeBtn').addEventListener('click', openScanTradeModal);
+/* Cambio x Escaneo eliminado (reemplazado por Cambio x QR). Botón removido. */
 document.getElementById('scanTradeClose').addEventListener('click', closeScanTradeModal);
 document.getElementById('scanTradeModal').addEventListener('click', e => {
   if (e.target === document.getElementById('scanTradeModal')) closeScanTradeModal();
