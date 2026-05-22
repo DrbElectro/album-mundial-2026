@@ -735,6 +735,10 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
           <button class="btn" id="canjesPendientesBtn" style="flex:1;background:#d4650a;border-color:#d4650a;position:relative">📌 Cambios Futuros<span id="canjesPendientesBadge" style="display:none;position:absolute;top:-6px;right:-6px;background:#fff;color:#d4650a;border-radius:10px;font-size:10px;font-weight:700;padding:1px 5px;line-height:1.4;border:1px solid #d4650a"></span></button>
           <button class="btn" id="syncBtn" style="flex:1;background:var(--teal);border-color:var(--teal)">☁ Sync</button>
         </div>
+        <!-- fila 6b: importar de otra app -->
+        <div class="ctrl-row">
+          <button class="btn ghost" id="importOtraAppBtn" style="width:100%">📲 Importar de otra app</button>
+        </div>
         <!-- fila 7: bloquear -->
         <div class="ctrl-row">
           <button class="btn ghost" id="lockBtn" style="width:100%">🔓 Bloquear</button>
@@ -886,6 +890,25 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
         </div>
       </div>
 
+    </div>
+  </div>
+</div>
+
+<!-- ===== Modal Importar de otra app ===== -->
+<div class="modal-overlay hidden" id="importOtraAppModal">
+  <div class="modal">
+    <div class="modal-head">
+      <span>📲 Importar de otra app</span>
+      <button class="modal-close" id="importOtraAppClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="canje-hint" style="margin-bottom:12px">
+        En la otra app, exportá o copiá tu lista de figuritas (la que muestra <strong>"Me faltan"</strong> y <strong>"Repetidas"</strong>) y pegala acá abajo. Tu álbum va a quedar con las mismas faltantes y repetidas.
+      </div>
+      <textarea id="importOtraAppText" placeholder="Pegá acá la lista de la otra app…" style="width:100%;height:180px;font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--paper);color:var(--ink);border:2px solid var(--ink);padding:10px;resize:vertical;box-shadow:3px 3px 0 var(--ink)"></textarea>
+      <div id="importOtraAppMsg" style="font-size:12px;color:var(--ink-soft);margin:10px 0;min-height:16px"></div>
+      <button class="btn" id="importOtraAppDo" style="width:100%;background:var(--green);border-color:var(--green)">✅ Importar al álbum</button>
+      <div class="canje-hint" style="margin-top:10px;font-size:11px">⚠️ Esto reemplaza el estado actual de tu álbum por el importado.</div>
     </div>
   </div>
 </div>
@@ -1803,6 +1826,84 @@ document.getElementById('importTxtInput').addEventListener('change', async (e)=>
   const text = await file.text();
   parseTxtImport(text);
   e.target.value='';
+});
+
+// ===== IMPORTAR DE OTRA APP ("Figuritas App") =====
+// Formato: secciones "Me faltan" / "Repetidas", líneas "CODE <emoji>: 1, 2, 3..."
+function mapOtraAppId(code, line, num){
+  if(code === 'FWC'){
+    // La otra app divide FWC en 🏆 (trofeo) y 📜 (lista numerada)
+    if(line.includes('🏆')) return num === 1 ? '00' : null;
+    return 'FWC' + num; // 📜 → FWC1..FWC19
+  }
+  return code + num; // países y CC: prefijo + número
+}
+function parseOtraAppList(text){
+  const validIds = new Set(ALL_IDS);
+  const faltan = new Set();
+  const repes  = new Set();
+  let mode = null; // 'faltan' | 'repes'
+
+  text.split('\n').forEach(raw=>{
+    const line = raw.trim();
+    if(!line) return;
+    const low = line.toLowerCase();
+    if(low.includes('me faltan')){ mode = 'faltan'; return; }
+    if(low.startsWith('repetidas')){ mode = 'repes'; return; }
+    if(!mode) return;
+    // Línea de datos: CODE <emoji/texto>: números
+    const m = line.match(/^([A-Za-z]+)\b[^:]*:\s*(.+)$/);
+    if(!m) return;
+    const code = m[1].toUpperCase();
+    const nums = m[2].split(/[^0-9]+/).map(s=>parseInt(s,10)).filter(n=>!isNaN(n));
+    nums.forEach(num=>{
+      const id = mapOtraAppId(code, line, num);
+      if(id && validIds.has(id)){
+        (mode === 'faltan' ? faltan : repes).add(id);
+      }
+    });
+  });
+
+  if(faltan.size === 0 && repes.size === 0) return null; // no se reconoció nada
+
+  let changed = 0;
+  ALL_IDS.forEach(id=>{
+    let newVal;
+    if(faltan.has(id))      newVal = 0; // falta
+    else if(repes.has(id))  newVal = 2; // repetida
+    else                    newVal = 1; // pegada
+    if((state.stickers[id]||0) !== newVal){ state.stickers[id] = newVal; changed++; }
+  });
+  saveData(); refreshAllStickers(); updateStats(); recordHistory();
+  if(typeof renderChart === 'function') renderChart();
+  if(typeof calcGasto === 'function') calcGasto();
+  return { changed, faltan: faltan.size, repes: repes.size };
+}
+
+document.getElementById('importOtraAppBtn').addEventListener('click', ()=>{
+  document.getElementById('importOtraAppText').value = '';
+  document.getElementById('importOtraAppMsg').textContent = '';
+  document.getElementById('importOtraAppModal').classList.remove('hidden');
+});
+document.getElementById('importOtraAppClose').addEventListener('click', ()=>{
+  document.getElementById('importOtraAppModal').classList.add('hidden');
+});
+document.getElementById('importOtraAppModal').addEventListener('click', e=>{
+  if(e.target === document.getElementById('importOtraAppModal'))
+    document.getElementById('importOtraAppModal').classList.add('hidden');
+});
+document.getElementById('importOtraAppDo').addEventListener('click', ()=>{
+  const text = document.getElementById('importOtraAppText').value;
+  const msg = document.getElementById('importOtraAppMsg');
+  if(!text.trim()){ msg.textContent = 'Pegá primero la lista de la otra app.'; msg.style.color='var(--red)'; return; }
+  const res = parseOtraAppList(text);
+  if(!res){
+    msg.textContent = 'No se reconoció el formato. Asegurate de pegar la lista completa (con "Me faltan" y "Repetidas").';
+    msg.style.color = 'var(--red)';
+    return;
+  }
+  showToast('Importado · ' + res.changed + ' cambios');
+  document.getElementById('importOtraAppModal').classList.add('hidden');
 });
 
 // ===== AUTO-SAVE TO JSON FILE (File System Access API) =====
@@ -3055,6 +3156,10 @@ window.tryCloseTopModal = function() {
   }
   if (isVisible('canjesPendientesModal')) {
     document.getElementById('canjesPendientesModal').classList.add('hidden');
+    return true;
+  }
+  if (isVisible('importOtraAppModal')) {
+    document.getElementById('importOtraAppModal').classList.add('hidden');
     return true;
   }
   if (isVisible('canjeModal')) {
