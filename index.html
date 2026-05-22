@@ -822,6 +822,12 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 /* Estado bloqueado: atenúa la grilla */
 .album-locked .btn-arcos:not(#lockBtn){ opacity:.45; pointer-events:none; }
 
+/* PC: limitar ancho de la grilla para que no queden gigantes */
+@media(min-width:600px){
+  .btn-arcos-copy-row,
+  .btn-arcos-stack{ max-width:380px; }
+}
+
 </style>
 </head>
 <body>
