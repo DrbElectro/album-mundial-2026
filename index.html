@@ -713,33 +713,31 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
           <button class="btn ghost" id="copyFaltantesBtn">📋 Copiar Faltantes</button>
           <button class="btn ghost" id="copyRepetidasBtn">📋 Copiar Repetidas</button>
         </div>
-        <!-- fila 3b: escanear figuritas (solo mobile/APK) -->
+        <!-- Botones principales: uno por línea, ancho completo -->
         <div class="ctrl-row ctrl-mobile-only">
-          <button class="btn" id="webScanBtn" style="width:100%;background:var(--blue);border-color:var(--blue)">📷 ESCANEA FIGUS</button>
+          <button class="btn" id="webScanBtn" style="width:100%;background:var(--blue);border-color:var(--blue)">📷 Escanea Figus</button>
         </div>
-        <!-- fila 4: extras PC -->
+        <div class="ctrl-row">
+          <button class="btn" id="canjeBtn" style="width:100%;background:var(--teal);border-color:var(--teal)">🔄 Cambio x QR</button>
+        </div>
+        <div class="ctrl-row">
+          <button class="btn" id="canjesPendientesBtn" style="width:100%;background:#d4650a;border-color:#d4650a;position:relative">📌 Cambios Pactados<span id="canjesPendientesBadge" style="display:none;position:absolute;top:-6px;right:-6px;background:#fff;color:#d4650a;border-radius:10px;font-size:10px;font-weight:700;padding:1px 5px;line-height:1.4;border:1px solid #d4650a"></span></button>
+        </div>
+        <div class="ctrl-row">
+          <button class="btn" id="syncBtn" style="width:100%;background:var(--teal);border-color:var(--teal)">☁ Sincronizar</button>
+        </div>
+        <div class="ctrl-row">
+          <button class="btn ghost" id="importOtraAppBtn" style="width:100%">📲 Importar de otra app</button>
+        </div>
+        <div class="ctrl-row">
+          <button class="btn ghost" id="lockBtn" style="width:100%">🔓 Bloquear</button>
+        </div>
+        <!-- extras PC -->
         <div class="ctrl-row ctrl-pc-only">
           <button class="btn ghost" id="exportTxtBtn">📝 Exportar Lista</button>
           <button class="btn ghost" id="autosaveBtn">💾 Auto-Guardado</button>
           <button class="btn ghost" id="importTxtBtn">📥 Importar Lista</button>
           <input type="file" id="importTxtInput" accept=".txt" style="display:none">
-        </div>
-        <!-- fila 5: cambio -->
-        <div class="ctrl-row">
-          <button class="btn" id="canjeBtn" style="width:100%;background:var(--teal);border-color:var(--teal)">🔄 Cambio x QR</button>
-        </div>
-        <!-- fila 6: futuros + sync -->
-        <div class="ctrl-row stretch">
-          <button class="btn" id="canjesPendientesBtn" style="flex:1;background:#d4650a;border-color:#d4650a;position:relative">📌 Cambios Pactados<span id="canjesPendientesBadge" style="display:none;position:absolute;top:-6px;right:-6px;background:#fff;color:#d4650a;border-radius:10px;font-size:10px;font-weight:700;padding:1px 5px;line-height:1.4;border:1px solid #d4650a"></span></button>
-          <button class="btn" id="syncBtn" style="flex:1;background:var(--teal);border-color:var(--teal)">☁ Sync</button>
-        </div>
-        <!-- fila 6b: importar de otra app -->
-        <div class="ctrl-row">
-          <button class="btn ghost" id="importOtraAppBtn" style="width:100%">📲 Importar de otra app</button>
-        </div>
-        <!-- fila 7: bloquear -->
-        <div class="ctrl-row">
-          <button class="btn ghost" id="lockBtn" style="width:100%">🔓 Bloquear</button>
         </div>
       </div>
       <div id="sync-status-bar" class="sync-status-bar"></div>
