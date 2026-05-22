@@ -731,7 +731,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
         </div>
         <!-- fila 6: futuros + sync -->
         <div class="ctrl-row stretch">
-          <button class="btn" id="canjesPendientesBtn" style="flex:1;background:#d4650a;border-color:#d4650a;position:relative">📌 Cambios Futuros<span id="canjesPendientesBadge" style="display:none;position:absolute;top:-6px;right:-6px;background:#fff;color:#d4650a;border-radius:10px;font-size:10px;font-weight:700;padding:1px 5px;line-height:1.4;border:1px solid #d4650a"></span></button>
+          <button class="btn" id="canjesPendientesBtn" style="flex:1;background:#d4650a;border-color:#d4650a;position:relative">📌 Cambios Pactados<span id="canjesPendientesBadge" style="display:none;position:absolute;top:-6px;right:-6px;background:#fff;color:#d4650a;border-radius:10px;font-size:10px;font-weight:700;padding:1px 5px;line-height:1.4;border:1px solid #d4650a"></span></button>
           <button class="btn" id="syncBtn" style="flex:1;background:var(--teal);border-color:var(--teal)">☁ Sync</button>
         </div>
         <!-- fila 6b: importar de otra app -->
@@ -916,7 +916,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 <div class="modal-overlay hidden" id="canjesPendientesModal">
   <div class="modal">
     <div class="modal-head">
-      <span>📌 Cambios Futuros</span>
+      <span>📌 Cambios Pactados</span>
       <button class="modal-close" id="canjesPendientesClose">✕</button>
     </div>
     <div class="modal-body">
@@ -1001,7 +1001,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
     </div>
     <div class="stats-tabs">
       <button class="stats-tab active" data-tab="estadisticas">📊 Estadísticas</button>
-      <button class="stats-tab" data-tab="manual">📖 Manual</button>
+      <button class="stats-tab" data-tab="manual">📖 Cómo se usa</button>
     </div>
     <div class="stats-panel active" id="panel-estadisticas">
       <div style="margin-bottom:18px">
@@ -1045,12 +1045,11 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
         <p style="margin-bottom:10px"><strong style="color:var(--ink)">Colores:</strong><br>
           · Beige = falta<br>· Verde = pegada<br>· Dorado = repetida<br>· Blanco = reservada para dar en un cambio futuro<br>· Celeste = reservada para recibir en un cambio futuro
         </p>
-        <p style="margin-bottom:10px"><strong style="color:var(--ink)">Cambio x QR:</strong> Mostrá tu QR o compartilo por WhatsApp. Tu amigo lo escanea (con cámara o desde la galería) y ven al instante qué figuritas pueden cambiar.</p>
-        <p style="margin-bottom:10px"><strong style="color:var(--ink)">Cambios Futuros:</strong> Guardá cambios pactados con amigos.</p>
-        <p style="margin-bottom:10px"><strong style="color:var(--ink)">Sync:</strong> Sincronizá entre dispositivos con un código de sala.</p>
-        <p style="margin-bottom:10px"><strong style="color:var(--ink)">Backup:</strong> Usá Auto-Guardado para exportar tus datos.</p>
-        <p style="margin-bottom:10px"><strong style="color:var(--ink)">📷 Escanear Figuritas:</strong> Fotografiá tus figuritas con la cámara y la app detecta los códigos automáticamente. Tildá las que querés sumar y tocá <em>Marcar Recibidas</em>.</p>
-        <p style="margin-bottom:20px"><strong style="color:var(--ink)">🔄 Cambio x Escaneo:</strong> Escaneás en dos pasos — primero las figuritas que <em>das</em>, después las que <em>recibís</em>. Al confirmar, el álbum descuenta las dadas y suma las recibidas automáticamente.</p>
+        <p style="margin-bottom:10px"><strong style="color:var(--ink)">🔄 Cambio x QR:</strong> Mostrá tu QR o compartilo por WhatsApp. Tu amigo lo escanea (con cámara o desde la galería) y ven al instante qué figuritas pueden cambiar.</p>
+        <p style="margin-bottom:10px"><strong style="color:var(--ink)">📷 Escanea Figus:</strong> Fotografiá tus figuritas con la cámara y la app detecta los códigos automáticamente. Tildá las que querés sumar y tocá <em>Marcar Recibidas</em>.</p>
+        <p style="margin-bottom:10px"><strong style="color:var(--ink)">📌 Cambios Pactados:</strong> Guardá cambios acordados con amigos para reservar esas figuritas hasta concretar el intercambio.</p>
+        <p style="margin-bottom:10px"><strong style="color:var(--ink)">☁ Sync:</strong> Sincronizá entre dispositivos con un código de sala.</p>
+        <p style="margin-bottom:20px"><strong style="color:var(--ink)">💾 Backup:</strong> Usá Auto-Guardado para exportar tus datos.</p>
         <div style="padding-top:16px;border-top:1px dashed var(--rule)">
           <p style="font-family:'Archivo Black',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;color:var(--ink)">¿Encontraste un problema?</p>
           <button id="reportarBtn" class="btn" style="width:100%;background:#25d366;border-color:#1ebe5d;color:#fff;font-size:12px">📲 Reportar por WhatsApp</button>
