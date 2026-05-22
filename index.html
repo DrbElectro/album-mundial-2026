@@ -715,7 +715,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
         </div>
         <!-- fila 3b: escanear + cambio x escaneo (solo mobile/APK) -->
         <div class="ctrl-row ctrl-mobile-only">
-          <button class="btn" id="webScanBtn" style="flex:1;background:var(--blue);border-color:var(--blue)">📷 Escanear</button>
+          <button class="btn" id="webScanBtn" style="flex:1;background:var(--blue);border-color:var(--blue)">📷 ESCANEA FIGUS</button>
           <button class="btn" id="scanTradeBtn" style="flex:1;background:var(--blue);border-color:var(--blue)">🔄 Cambio x Escaneo</button>
         </div>
         <!-- fila 4: extras PC -->
@@ -726,9 +726,8 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
           <input type="file" id="importTxtInput" accept=".txt" style="display:none">
         </div>
         <!-- fila 5: cambio -->
-        <div class="ctrl-row stretch">
-          <button class="btn" id="canjeBtn" style="background:var(--teal);border-color:var(--teal)">🔄 Cambio x QR</button>
-          <button class="btn" id="canjeRapidoBtn" style="background:var(--gold-deep);border-color:var(--gold-deep)">⚡ Cambio Rápido</button>
+        <div class="ctrl-row">
+          <button class="btn" id="canjeBtn" style="width:100%;background:var(--teal);border-color:var(--teal)">🔄 Cambio x QR</button>
         </div>
         <!-- fila 6: futuros + sync -->
         <div class="ctrl-row stretch">
@@ -2468,15 +2467,18 @@ function canjeRapidoTap(id, el){
 function setCanjeRapido(on){
   canjeRapidoActive = on;
   document.body.classList.toggle('canje-rapido', on);
-  document.getElementById('canjeRapidoBanner').style.display = on ? 'flex' : 'none';
+  const banner = document.getElementById('canjeRapidoBanner');
+  if(banner) banner.style.display = on ? 'flex' : 'none';
   const btn = document.getElementById('canjeRapidoBtn');
-  btn.style.background = on ? 'var(--red)' : 'var(--gold-deep)';
-  btn.style.borderColor = on ? 'var(--red)' : 'var(--gold-deep)';
-  btn.textContent = on ? '✕ Salir del cambio' : '⚡ Cambio Rápido';
+  if(btn){
+    btn.style.background = on ? 'var(--red)' : 'var(--gold-deep)';
+    btn.style.borderColor = on ? 'var(--red)' : 'var(--gold-deep)';
+    btn.textContent = on ? '✕ Salir del cambio' : '⚡ Cambio Rápido';
+  }
 }
 
-document.getElementById('canjeRapidoBtn').addEventListener('click', ()=>setCanjeRapido(!canjeRapidoActive));
-document.getElementById('canjeRapidoSalir').addEventListener('click', ()=>setCanjeRapido(false));
+const _canjeRapidoSalir = document.getElementById('canjeRapidoSalir');
+if(_canjeRapidoSalir) _canjeRapidoSalir.addEventListener('click', ()=>setCanjeRapido(false));
 
 document.getElementById('syncBtn').addEventListener('click', openSyncModal);
 document.getElementById('syncClose').addEventListener('click',()=>document.getElementById('syncModal').classList.add('hidden'));
