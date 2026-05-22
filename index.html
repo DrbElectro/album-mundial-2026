@@ -2624,8 +2624,12 @@ function renderMyCanjeQR(){
   }catch(e){ cont.textContent = 'Error generando QR'; }
 }
 function isMobileDevice(){
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-    || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent));
+  const mobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  // Escritorio = puntero fino (mouse). Móvil/tablet = puntero grueso (dedo).
+  const coarsePointer = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+  const finePointer   = window.matchMedia && window.matchMedia('(pointer: fine)').matches;
+  if(finePointer && !mobileUA) return false; // PC con mouse → escritorio
+  return mobileUA || coarsePointer;
 }
 function openCanje(){
   renderMyCanjeQR();
