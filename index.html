@@ -630,6 +630,198 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
   .sticker:hover{transform:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.04);}
 }
 
+/* ====================================================
+   ARCOS MUNDIAL — botones de acción del álbum
+   Paleta oficial FIFA World Cup 2026 · Panini
+   ==================================================== */
+
+.btn-arcos-copy-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-bottom:12px;
+}
+.btn-arcos-copy{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:10px 12px;
+  border:1px dashed #1c3870;
+  background:transparent;
+  font-family:'Archivo Black',sans-serif;
+  font-size:11px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:#1c3870;
+  cursor:pointer;
+  border-radius:0;
+  transition:background .12s, border-style .12s;
+}
+.btn-arcos-copy:hover{
+  background:rgba(28,56,112,.08);
+  border-style:solid;
+}
+.btn-arcos-copy svg{ flex-shrink:0; }
+
+.btn-arcos-stack{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+  gap:8px;
+}
+
+.btn-arcos{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  aspect-ratio:1/1.08;
+  padding:12px 8px;
+  border:1.5px solid rgba(0,0,0,.22);
+  cursor:pointer;
+  color:#fff8ee;
+  font-family:'Archivo Black',sans-serif;
+  font-size:10px;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  text-align:center;
+  overflow:hidden;
+  transition:transform .15s, box-shadow .15s, filter .15s;
+}
+.btn-arcos:hover{
+  transform:translateY(-2px) rotate(-1deg);
+  box-shadow:3px 4px 0 rgba(0,0,0,.28);
+  filter:brightness(1.05);
+}
+.btn-arcos:active{
+  transform:translateY(0);
+  box-shadow:1px 1px 0 rgba(0,0,0,.28);
+}
+.btn-arcos::before{
+  content:"";
+  position:absolute;
+  width:140%;
+  height:140%;
+  border-radius:50%;
+  bottom:-90%;
+  right:-50%;
+  z-index:1;
+  pointer-events:none;
+}
+.btn-arcos::after{
+  content:"";
+  position:absolute;
+  width:80%;
+  height:80%;
+  border-radius:50%;
+  top:-50%;
+  left:-30%;
+  z-index:1;
+  pointer-events:none;
+  opacity:.85;
+}
+.btn-arcos .ico{
+  position:relative;
+  z-index:2;
+  width:32px;
+  height:32px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.btn-arcos .ico svg{
+  width:28px;
+  height:28px;
+}
+.btn-arcos .lbl{
+  position:relative;
+  z-index:2;
+  line-height:1.15;
+  max-width:100%;
+  padding:0 2px;
+  display:-webkit-box;
+  -webkit-line-clamp:3;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+  hyphens:auto;
+  word-break:normal;
+}
+.btn-arcos .denom{
+  position:absolute;
+  top:6px;
+  left:8px;
+  z-index:2;
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;
+  letter-spacing:.16em;
+  color:currentColor;
+  opacity:.5;
+}
+.btn-arcos .badge-on{
+  position:absolute;
+  top:-6px;
+  right:-6px;
+  z-index:3;
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;
+  letter-spacing:.12em;
+  background:#fff;
+  color:#1a2400;
+  padding:2px 6px;
+  border:1px solid rgba(0,0,0,.55);
+  box-shadow:1px 1px 0 rgba(0,0,0,.3);
+  transform:rotate(6deg);
+  display:none;
+}
+.btn-arcos .badge-on.visible{ display:block; }
+
+/* Badge de cambios pactados (número) */
+.btn-arcos .badge-num{
+  position:absolute;
+  top:-6px;
+  right:-6px;
+  z-index:3;
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;
+  background:#fff;
+  color:#d4650a;
+  padding:2px 6px;
+  border:1px solid #d4650a;
+  box-shadow:1px 1px 0 rgba(0,0,0,.3);
+  display:none;
+}
+.btn-arcos .badge-num.visible{ display:block; }
+
+/* Variantes de color */
+.btn-arcos.c-blue   { background:#3878c0; }
+.btn-arcos.c-blue::before   { background:#5fb4e0; }
+.btn-arcos.c-blue::after    { background:#1c3870; }
+
+.btn-arcos.c-green  { background:#3da855; }
+.btn-arcos.c-green::before  { background:#b8d040; }
+.btn-arcos.c-green::after   { background:#226a3a; }
+
+.btn-arcos.c-orange { background:#e07a30; }
+.btn-arcos.c-orange::before { background:#f0c038; }
+.btn-arcos.c-orange::after  { background:#a04a18; }
+
+.btn-arcos.c-lime   { background:#b8d040; color:#1a2400; }
+.btn-arcos.c-lime::before   { background:#f0c038; }
+.btn-arcos.c-lime::after    { background:#3da855; }
+
+.btn-arcos.c-purple { background:#7546b0; }
+.btn-arcos.c-purple::before { background:#a06adc; }
+.btn-arcos.c-purple::after  { background:#4a2680; }
+
+.btn-arcos.c-red    { background:#c93434; }
+.btn-arcos.c-red::before    { background:#e07a30; }
+.btn-arcos.c-red::after     { background:#7a1c1c; }
+
+/* Estado bloqueado: atenúa la grilla */
+.album-locked .btn-arcos:not(#lockBtn){ opacity:.45; pointer-events:none; }
+
 </style>
 </head>
 <body>
@@ -708,29 +900,112 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
             <option value="alpha">A → Z</option>
           </select>
         </div>
-        <!-- fila 3: copiar -->
-        <div class="ctrl-row">
-          <button class="btn ghost" id="copyFaltantesBtn">📋 Copiar Faltantes</button>
-          <button class="btn ghost" id="copyRepetidasBtn">📋 Copiar Repetidas</button>
+        <!-- Copiar faltantes / repetidas -->
+        <div class="btn-arcos-copy-row">
+          <button class="btn-arcos-copy" type="button" id="copyFaltantesBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="6" y="4.5" width="12" height="16" rx="1.5"/>
+              <path d="M9 4.5V3.5a1.5 1.5 0 011.5-1.5h3A1.5 1.5 0 0115 3.5v1"/>
+              <path d="M9 10h6M9 13.5h6M9 17h4" stroke-dasharray="2 2"/>
+            </svg>
+            Copiar faltantes
+          </button>
+          <button class="btn-arcos-copy" type="button" id="copyRepetidasBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="6" y="4.5" width="12" height="16" rx="1.5"/>
+              <path d="M9 4.5V3.5a1.5 1.5 0 011.5-1.5h3A1.5 1.5 0 0115 3.5v1"/>
+              <path d="M9 9h6M9 12.5h6M9 16h6"/>
+            </svg>
+            Copiar repetidas
+          </button>
         </div>
-        <!-- Botones principales: uno por línea, ancho completo -->
-        <div class="ctrl-row ctrl-mobile-only">
-          <button class="btn" id="webScanBtn" style="width:100%;background:var(--blue);border-color:var(--blue)">📷 Escanea Figus</button>
-        </div>
-        <div class="ctrl-row">
-          <button class="btn" id="canjeBtn" style="width:100%;background:var(--teal);border-color:var(--teal)">🔄 Cambio x QR</button>
-        </div>
-        <div class="ctrl-row">
-          <button class="btn" id="canjesPendientesBtn" style="width:100%;background:#d4650a;border-color:#d4650a;position:relative">📌 Cambios Pactados<span id="canjesPendientesBadge" style="display:none;position:absolute;top:-6px;right:-6px;background:#fff;color:#d4650a;border-radius:10px;font-size:10px;font-weight:700;padding:1px 5px;line-height:1.4;border:1px solid #d4650a"></span></button>
-        </div>
-        <div class="ctrl-row">
-          <button class="btn" id="syncBtn" style="width:100%;background:var(--teal);border-color:var(--teal)">☁ Sincronizar</button>
-        </div>
-        <div class="ctrl-row">
-          <button class="btn ghost" id="importOtraAppBtn" style="width:100%">📲 Importar de otra app</button>
-        </div>
-        <div class="ctrl-row">
-          <button class="btn ghost" id="lockBtn" style="width:100%">🔓 Bloquear</button>
+        <!-- Grilla 3×2 de acciones principales -->
+        <div class="btn-arcos-stack">
+          <!-- 01 · Escanear Figus -->
+          <button class="btn-arcos c-blue" type="button" id="webScanBtn">
+            <span class="denom">01</span>
+            <span class="ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 8.5C3 7.4 3.9 6.5 5 6.5h2.5l1.5-2h6l1.5 2H19c1.1 0 2 .9 2 2v9c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2v-9z"/>
+                <circle cx="12" cy="13" r="3.5"/>
+              </svg>
+            </span>
+            <span class="lbl">Escanear Figus</span>
+          </button>
+          <!-- 02 · Cambio x QR -->
+          <button class="btn-arcos c-green" type="button" id="canjeBtn">
+            <span class="denom">02</span>
+            <span class="ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3.5" y="3.5" width="6" height="6"/>
+                <rect x="14.5" y="3.5" width="6" height="6"/>
+                <rect x="3.5" y="14.5" width="6" height="6"/>
+                <path d="M14.5 14.5h2v2M20.5 14.5v3M14.5 19.5v1M17.5 17.5h3M17.5 20.5h3"/>
+                <rect x="5.5" y="5.5" width="2" height="2" fill="currentColor" stroke="none"/>
+                <rect x="16.5" y="5.5" width="2" height="2" fill="currentColor" stroke="none"/>
+                <rect x="5.5" y="16.5" width="2" height="2" fill="currentColor" stroke="none"/>
+              </svg>
+            </span>
+            <span class="lbl">Cambio x QR</span>
+          </button>
+          <!-- 03 · Cambios Pactados -->
+          <button class="btn-arcos c-orange" type="button" id="canjesPendientesBtn">
+            <span class="denom">03</span>
+            <span class="ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 3H7a2 2 0 00-2 2v14l7-3 7 3V5a2 2 0 00-2-2z"/>
+                <path d="M9 8h6M9 12h4"/>
+              </svg>
+            </span>
+            <span class="lbl">Cambios Pactados</span>
+            <span id="canjesPendientesBadge" class="badge-num"></span>
+          </button>
+          <!-- 04 · Sincronizar -->
+          <button class="btn-arcos c-lime" type="button" id="syncBtn">
+            <span class="denom">04</span>
+            <span class="ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path d="M7 17h10a4 4 0 001-7.9A6 6 0 005.1 9 4 4 0 007 17z"/>
+                <path d="M10.5 13l-1.5 1.5 1.5 1.5"/>
+                <path d="M13.5 16l1.5-1.5-1.5-1.5"/>
+                <path d="M9 14.5h6"/>
+              </svg>
+            </span>
+            <span class="lbl">Sincronizar</span>
+            <span class="badge-on">ON</span>
+          </button>
+          <!-- 05 · Importar de otra App -->
+          <button class="btn-arcos c-purple" type="button" id="importOtraAppBtn">
+            <span class="denom">05</span>
+            <span class="ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <rect x="6" y="2.5" width="12" height="19" rx="2"/>
+                <path d="M10 18.5h4"/>
+                <path d="M14.5 6l3-3M17.5 3v3M17.5 3h-3"/>
+              </svg>
+            </span>
+            <span class="lbl">Importar de otra App</span>
+          </button>
+          <!-- 06 · Bloquear -->
+          <button class="btn-arcos c-red" type="button" id="lockBtn">
+            <span class="denom">06</span>
+            <span class="ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4.5" y="10.5" width="15" height="10" rx="1"/>
+                <path d="M8 10.5V7a4 4 0 018 0v3.5"/>
+                <circle cx="12" cy="15.5" r="1.2" fill="currentColor" stroke="none"/>
+              </svg>
+            </span>
+            <span class="lbl">Bloquear</span>
+          </button>
         </div>
         <!-- extras PC -->
         <div class="ctrl-row ctrl-pc-only">
@@ -2084,8 +2359,15 @@ function setSyncStatus(txt, color){
 function updateSyncBtn(){
   const btn=document.getElementById('syncBtn');
   if(!btn) return;
-  if(syncRoom){ btn.textContent='☁ Sincronización activa'; btn.style.background='var(--green)'; btn.style.borderColor='var(--green)'; }
-  else        { btn.textContent='☁ Sincronizar';            btn.style.background='var(--teal)';  btn.style.borderColor='var(--teal)';  }
+  const lbl=btn.querySelector('.lbl');
+  const badge=btn.querySelector('.badge-on');
+  if(syncRoom){
+    if(lbl) lbl.textContent='Sincronización activa';
+    if(badge) badge.classList.add('visible');
+  } else {
+    if(lbl) lbl.textContent='Sincronizar';
+    if(badge) badge.classList.remove('visible');
+  }
 }
 
 async function fbWrite(){
@@ -2206,7 +2488,7 @@ function updateCanjesPendientesBtn(){
   if(!btn) return;
   const n = canjesPendientesCount();
   const badge = document.getElementById('canjesPendientesBadge');
-  if(badge){ badge.textContent = n; badge.style.display = n>0 ? 'inline-block' : 'none'; }
+  if(badge){ badge.textContent = n; badge.classList.toggle('visible', n>0); }
 }
 
 let ecDarSel = new Set();
@@ -2428,10 +2710,8 @@ let locked = false;
 const lockBtn = document.getElementById('lockBtn');
 lockBtn.addEventListener('click', ()=>{
   locked = !locked;
-  lockBtn.textContent = locked ? '🔒 Bloqueado' : '🔓 Bloquear';
-  lockBtn.style.background    = locked ? 'var(--red)' : '';
-  lockBtn.style.borderColor   = locked ? 'var(--red)' : '';
-  lockBtn.style.color         = locked ? '#fff'        : '';
+  const lbl = lockBtn.querySelector('.lbl');
+  if(lbl) lbl.textContent = locked ? 'Bloqueado' : 'Bloquear';
   document.body.classList.toggle('album-locked', locked);
   showToast(locked ? '🔒 Álbum bloqueado' : '🔓 Desbloqueado');
 });
