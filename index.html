@@ -3121,6 +3121,12 @@ document.getElementById('canjeQRGalleryInput').addEventListener('change', async 
 // En todas las plataformas abrimos la cámara nativa y procesamos la foto con jsQR.
 function startCanjeQRScan(){
   if(window.Android){
+    // App Android: escáner de QR en vivo (detecta solo, sin tocar para capturar)
+    if(Android.scanQRCode){
+      Android.scanQRCode();
+      return;
+    }
+    // Fallback APK viejo: cámara nativa + foto
     _canjeQRAndroidPending = true;
     if(Android.openCameraForQR) Android.openCameraForQR();
     else Android.openCamera();
@@ -3707,6 +3713,24 @@ function onScanCanceled() {
     document.getElementById('canjeQRScanner').style.display = 'none';
     document.getElementById('canjeQRScanStatus').textContent = 'Apuntá la cámara al QR de tu amigo…';
   }
+}
+
+// ---- Callbacks del escáner de QR en vivo (Google Code Scanner) ---- //
+function onQRScanned(code) {
+  code = (code || '').trim();
+  if (code && decodeCanjeState(code)) {
+    runCanje(code);
+    showToast('¡QR escaneado!');
+  } else {
+    showToast('No se detectó un QR de cambio válido');
+  }
+}
+function onQRScanCanceled() { /* el usuario cerró el escáner: no hacer nada */ }
+function onQRScanFailed() {
+  // Si el escáner falla (módulo no disponible), recurrir a la foto
+  showToast('No se pudo abrir el escáner, probá con una foto');
+  _canjeQRAndroidPending = true;
+  if (window.Android && Android.openCameraForQR) Android.openCameraForQR();
 }
 
 function onScanImageReady() {
