@@ -1078,7 +1078,6 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://unpkg.com/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
@@ -1144,13 +1143,6 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
         </div>
         <input type="file" id="canjeQRGalleryInput" accept="image/*" style="display:none">
         <input type="file" id="canjeQRCameraInput" accept="image/*" capture="environment" style="display:none">
-      </div>
-
-      <!-- Escáner de QR -->
-      <div id="canjeQRScanner" style="display:none;margin-top:12px">
-        <video id="canjeQRVideo" playsinline autoplay muted style="width:100%;border:2px solid var(--ink);background:#000;max-height:60vh;object-fit:cover;box-shadow:4px 4px 0 var(--ink);display:block"></video>
-        <p id="canjeQRScanStatus" style="font-family:'JetBrains Mono',monospace;font-size:11px;text-align:center;color:var(--ink-soft);margin-top:8px">Apuntá la cámara al QR de tu amigo…</p>
-        <button class="btn ghost" id="canjeQRScanCancel" style="width:100%;margin-top:6px">Cancelar</button>
       </div>
 
       <div id="canjeResults" style="display:none">
@@ -3144,7 +3136,6 @@ function stopCanjeQRScan(){
   _canjeQRAndroidPending = false;
 }
 document.getElementById('canjeScanQR').addEventListener('click', startCanjeQRScan);
-document.getElementById('canjeQRScanCancel').addEventListener('click', stopCanjeQRScan);
 document.getElementById('canjeShareMyCode').addEventListener('click',()=>{
   const dar     = document.getElementById('canjeDar');
   const recibir = document.getElementById('canjeRecibir');
@@ -3693,7 +3684,7 @@ async function handleWebScanFile(file) {
     }
     ocrCtx.putImageData(imageData, 0, 0);
 
-    // 5) Comprimir canvas OCR (B&W) para Tesseract
+    // 5) Comprimir canvas OCR (B&W) para mostrar tamaño en el progreso
     let q = 0.88;
     let dataUrl = ocrCanvas.toDataURL('image/jpeg', q);
     while (dataUrl.length > 1330000 && q > 0.4) { q -= 0.12; dataUrl = ocrCanvas.toDataURL('image/jpeg', q); }
@@ -3708,11 +3699,7 @@ async function handleWebScanFile(file) {
 // ---- Callbacks desde Android (ML Kit) ---- //
 // Llamados por Java vía evaluateJavascript cuando el OCR nativo termina.
 function onScanCanceled() {
-  if (_canjeQRAndroidPending) {
-    _canjeQRAndroidPending = false;
-    document.getElementById('canjeQRScanner').style.display = 'none';
-    document.getElementById('canjeQRScanStatus').textContent = 'Apuntá la cámara al QR de tu amigo…';
-  }
+  _canjeQRAndroidPending = false;
 }
 
 // ---- Callbacks del escáner de QR en vivo (Google Code Scanner) ---- //
@@ -3740,9 +3727,6 @@ function onScanImageReady() {
   // Si la foto fue tomada para el Cambio x QR, procesarla con jsQR
   if (_canjeQRAndroidPending) {
     _canjeQRAndroidPending = false;
-    const scanner = document.getElementById('canjeQRScanner');
-    const status  = document.getElementById('canjeQRScanStatus');
-    status.textContent = 'Leyendo QR…';
     const img = new Image();
     img.onload = function(){
       const canvas = document.createElement('canvas');
@@ -3750,7 +3734,6 @@ function onScanImageReady() {
       canvas.getContext('2d').drawImage(img, 0, 0);
       const imgData = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
       const result = typeof jsQR === 'function' ? jsQR(imgData.data, imgData.width, imgData.height) : null;
-      scanner.style.display = 'none';
       if (result && result.data && decodeCanjeState(result.data.trim())) {
         runCanje(result.data.trim());
         showToast('¡QR escaneado!');
@@ -3788,27 +3771,6 @@ function onOCRTextReady(text) {
 }
 
 const CLOUD_VISION_KEY = 'AIzaSyAfxofzzOphIG4mq7gtshuWJ5N4pBBZ_bk';
-let _tesseractWorker = null;
-
-async function getTesseractWorker() {
-  if (_tesseractWorker) return _tesseractWorker;
-  _tesseractWorker = await Tesseract.createWorker('eng', 1, { logger: () => {} });
-  await _tesseractWorker.setParameters({
-    tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ',
-    tessedit_pageseg_mode: '6',
-  });
-  return _tesseractWorker;
-}
-
-async function runTesseract(canvas) {
-  const worker = await getTesseractWorker();
-  const { data } = await worker.recognize(canvas);
-  const confident = (data.words || [])
-    .filter(w => w.confidence > 70)
-    .map(w => w.text)
-    .join(' ');
-  return confident;
-}
 
 async function callCloudVision(colorDataUrl) {
   // Quitar prefijo data:image/jpeg;base64,
