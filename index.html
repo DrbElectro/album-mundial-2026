@@ -3113,6 +3113,7 @@ document.getElementById('canjeQRGalleryInput').addEventListener('change', async 
 let _canjeQRStream = null;
 let _canjeQRRAF = null;
 let _canjeQRAndroidPending = false;
+let _canjeQRCanceled = false;
 async function startCanjeQRScan(){
   // En Android usamos la cámara nativa en vez de getUserMedia (que no funciona en WebView)
   if(window.Android){
@@ -3124,24 +3125,31 @@ async function startCanjeQRScan(){
     Android.openCamera();
     return;
   }
-  // Web: getUserMedia normal
+  // Web: getUserMedia
+  _canjeQRCanceled = false;
   const scanner = document.getElementById('canjeQRScanner');
-  const video = document.getElementById('canjeQRVideo');
-  const status = document.getElementById('canjeQRScanStatus');
+  const video   = document.getElementById('canjeQRVideo');
+  const status  = document.getElementById('canjeQRScanStatus');
   scanner.style.display = 'block';
   status.textContent = 'Iniciando cámara…';
+  let stream;
   try{
-    _canjeQRStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment' }
-    });
-    video.srcObject = _canjeQRStream;
-    await video.play();
-    status.textContent = 'Apuntá la cámara al QR de tu amigo…';
-    scanCanjeQRFrame();
+    stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'environment' } });
   }catch(e){
-    status.textContent = 'No se pudo abrir la cámara: ' + (e.message||e);
     scanner.style.display = 'none';
+    status.textContent = 'Apuntá la cámara al QR de tu amigo…';
+    return;
   }
+  // Si el usuario canceló mientras esperaba el permiso, liberar la cámara
+  if(_canjeQRCanceled){
+    stream.getTracks().forEach(t=>t.stop());
+    return;
+  }
+  _canjeQRStream = stream;
+  video.srcObject = stream;
+  await video.play();
+  status.textContent = 'Apuntá la cámara al QR de tu amigo…';
+  scanCanjeQRFrame();
 }
 function scanCanjeQRFrame(){
   const video = document.getElementById('canjeQRVideo');
@@ -3168,11 +3176,16 @@ function scanCanjeQRFrame(){
   _canjeQRRAF = requestAnimationFrame(scanCanjeQRFrame);
 }
 function stopCanjeQRScan(){
+  _canjeQRCanceled = true;
+  _canjeQRAndroidPending = false;
   if(_canjeQRRAF){ cancelAnimationFrame(_canjeQRRAF); _canjeQRRAF = null; }
   if(_canjeQRStream){ _canjeQRStream.getTracks().forEach(t=>t.stop()); _canjeQRStream = null; }
   const video = document.getElementById('canjeQRVideo');
-  video.srcObject = null;
-  document.getElementById('canjeQRScanner').style.display = 'none';
+  if(video) video.srcObject = null;
+  const scanner = document.getElementById('canjeQRScanner');
+  if(scanner) scanner.style.display = 'none';
+  const status = document.getElementById('canjeQRScanStatus');
+  if(status) status.textContent = 'Apuntá la cámara al QR de tu amigo…';
 }
 document.getElementById('canjeScanQR').addEventListener('click', startCanjeQRScan);
 document.getElementById('canjeQRScanCancel').addEventListener('click', stopCanjeQRScan);
