@@ -3081,7 +3081,13 @@ document.getElementById('canjeShareBtn').addEventListener('click', shareCanje);
 
 // ===== QR: subir desde galería =====
 document.getElementById('canjeGalleryQR').addEventListener('click',()=>{
-  document.getElementById('canjeQRGalleryInput').click();
+  if(window.Android){
+    // Android: usar galería nativa
+    _canjeQRAndroidPending = true;
+    Android.openGallery();
+  } else {
+    document.getElementById('canjeQRGalleryInput').click();
+  }
 });
 document.getElementById('canjeQRGalleryInput').addEventListener('change', async (e)=>{
   const file = e.target.files[0];
@@ -3106,7 +3112,19 @@ document.getElementById('canjeQRGalleryInput').addEventListener('change', async 
 // ===== QR: escanear con cámara =====
 let _canjeQRStream = null;
 let _canjeQRRAF = null;
+let _canjeQRAndroidPending = false;
 async function startCanjeQRScan(){
+  // En Android usamos la cámara nativa en vez de getUserMedia (que no funciona en WebView)
+  if(window.Android){
+    _canjeQRAndroidPending = true;
+    const scanner = document.getElementById('canjeQRScanner');
+    const status  = document.getElementById('canjeQRScanStatus');
+    scanner.style.display = 'block';
+    status.textContent = 'Abriendo cámara…';
+    Android.openCamera();
+    return;
+  }
+  // Web: getUserMedia normal
   const scanner = document.getElementById('canjeQRScanner');
   const video = document.getElementById('canjeQRVideo');
   const status = document.getElementById('canjeQRScanStatus');
@@ -3122,6 +3140,7 @@ async function startCanjeQRScan(){
     scanCanjeQRFrame();
   }catch(e){
     status.textContent = 'No se pudo abrir la cámara: ' + (e.message||e);
+    scanner.style.display = 'none';
   }
 }
 function scanCanjeQRFrame(){
@@ -3722,6 +3741,33 @@ async function handleWebScanFile(file) {
 function onScanImageReady() {
   if (typeof Android === 'undefined') return;
   const b64 = Android.getPendingScan();
+
+  // Si la foto fue tomada para el Cambio x QR, procesarla con jsQR
+  if (_canjeQRAndroidPending) {
+    _canjeQRAndroidPending = false;
+    const scanner = document.getElementById('canjeQRScanner');
+    const status  = document.getElementById('canjeQRScanStatus');
+    status.textContent = 'Leyendo QR…';
+    const img = new Image();
+    img.onload = function(){
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width; canvas.height = img.height;
+      canvas.getContext('2d').drawImage(img, 0, 0);
+      const imgData = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
+      const result = typeof jsQR === 'function' ? jsQR(imgData.data, imgData.width, imgData.height) : null;
+      scanner.style.display = 'none';
+      if (result && result.data && decodeCanjeState(result.data.trim())) {
+        runCanje(result.data.trim());
+        showToast('¡QR escaneado!');
+      } else {
+        showToast('No se detectó un QR válido en la foto');
+      }
+    };
+    img.src = b64;
+    return;
+  }
+
+  // Flujo normal: Escanear Figus
   document.getElementById('webScanStep0').style.display = 'none';
   document.getElementById('webScanPreview').src = b64;
   document.getElementById('webScanPreview').style.display = 'block';
