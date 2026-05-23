@@ -2148,7 +2148,13 @@ function incSticker(id, el, sec){
     popConfetti();setTimeout(popConfetti,500);setTimeout(popConfetti,1100);
   }
 }
+let _lastDecId = null, _lastDecTime = 0;
 function decSticker(id, el, sec){
+  // Anti-doble: en mobile el long-press dispara timer + contextmenu nativo casi juntos.
+  // Ignorar una segunda resta de la misma figurita en menos de 450ms.
+  const now = Date.now();
+  if(id === _lastDecId && (now - _lastDecTime) < 450) return;
+  _lastDecId = id; _lastDecTime = now;
   if((state.stickers[id]||0)<=0) return;
   state.stickers[id] -= 1;
   saveData();
