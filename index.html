@@ -28,6 +28,20 @@
   --green:#2f7a3e;
   --teal:#0f6e6a;
   --blue:#15407a;
+  /* Paleta WC2026 (rediseño de modales) */
+  --green-soft:#bce0bf;
+  --wc-blue:#3878c0;
+  --wc-blue-dark:#1c3870;
+  --wc-blue-light:#5fb4e0;
+  --wc-green:#3da855;
+  --wc-green-dark:#226a3a;
+  --wc-lime:#b8d040;
+  --wc-orange:#e07a30;
+  --wc-orange-dark:#a04a18;
+  --wc-gold:#f0c038;
+  --wc-purple:#7546b0;
+  --wc-purple-dark:#4a2680;
+  --wc-red:#c93434;
   --shadow: 0 1px 0 rgba(0,0,0,.08), 0 8px 24px -12px rgba(0,0,0,.25);
   /* Insets de barras del sistema (inyectados por la app Android; fallback env() para web) */
   --safe-top: env(safe-area-inset-top, 0px);
@@ -834,6 +848,210 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
   .btn-arcos .badge-num{ top:-5px; right:-5px; }
 }
 
+/* ============================================================
+   MODALES MUNDIAL · rediseño con arcos del cover WC2026
+   ============================================================ */
+
+/* Header con arcos del cover */
+.modal-head{
+  position:relative;overflow:hidden;
+  background:var(--ink);color:#fff8ee;
+  padding:16px 56px 16px 20px;
+  font-family:'Archivo Black',sans-serif;font-size:14px;
+  text-transform:uppercase;letter-spacing:.06em;line-height:1.2;
+  display:flex;align-items:center;gap:12px;
+  min-height:54px;
+}
+.modal-head::before{
+  content:"";position:absolute;
+  width:240px;height:240px;border-radius:50%;
+  right:-80px;bottom:-150px;pointer-events:none;z-index:1;
+  background:var(--mh-arc1, rgba(255,255,255,.12));
+}
+.modal-head::after{
+  content:"";position:absolute;
+  width:120px;height:120px;border-radius:50%;
+  left:-40px;top:-60px;pointer-events:none;z-index:1;
+  background:var(--mh-arc2, rgba(255,255,255,.08));
+}
+.modal-head .ico,
+.modal-head .title-wrap,
+.modal-close{position:relative;z-index:2}
+.modal-head .ico{
+  width:32px;height:32px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.18);
+  border:1.5px solid rgba(255,255,255,.4);
+}
+.modal-head .ico svg{width:20px;height:20px}
+.modal-head .title-wrap{flex:1}
+.modal-head .kicker{
+  display:block;font-family:'JetBrains Mono',monospace;
+  font-size:9px;letter-spacing:.22em;font-weight:500;
+  opacity:.7;margin-bottom:2px;text-transform:uppercase;
+}
+.modal-close{
+  position:absolute;top:50%;right:14px;transform:translateY(-50%);z-index:3;
+  width:30px;height:30px;
+  background:rgba(255,255,255,.12);
+  border:1.5px solid rgba(255,255,255,.4);
+  color:#fff8ee;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Archivo Black',sans-serif;font-size:14px;line-height:1;
+  transition:background .12s;padding:0;
+}
+.modal-close:hover{background:rgba(255,255,255,.25)}
+
+/* Variantes de color del header */
+.modal.blue   .modal-head{background:var(--wc-blue);--mh-arc1:var(--wc-blue-light);--mh-arc2:var(--wc-blue-dark)}
+.modal.green  .modal-head{background:var(--wc-green);--mh-arc1:var(--wc-lime);--mh-arc2:var(--wc-green-dark)}
+.modal.orange .modal-head{background:var(--wc-orange);--mh-arc1:var(--wc-gold);--mh-arc2:var(--wc-orange-dark)}
+.modal.lime   .modal-head{background:var(--wc-lime);--mh-arc1:var(--wc-gold);--mh-arc2:var(--wc-green);color:#1a2400}
+.modal.lime   .modal-head .ico{background:rgba(0,0,0,.08);border-color:rgba(0,0,0,.25)}
+.modal.lime   .modal-close{background:rgba(0,0,0,.08);border-color:rgba(0,0,0,.3);color:#1a2400}
+.modal.lime   .modal-close:hover{background:rgba(0,0,0,.18)}
+.modal.purple .modal-head{background:var(--wc-purple);--mh-arc1:#a06adc;--mh-arc2:var(--wc-purple-dark)}
+.modal.red    .modal-head{background:var(--wc-red);--mh-arc1:var(--wc-orange);--mh-arc2:#7a1c1c}
+.modal.ink    .modal-head{background:var(--ink);--mh-arc1:var(--wc-blue);--mh-arc2:var(--wc-orange)}
+
+/* Pasos */
+.step{position:relative}
+.step h3{
+  font-family:'Archivo Black',sans-serif;font-size:11px;
+  text-transform:uppercase;letter-spacing:.1em;
+  margin-bottom:12px;padding-bottom:8px;
+  border-bottom:1.5px solid var(--ink);
+  display:flex;align-items:center;gap:10px;
+}
+.step h3 .step-num{
+  background:var(--ink);color:var(--paper);
+  font-family:'JetBrains Mono',monospace;
+  padding:3px 8px;font-size:10px;letter-spacing:.14em;flex-shrink:0;
+}
+.step h3 .step-num.ok{background:var(--wc-green)}
+.modal-body > .step + .step{margin-top:18px}
+
+/* Inputs */
+.input,.textarea{
+  width:100%;padding:10px 12px;
+  border:1px solid var(--ink);background:var(--paper);
+  font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink);
+  border-radius:0;outline:none;
+  transition:border-color .12s, box-shadow .12s;
+}
+.input:focus,.textarea:focus{border-color:var(--wc-blue);box-shadow:0 0 0 1px var(--wc-blue)}
+.textarea{font-family:'Archivo',sans-serif;resize:none}
+.hint{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:var(--ink-soft);letter-spacing:.04em;line-height:1.55;
+}
+
+/* Botones de modal (tonos) */
+.modal .btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:11px 14px;border:1.5px solid var(--ink);
+  background:var(--paper-2);color:var(--ink);
+  font-family:'Archivo Black',sans-serif;font-size:11px;
+  letter-spacing:.08em;text-transform:uppercase;
+  cursor:pointer;border-radius:0;
+  box-shadow:2px 2px 0 var(--ink);
+  transition:transform .1s, box-shadow .1s;
+}
+.modal .btn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--ink)}
+.modal .btn:active{transform:translate(1px,1px);box-shadow:1px 1px 0 var(--ink)}
+.modal .btn.ghost{background:transparent;box-shadow:none;border-style:dashed}
+.modal .btn.ghost:hover{background:var(--paper-2);box-shadow:2px 2px 0 var(--ink);border-style:solid}
+.modal .btn.primary{background:var(--ink);color:#fff8ee;border-color:var(--ink)}
+.modal .btn.primary:hover{background:#000}
+.modal .btn.blue {background:var(--wc-blue);color:#fff8ee;border-color:var(--wc-blue-dark)}
+.modal .btn.green{background:var(--wc-green);color:#fff8ee;border-color:var(--wc-green-dark)}
+.modal .btn.wa   {background:#25D366;color:#fff;border-color:#1da851}
+.modal .btn svg{flex-shrink:0}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.btn-row .btn{flex:1;min-width:0}
+.btn-full,.modal .btn.full{width:100%;flex:none}
+
+/* QR */
+.qr-card{text-align:center;padding:18px;background:#fff;border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink)}
+
+/* Código de sala */
+.code-display{
+  font-family:'Archivo Black',sans-serif;font-size:30px;letter-spacing:.2em;
+  text-align:center;padding:16px;
+  border:2px solid var(--ink);background:var(--paper-3);
+  position:relative;overflow:hidden;
+}
+.code-display::before{content:"";position:absolute;width:180px;height:180px;border-radius:50%;right:-80px;top:-100px;background:rgba(56,120,192,.12);pointer-events:none}
+.code-display::after{content:"";position:absolute;width:120px;height:120px;border-radius:50%;left:-50px;bottom:-70px;background:rgba(61,168,85,.12);pointer-events:none}
+.code-display span{position:relative;z-index:1}
+
+/* Detected codes box (escaneo) */
+.detected-box{border:1.5px dashed var(--wc-blue);padding:12px;background:rgba(56,120,192,.05)}
+.detected-title{
+  font-family:'Archivo Black',sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--wc-blue-dark);margin-bottom:8px;display:flex;align-items:center;gap:6px;
+}
+.dot-live{width:8px;height:8px;border-radius:50%;background:var(--wc-green);box-shadow:0 0 0 3px rgba(61,168,85,.25);animation:pulseDot 1.6s ease-in-out infinite}
+@keyframes pulseDot{50%{transform:scale(.85);box-shadow:0 0 0 6px rgba(61,168,85,0)}}
+
+/* Resultado del cambio (col give/get) */
+.cols-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:600px){.cols-2{grid-template-columns:1fr}}
+.col-card{border:1.5px solid var(--ink);background:var(--paper);overflow:hidden}
+.col-card > header{display:flex;align-items:center;gap:8px;padding:9px 12px;font-family:'Archivo Black',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;border-bottom:1.5px solid var(--ink)}
+.col-card.give > header{background:var(--wc-gold);color:#3d2706}
+.col-card.get  > header{background:var(--wc-lime);color:#1f3d10}
+.col-card > .body{padding:10px 12px}
+
+/* Novedades */
+.news-item{border:1.5px solid var(--ink);position:relative;overflow:hidden;padding:12px 14px 12px 18px;background:var(--paper);box-shadow:2px 2px 0 rgba(0,0,0,.12)}
+.news-item + .news-item{margin-top:10px}
+.news-item::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--n-c, var(--wc-blue))}
+.news-item .row{display:flex;align-items:flex-start;gap:10px}
+.news-item .badge{flex-shrink:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center;background:var(--n-c, var(--wc-blue));color:#fff8ee;border:1.5px solid var(--ink)}
+.news-item .title{font-family:'Archivo Black',sans-serif;font-size:12px;text-transform:uppercase;letter-spacing:.06em;line-height:1.2;margin-bottom:4px;color:var(--n-c-dark, var(--wc-blue-dark))}
+.news-item .desc{font-family:'Archivo',sans-serif;font-size:12px;color:var(--ink-soft);line-height:1.5}
+.news-item.green {--n-c:var(--wc-green); --n-c-dark:var(--wc-green-dark)}
+.news-item.purple{--n-c:var(--wc-purple);--n-c-dark:var(--wc-purple-dark)}
+
+/* ===== Aliases: contenido dinámico (JS sin tocar) con estética nueva ===== */
+/* Columnas de resultado de canje (usa #canjeDar / #canjeRecibir) */
+.canje-result-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px}
+@media(max-width:600px){.canje-result-cols{grid-template-columns:1fr}}
+.canje-col{border:1.5px solid var(--ink);background:var(--paper);overflow:hidden}
+.canje-col h4{font-family:'Archivo Black',sans-serif;font-size:11px;padding:9px 12px;margin:0;text-transform:uppercase;letter-spacing:.08em;border-bottom:1.5px solid var(--ink);display:flex;align-items:center;gap:8px}
+.canje-col.give h4{background:var(--wc-gold);color:#3d2706}
+.canje-col.get h4{background:var(--wc-lime);color:#1f3d10}
+.canje-col > div[id]{padding:10px 12px}
+.canje-country{margin-bottom:10px}
+.canje-country:last-child{margin-bottom:0}
+.canje-country-name{font-family:'Archivo Black',sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);margin-bottom:5px}
+.canje-chips{display:flex;flex-wrap:wrap;gap:4px}
+.canje-chip{background:var(--paper-2);border:1px solid var(--ink);padding:3px 7px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--ink);letter-spacing:.04em}
+
+/* Tarjetas de Cambios Pactados (renderCanjesPendientesList) */
+.canje-pendiente-card{border:1.5px solid var(--ink);background:var(--paper-2);padding:14px;box-shadow:2px 2px 0 rgba(0,0,0,.15)}
+.canje-pendiente-card + .canje-pendiente-card{margin-top:10px}
+.cp-head{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+.cp-nombre{font-family:'Archivo Black',sans-serif;font-size:13px}
+.cp-fecha{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--ink-soft);letter-spacing:.12em;text-transform:uppercase;margin-left:auto}
+.cp-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.cp-col-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-soft);letter-spacing:.04em;margin-bottom:5px}
+.cp-chips{display:flex;flex-wrap:wrap;gap:4px}
+.cp-chip{padding:3px 7px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;border:1px solid var(--ink);letter-spacing:.04em}
+.cp-chip.dar{background:var(--wc-gold);color:#3d2706}
+.cp-chip.recibir{background:var(--green-soft);color:#1a4020}
+.cp-actions{display:flex;gap:8px;flex-wrap:wrap}
+.cp-empty{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-soft);padding:20px;text-align:center;border:1px dashed var(--rule);letter-spacing:.04em;line-height:1.6}
+
+/* La hoja de stats usa su propio header: el botón cerrar va estático, no absoluto */
+.stats-modal-head{position:relative}
+.stats-modal-head .modal-close{
+  position:static;transform:none;width:auto;height:auto;
+  background:none;border:none;color:var(--paper);font-size:18px;
+}
+.stats-modal-head .modal-close:hover{background:none;color:var(--gold)}
+
 </style>
 </head>
 <body>
@@ -1084,33 +1302,34 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 
 <!-- ===== Sync modal ===== -->
 <div class="modal-overlay hidden" id="syncModal">
-  <div class="modal">
+  <div class="modal lime">
     <div class="modal-head">
-      <span>☁ Sincronización entre dispositivos</span>
+      <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17h10a4 4 0 001-7.9A6 6 0 005.1 9 4 4 0 007 17z"/><path d="M10.5 13l-1.5 1.5 1.5 1.5"/><path d="M13.5 16l1.5-1.5-1.5-1.5"/><path d="M9 14.5h6"/></svg></span>
+      <div class="title-wrap"><span class="kicker">Acción 04</span><span>Sincronizar dispositivos</span></div>
       <button class="modal-close" id="syncClose">✕</button>
     </div>
     <div class="modal-body">
 
-      <div class="canje-step">
-        <h3><span class="step-num">1</span> Tu código de sala</h3>
-        <div class="canje-code-box" id="syncCodeDisplay" style="letter-spacing:.25em;font-size:1.6rem">—</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+      <div class="step">
+        <h3><span class="step-num">01</span> Tu código de sala</h3>
+        <div class="code-display"><span id="syncCodeDisplay">—</span></div>
+        <div class="btn-row" style="margin-top:10px">
           <button class="btn" id="syncCopyCode">📋 Copiar código</button>
           <button class="btn ghost" id="syncGenCode">⊕ Nuevo código</button>
         </div>
-        <div class="canje-hint">Compartí este código con tus otros dispositivos. Sin login, sin contraseña.</div>
+        <p class="hint" style="margin-top:8px">Compartí este código con tus otros dispositivos. Sin login, sin contraseña.</p>
       </div>
 
-      <div class="canje-step">
-        <h3><span class="step-num">2</span> Unirse a una sala existente</h3>
-        <input type="text" class="canje-input" id="syncCodeInput" placeholder="Ingresá el código de otro dispositivo…" maxlength="8" style="text-transform:uppercase;letter-spacing:.15em;font-size:1.1rem">
-        <button class="btn" id="syncConnectBtn">🔗 Conectar y sincronizar</button>
+      <div class="step">
+        <h3><span class="step-num">02</span> Unirse a una sala existente</h3>
+        <input type="text" class="input" id="syncCodeInput" placeholder="Ingresá el código de otro dispositivo…" maxlength="8" style="text-transform:uppercase;letter-spacing:.15em">
+        <button class="btn primary full" id="syncConnectBtn" style="margin-top:10px">🔗 Conectar y sincronizar</button>
       </div>
 
       <div id="syncStatusArea" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-soft);margin-top:14px;letter-spacing:.06em;min-height:18px;"></div>
 
       <div id="syncDesincWrap" style="display:none;margin-top:16px;padding-top:14px;border-top:1px dashed var(--rule)">
-        <button class="btn ghost" id="syncDesincBtn" style="width:100%;color:var(--red);border-color:var(--red);font-size:11px">✕ Desincronizar este dispositivo</button>
+        <button class="btn ghost full" id="syncDesincBtn" style="color:var(--red);border-color:var(--red)">✕ Desincronizar este dispositivo</button>
       </div>
 
     </div>
@@ -1119,25 +1338,26 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 
 <!-- ===== Canje modal ===== -->
 <div class="modal-overlay hidden" id="canjeModal">
-  <div class="modal">
+  <div class="modal green">
     <div class="modal-head">
-      <span>🔄 Cambio x QR</span>
+      <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="6" height="6"/><rect x="14.5" y="3.5" width="6" height="6"/><rect x="3.5" y="14.5" width="6" height="6"/><path d="M14.5 14.5h2v2M20.5 14.5v3M14.5 19.5v1M17.5 17.5h3M17.5 20.5h3"/><rect x="5.5" y="5.5" width="2" height="2" fill="currentColor" stroke="none"/><rect x="16.5" y="5.5" width="2" height="2" fill="currentColor" stroke="none"/><rect x="5.5" y="16.5" width="2" height="2" fill="currentColor" stroke="none"/></svg></span>
+      <div class="title-wrap"><span class="kicker">Acción 02</span><span>Cambio x QR</span></div>
       <button class="modal-close" id="canjeClose">✕</button>
     </div>
     <div class="modal-body">
 
-      <div class="canje-step">
-        <h3><span class="step-num">1</span> Tu QR de cambio</h3>
-        <div id="canjeQRWrap" style="text-align:center;margin-bottom:10px;padding:14px;background:#fff;border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink)">
+      <div class="step">
+        <h3><span class="step-num">01</span> Tu QR de cambio</h3>
+        <div class="qr-card" id="canjeQRWrap">
           <div id="canjeQR" style="display:inline-block"></div>
         </div>
-        <button class="btn" id="canjeShareBtn" style="width:100%;background:#25D366;border-color:#1da851">📤 Compartir por WhatsApp</button>
-        <div class="canje-hint">Mostrale este QR a tu amigo o compartilo. Él lo escanea y ven al instante qué pueden cambiar.</div>
+        <button class="btn wa full" id="canjeShareBtn" style="margin-top:12px">📤 Compartir por WhatsApp</button>
+        <p class="hint" style="margin-top:8px">Mostrale este QR a tu amigo o compartilo. Él lo escanea y ven al instante qué pueden cambiar.</p>
       </div>
 
-      <div class="canje-step">
-        <h3><span class="step-num">2</span> <span id="canjeStep2Title">Escanear QR de tu amigo</span></h3>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <div class="step">
+        <h3><span class="step-num">02</span> <span id="canjeStep2Title">Escanear QR de tu amigo</span></h3>
+        <div class="btn-row">
           <button class="btn" id="canjeScanQR">📷 Escanear con cámara</button>
           <button class="btn ghost" id="canjeGalleryQR">🖼 Subir de galería</button>
         </div>
@@ -1146,8 +1366,8 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
       </div>
 
       <div id="canjeResults" style="display:none">
-        <div class="canje-step">
-          <h3><span class="step-num">✓</span> Resultado</h3>
+        <div class="step" style="margin-top:18px">
+          <h3><span class="step-num ok">✓</span> Resultado</h3>
           <div class="canje-result-cols">
             <div class="canje-col give">
               <h4>📤 Vos das · Tu amigo pega</h4>
@@ -1159,8 +1379,8 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
             </div>
           </div>
           <div class="canje-summary" id="canjeSummary"></div>
-          <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn" id="canjeConfirmBtn">✓ Confirmar intercambio</button>
+          <div class="btn-row" style="margin-top:14px">
+            <button class="btn green" id="canjeConfirmBtn" style="flex:2">✓ Confirmar intercambio</button>
             <button class="btn ghost" id="canjeShareMyCode">📋 Copiar</button>
           </div>
         </div>
@@ -1172,42 +1392,45 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 
 <!-- ===== Modal Importar de otra app ===== -->
 <div class="modal-overlay hidden" id="importOtraAppModal">
-  <div class="modal">
+  <div class="modal purple">
     <div class="modal-head">
-      <span>📲 Importar de otra app</span>
+      <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="2"/><path d="M10 18.5h4"/><path d="M14.5 6l3-3M17.5 3v3M17.5 3h-3"/></svg></span>
+      <div class="title-wrap"><span class="kicker">Acción 05</span><span>Importar de otra App</span></div>
       <button class="modal-close" id="importOtraAppClose">✕</button>
     </div>
     <div class="modal-body">
-      <div class="canje-hint" style="margin-bottom:12px">
+      <p class="hint" style="margin-bottom:12px">
         En la otra app, exportá o copiá tu lista de figuritas (la que muestra <strong>"Me faltan"</strong> y <strong>"Repetidas"</strong>) y pegala acá abajo. Tu álbum va a quedar con las mismas faltantes y repetidas.
-      </div>
-      <textarea id="importOtraAppText" placeholder="Pegá acá la lista de la otra app…" style="width:100%;height:180px;font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--paper);color:var(--ink);border:2px solid var(--ink);padding:10px;resize:vertical;box-shadow:3px 3px 0 var(--ink)"></textarea>
+      </p>
+      <textarea id="importOtraAppText" class="textarea" placeholder="Pegá acá la lista de la otra app…" style="height:180px"></textarea>
       <div id="importOtraAppMsg" style="font-size:12px;color:var(--ink-soft);margin:10px 0;min-height:16px"></div>
-      <button class="btn" id="importOtraAppDo" style="width:100%;background:var(--green);border-color:var(--green)">✅ Importar al álbum</button>
-      <div class="canje-hint" style="margin-top:10px;font-size:11px">⚠️ Esto reemplaza el estado actual de tu álbum por el importado.</div>
+      <button class="btn green full" id="importOtraAppDo">✅ Importar al álbum</button>
+      <p class="hint" style="margin-top:10px">⚠️ Esto reemplaza el estado actual de tu álbum por el importado.</p>
     </div>
   </div>
 </div>
 
 <!-- ===== Modal Canjes Pendientes ===== -->
 <div class="modal-overlay hidden" id="canjesPendientesModal">
-  <div class="modal">
+  <div class="modal orange">
     <div class="modal-head">
-      <span>📌 Cambios Pactados</span>
+      <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3H7a2 2 0 00-2 2v14l7-3 7 3V5a2 2 0 00-2-2z"/><path d="M9 8h6M9 12h4"/></svg></span>
+      <div class="title-wrap"><span class="kicker">Acción 03</span><span>Cambios Pactados</span></div>
       <button class="modal-close" id="canjesPendientesClose">✕</button>
     </div>
     <div class="modal-body">
+      <button class="btn primary full" id="nuevoCanjePendienteBtn" style="margin-bottom:16px">+ Nuevo cambio pactado</button>
       <div id="canjesPendientesList"></div>
-      <button class="btn" id="nuevoCanjePendienteBtn" style="width:100%;margin-top:8px;background:#d4650a;border-color:#d4650a">+ Nuevo cambio pactado</button>
     </div>
   </div>
 </div>
 
 <!-- ===== Modal Nuevo/Editar Canje Pendiente ===== -->
 <div class="modal-overlay hidden" id="editCanjeModal">
-  <div class="modal">
+  <div class="modal orange">
     <div class="modal-head">
-      <span id="editCanjeTitle">+ Nuevo cambio pactado</span>
+      <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4l4 4-11 11H5v-4z"/></svg></span>
+      <div class="title-wrap"><span class="kicker">Cambios Pactados</span><span id="editCanjeTitle">Nuevo cambio pactado</span></div>
       <button class="modal-close" id="editCanjeClose">✕</button>
     </div>
     <div class="modal-body">
@@ -1239,9 +1462,10 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 
 <!-- ===== Confirmar canje modal ===== -->
 <div class="modal-overlay hidden" id="canjeConfirmModal">
-  <div class="modal">
+  <div class="modal green">
     <div class="modal-head">
-      <span>✓ Confirmá el intercambio</span>
+      <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg></span>
+      <div class="title-wrap"><span class="kicker">Cambio x QR</span><span>Confirmá el intercambio</span></div>
       <button class="modal-close" id="canjeConfirmClose">✕</button>
     </div>
     <div class="modal-body">
@@ -3465,9 +3689,10 @@ window.tryCloseTopModal = function() {
 .scan-debug{width:100%;height:110px;font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--paper);color:var(--ink);border:1px solid var(--ink);margin-top:8px;padding:6px;resize:none}
 </style>
 <div class="modal-overlay hidden" id="webScanModal">
-  <div class="modal">
+  <div class="modal blue">
     <div class="modal-head">
-      <span>📷 Escanear Figuritas</span>
+      <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5C3 7.4 3.9 6.5 5 6.5h2.5l1.5-2h6l1.5 2H19c1.1 0 2 .9 2 2v9c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2v-9z"/><circle cx="12" cy="13" r="3.5"/></svg></span>
+      <div class="title-wrap"><span class="kicker">Acción 01</span><span>Escanear Figuritas</span></div>
       <button class="modal-close" id="webScanClose">✕</button>
     </div>
     <div class="modal-body">
