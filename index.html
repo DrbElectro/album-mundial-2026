@@ -3738,6 +3738,14 @@ async function handleWebScanFile(file) {
 
 // ---- Callbacks desde Android (ML Kit) ---- //
 // Llamados por Java vía evaluateJavascript cuando el OCR nativo termina.
+function onScanCanceled() {
+  if (_canjeQRAndroidPending) {
+    _canjeQRAndroidPending = false;
+    document.getElementById('canjeQRScanner').style.display = 'none';
+    document.getElementById('canjeQRScanStatus').textContent = 'Apuntá la cámara al QR de tu amigo…';
+  }
+}
+
 function onScanImageReady() {
   if (typeof Android === 'undefined') return;
   const b64 = Android.getPendingScan();
