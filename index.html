@@ -1143,6 +1143,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
           <button class="btn ghost" id="canjeGalleryQR">🖼 Subir de galería</button>
         </div>
         <input type="file" id="canjeQRGalleryInput" accept="image/*" style="display:none">
+        <input type="file" id="canjeQRCameraInput" accept="image/*" capture="environment" style="display:none">
       </div>
 
       <!-- Escáner de QR -->
@@ -3079,10 +3080,30 @@ async function shareCanje(){
 }
 document.getElementById('canjeShareBtn').addEventListener('click', shareCanje);
 
+let _canjeQRAndroidPending = false;
+
+// ===== QR: procesar una imagen (cámara o galería) con jsQR =====
+async function processCanjeQRFile(file, okMsg){
+  if(!file) return;
+  try{
+    const bitmap = await createImageBitmap(file);
+    const canvas = document.createElement('canvas');
+    canvas.width = bitmap.width; canvas.height = bitmap.height;
+    canvas.getContext('2d').drawImage(bitmap, 0, 0);
+    const imgData = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
+    const result = (typeof jsQR === 'function') ? jsQR(imgData.data, imgData.width, imgData.height) : null;
+    if(result && result.data && decodeCanjeState(result.data.trim())){
+      runCanje(result.data.trim());
+      showToast(okMsg);
+    } else {
+      showToast('No se detectó un QR válido en la imagen');
+    }
+  }catch(err){ showToast('Error leyendo la imagen'); }
+}
+
 // ===== QR: subir desde galería =====
 document.getElementById('canjeGalleryQR').addEventListener('click',()=>{
   if(window.Android){
-    // Android: usar galería nativa
     _canjeQRAndroidPending = true;
     Android.openGallery();
   } else {
@@ -3092,100 +3113,27 @@ document.getElementById('canjeGalleryQR').addEventListener('click',()=>{
 document.getElementById('canjeQRGalleryInput').addEventListener('change', async (e)=>{
   const file = e.target.files[0];
   e.target.value = '';
-  if(!file) return;
-  try{
-    const bitmap = await createImageBitmap(file);
-    const canvas = document.createElement('canvas');
-    canvas.width = bitmap.width; canvas.height = bitmap.height;
-    canvas.getContext('2d').drawImage(bitmap, 0, 0);
-    const imgData = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
-    const result = jsQR(imgData.data, imgData.width, imgData.height);
-    if(result && result.data && decodeCanjeState(result.data.trim())){
-      runCanje(result.data.trim());
-      showToast('¡QR leído de la galería!');
-    } else {
-      showToast('No se detectó un QR válido en la imagen');
-    }
-  }catch(err){ showToast('Error leyendo la imagen'); }
+  await processCanjeQRFile(file, '¡QR leído de la galería!');
 });
 
 // ===== QR: escanear con cámara =====
-let _canjeQRStream = null;
-let _canjeQRRAF = null;
-let _canjeQRAndroidPending = false;
-let _canjeQRCanceled = false;
-async function startCanjeQRScan(){
-  // En Android usamos la cámara nativa en vez de getUserMedia (que no funciona en WebView)
+// En todas las plataformas abrimos la cámara nativa y procesamos la foto con jsQR.
+function startCanjeQRScan(){
   if(window.Android){
     _canjeQRAndroidPending = true;
-    const scanner = document.getElementById('canjeQRScanner');
-    const status  = document.getElementById('canjeQRScanStatus');
-    scanner.style.display = 'block';
-    status.textContent = 'Abriendo cámara…';
     Android.openCamera();
     return;
   }
-  // Web: getUserMedia
-  _canjeQRCanceled = false;
-  const scanner = document.getElementById('canjeQRScanner');
-  const video   = document.getElementById('canjeQRVideo');
-  const status  = document.getElementById('canjeQRScanStatus');
-  scanner.style.display = 'block';
-  status.textContent = 'Iniciando cámara…';
-  let stream;
-  try{
-    stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'environment' } });
-  }catch(e){
-    scanner.style.display = 'none';
-    status.textContent = 'Apuntá la cámara al QR de tu amigo…';
-    return;
-  }
-  // Si el usuario canceló mientras esperaba el permiso, liberar la cámara
-  if(_canjeQRCanceled){
-    stream.getTracks().forEach(t=>t.stop());
-    return;
-  }
-  _canjeQRStream = stream;
-  video.srcObject = stream;
-  await video.play();
-  status.textContent = 'Apuntá la cámara al QR de tu amigo…';
-  scanCanjeQRFrame();
+  // Web mobile: input file con capture abre la cámara del sistema
+  document.getElementById('canjeQRCameraInput').click();
 }
-function scanCanjeQRFrame(){
-  const video = document.getElementById('canjeQRVideo');
-  if(!_canjeQRStream){ return; }
-  if(video.readyState === video.HAVE_ENOUGH_DATA){
-    const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const result = jsQR(imgData.data, imgData.width, imgData.height);
-    if(result && result.data){
-      const code = result.data.trim();
-      // Validar que sea un código de canje válido
-      if(decodeCanjeState(code)){
-        stopCanjeQRScan();
-        runCanje(code);
-        showToast('¡QR escaneado!');
-        return;
-      }
-    }
-  }
-  _canjeQRRAF = requestAnimationFrame(scanCanjeQRFrame);
-}
+document.getElementById('canjeQRCameraInput').addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  e.target.value = '';
+  await processCanjeQRFile(file, '¡QR escaneado!');
+});
 function stopCanjeQRScan(){
-  _canjeQRCanceled = true;
   _canjeQRAndroidPending = false;
-  if(_canjeQRRAF){ cancelAnimationFrame(_canjeQRRAF); _canjeQRRAF = null; }
-  if(_canjeQRStream){ _canjeQRStream.getTracks().forEach(t=>t.stop()); _canjeQRStream = null; }
-  const video = document.getElementById('canjeQRVideo');
-  if(video) video.srcObject = null;
-  const scanner = document.getElementById('canjeQRScanner');
-  if(scanner) scanner.style.display = 'none';
-  const status = document.getElementById('canjeQRScanStatus');
-  if(status) status.textContent = 'Apuntá la cámara al QR de tu amigo…';
 }
 document.getElementById('canjeScanQR').addEventListener('click', startCanjeQRScan);
 document.getElementById('canjeQRScanCancel').addEventListener('click', stopCanjeQRScan);
