@@ -3105,7 +3105,8 @@ async function processCanjeQRFile(file, okMsg){
 document.getElementById('canjeGalleryQR').addEventListener('click',()=>{
   if(window.Android){
     _canjeQRAndroidPending = true;
-    Android.openGallery();
+    if(Android.openGalleryForQR) Android.openGalleryForQR();
+    else Android.openGallery();
   } else {
     document.getElementById('canjeQRGalleryInput').click();
   }
@@ -3121,7 +3122,8 @@ document.getElementById('canjeQRGalleryInput').addEventListener('change', async 
 function startCanjeQRScan(){
   if(window.Android){
     _canjeQRAndroidPending = true;
-    Android.openCamera();
+    if(Android.openCameraForQR) Android.openCameraForQR();
+    else Android.openCamera();
     return;
   }
   // Web mobile: input file con capture abre la cámara del sistema
