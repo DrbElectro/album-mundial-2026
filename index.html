@@ -1052,6 +1052,107 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 }
 .stats-modal-head .modal-close:hover{background:none;color:var(--gold)}
 
+/* ============================================================
+   MASTHEAD MUNDIAL · cabecera con arcos del cover WC2026
+   ============================================================ */
+.masthead{
+  position:relative;
+  padding:32px 36px 26px !important;
+  border:1px solid var(--ink) !important;
+  border-top:5px solid var(--ink) !important;
+  overflow:hidden;
+  background-color:var(--paper);
+  background-image:
+    radial-gradient(ellipse 1200px 600px at 20% -10%, rgba(200,154,58,.12), transparent 60%),
+    radial-gradient(circle at 13% 27%, rgba(0,0,0,.025) 0 1px, transparent 1px),
+    radial-gradient(circle at 77% 63%, rgba(0,0,0,.025) 0 1px, transparent 1px),
+    repeating-linear-gradient(37deg, rgba(140,102,20,.03) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(-23deg, rgba(0,0,0,.018) 0 1px, transparent 1px 7px);
+  background-size: auto, 11px 11px, 9px 9px, auto, auto;
+  margin-bottom:24px;
+}
+.masthead::before{
+  content:"";position:absolute;left:0;right:0;top:-3px;height:3px;background:var(--ink);
+}
+.masthead .arc{position:absolute;border-radius:50%;pointer-events:none;z-index:0}
+.masthead .arc.a{width:360px;height:360px;background:var(--wc-blue-light);right:-160px;top:-220px;opacity:.55}
+.masthead .arc.b{width:520px;height:520px;background:var(--wc-blue);right:-260px;top:-200px;opacity:.18}
+.masthead .arc.c{width:240px;height:240px;background:var(--wc-orange);left:-140px;bottom:-140px;opacity:.18}
+.masthead .arc.d{width:160px;height:160px;background:var(--wc-lime);left:38%;top:-90px;opacity:.25}
+.masthead-inner{position:relative;z-index:1}
+
+.masthead-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:6px}
+.masthead .kicker{
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--wc-blue-dark);display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:0;
+}
+.masthead .kicker .pill{background:var(--ink);color:var(--paper);padding:3px 8px;letter-spacing:.18em}
+.masthead .kicker .countries{color:var(--wc-orange-dark)}
+.masthead .badge{
+  width:72px;height:72px;background:var(--ink);color:#fff8ee;border-radius:50%;flex-shrink:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-family:'Archivo Black',sans-serif;font-size:9px;letter-spacing:.08em;
+}
+.masthead .badge.logo{padding:0;overflow:hidden;border:2px solid var(--ink);box-shadow:3px 3px 0 var(--ink)}
+.masthead .badge.logo img{width:100%;height:100%;object-fit:cover;display:block}
+
+.masthead-body{display:grid;grid-template-columns:1fr auto;gap:32px;align-items:flex-end;margin-top:6px}
+.masthead-title{
+  font-family:'Archivo Black',sans-serif;font-weight:900;font-size:clamp(46px,6.6vw,90px);
+  line-height:.85;letter-spacing:-.04em;text-transform:uppercase;color:var(--ink);margin:0;
+}
+.masthead-title em{font-family:'Playfair Display',serif;font-style:italic;font-weight:900;color:var(--wc-blue);text-transform:none;letter-spacing:-.02em}
+.masthead-sub{font-family:'Archivo',sans-serif;font-weight:500;font-size:13px;color:var(--ink-soft);margin:14px 0 0;max-width:560px;line-height:1.55}
+
+.masthead .progress-card{background:var(--paper);border:1.5px solid var(--ink);padding:14px 18px;box-shadow:3px 3px 0 var(--ink);position:relative;overflow:hidden;min-width:220px}
+.masthead .progress-card::before{content:"";position:absolute;width:120px;height:120px;border-radius:50%;background:var(--wc-green);right:-60px;top:-60px;opacity:.18;pointer-events:none}
+.masthead .progress-card .row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;position:relative;z-index:1}
+.masthead .progress-card .lbl{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-soft)}
+.masthead .progress-card .num{font-family:'Archivo Black',sans-serif;font-size:54px;line-height:.9;color:var(--wc-green-dark);letter-spacing:-.04em}
+.masthead .progress-card .num small{font-size:22px;color:var(--ink-soft)}
+.masthead .progress-card .frac{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-soft);letter-spacing:.06em;margin-top:4px;position:relative;z-index:1}
+.masthead .progress-card .bar{margin-top:10px;height:6px;background:var(--paper-3);border:1px solid var(--ink);position:relative;z-index:1}
+.masthead .progress-card .bar-fill{position:absolute;inset:0;width:var(--progress,0%);background:linear-gradient(90deg,var(--wc-green),var(--wc-lime));border-right:1.5px solid var(--ink);transition:width .4s cubic-bezier(.5,0,.2,1)}
+
+.masthead .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:24px;position:relative;z-index:1}
+.masthead .stat{position:relative;border:1.5px solid var(--ink);padding:14px 16px;overflow:hidden;background:var(--paper-2);box-shadow:2px 2px 0 var(--ink)}
+.masthead .stat::after{content:"";position:absolute;width:100px;height:100px;border-radius:50%;right:-50px;bottom:-50px;opacity:.4;pointer-events:none}
+.masthead .stat.total::after{background:var(--paper-3)}
+.masthead .stat.green{background:#dfeed5}
+.masthead .stat.green::after{background:var(--wc-green)}
+.masthead .stat.gold{background:#fbe9bf}
+.masthead .stat.gold::after{background:var(--wc-gold)}
+.masthead .stat.orange{background:#f9d9bc}
+.masthead .stat.orange::after{background:var(--wc-orange)}
+.masthead .stat .lbl{font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.18em;color:var(--ink-soft);margin-bottom:6px;position:relative;z-index:1}
+.masthead .stat .val{font-family:'Archivo Black',sans-serif;font-size:44px;line-height:1;letter-spacing:-.03em;color:var(--ink);position:relative;z-index:1}
+.masthead .stat.green .val{color:var(--wc-green-dark)}
+.masthead .stat.gold .val{color:var(--gold-deep)}
+.masthead .stat.orange .val{color:var(--wc-orange-dark)}
+.masthead .stat .delta{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-soft);margin-top:6px;letter-spacing:.04em;position:relative;z-index:1}
+
+@media (max-width:720px){
+  .masthead{padding:18px 16px !important}
+  .masthead .arc.a{width:220px;height:220px;right:-110px;top:-130px}
+  .masthead .arc.b{width:300px;height:300px;right:-160px;top:-110px}
+  .masthead .arc.c{width:160px;height:160px;left:-90px;bottom:-100px}
+  .masthead .arc.d{width:100px;height:100px;top:-60px}
+  .masthead .kicker{font-size:9px;letter-spacing:.22em;flex-direction:column;align-items:flex-start;gap:4px;line-height:1.3}
+  .masthead .kicker .pill{font-size:8px}
+  .masthead .badge{width:54px;height:54px;font-size:7px}
+  .masthead-body{grid-template-columns:1fr;gap:14px}
+  .masthead-title{font-size:42px}
+  .masthead-sub{font-size:12px;margin-top:12px}
+  .masthead .progress-card{padding:12px 14px;min-width:0}
+  .masthead .progress-card .num{font-size:42px}
+  .masthead .progress-card .num small{font-size:18px}
+  .masthead .stats{grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+  .masthead .stat{padding:12px}
+  .masthead .stat::after{width:80px;height:80px;right:-40px;bottom:-40px}
+  .masthead .stat .val{font-size:32px}
+  .masthead .stat .delta{font-size:9px}
+}
+
 </style>
 </head>
 <body>
@@ -1059,31 +1160,43 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 
   <!-- ===== Masthead ===== -->
   <header class="masthead">
-    <div class="stamp"><img src="wc2026-logo.jpg" alt="FIFA World Cup 2026"></div>
-    <div class="mast-row">
-      <div class="mast-left">
+    <span class="arc a"></span><span class="arc b"></span><span class="arc c"></span><span class="arc d"></span>
+    <div class="masthead-inner">
+
+      <div class="masthead-head">
         <div class="kicker">
           <span class="pill">Edición Coleccionista</span>
-          <span>· Canadá · México · USA ·</span>
+          <span class="countries">· Canadá · México · USA ·</span>
         </div>
-        <h1 class="mast-title">Mi Álbum <span class="em"><span style="color:#74ACDF">Mu</span><span style="color:#fff;text-shadow:1px 1px 0 rgba(0,0,0,.25),-1px -1px 0 rgba(0,0,0,.2)">ndi</span><span style="color:#74ACDF">al</span></span><br>2026</h1>
-        <p class="mast-sub">Mi colección personal — 994 figuritas, 48 selecciones. <span class="leg-pc">Click izquierdo para sumar, click derecho para restar.</span><span class="leg-mobile" style="display:none">Toque para sumar, mantené presionado para restar.</span> El álbum guarda todo localmente.</p>
+        <div class="badge logo" aria-label="FIFA World Cup 2026"><img src="wc2026-logo.jpg" alt="FIFA World Cup 2026"></div>
       </div>
-      <div class="mast-right">
-        <div>Progreso total</div>
-        <div class="num"><span id="big-pct">0</span><small>%</small></div>
-        <div><span id="big-frac">0 / 994</span> figuritas</div>
+
+      <div class="masthead-body">
+        <div class="masthead-title-wrap">
+          <h1 class="masthead-title">Mi Álbum<br><em>Mundial 2026</em></h1>
+          <p class="masthead-sub">Mi colección personal — 994 figuritas, 48 selecciones. <span class="leg-pc">Click izquierdo para sumar, click derecho para restar.</span><span class="leg-mobile" style="display:none">Toque para sumar, mantené presionado para restar.</span> El álbum guarda todo localmente.</p>
+        </div>
+        <div class="progress-card">
+          <div class="row">
+            <div>
+              <div class="lbl">Progreso total</div>
+              <div class="frac"><span id="big-frac">0 / 994</span> figuritas</div>
+            </div>
+            <div class="num"><span id="big-pct">0</span><small>%</small></div>
+          </div>
+          <div class="bar"><div class="bar-fill" id="big-bar-fill" style="--progress:0%"></div></div>
+        </div>
       </div>
+
+      <div class="stats">
+        <div class="stat total"><div class="lbl">Total</div><div class="val" id="s-total">995</div><div class="delta">figuritas en el álbum</div></div>
+        <div class="stat green"><div class="lbl">Pegadas</div><div class="val" id="s-owned">0</div><div class="delta">en su lugar</div></div>
+        <div class="stat gold"><div class="lbl">Repetidas</div><div class="val" id="s-rep">0</div><div class="delta">para cambiar</div></div>
+        <div class="stat orange"><div class="lbl">Faltan</div><div class="val" id="s-miss">995</div><div class="delta">por conseguir</div></div>
+      </div>
+
     </div>
   </header>
-
-  <!-- ===== Stats ===== -->
-  <div class="stats">
-    <div class="stat"><div class="lbl">Total</div><div class="val" id="s-total">995</div><div class="delta">figuritas en el álbum</div></div>
-    <div class="stat green"><div class="lbl">Pegadas</div><div class="val" id="s-owned">0</div><div class="delta">en su lugar</div></div>
-    <div class="stat amber"><div class="lbl">Repetidas</div><div class="val" id="s-rep">0</div><div class="delta">para cambiar</div></div>
-    <div class="stat red"><div class="lbl">Faltan</div><div class="val" id="s-miss">995</div><div class="delta">por conseguir</div></div>
-  </div>
 
   <!-- ===== Layout ===== -->
   <div class="layout">
@@ -1761,6 +1874,8 @@ function updateStats(){
   document.getElementById('s-miss').textContent = s.miss;
   document.getElementById('big-pct').textContent = s.pct;
   document.getElementById('big-frac').textContent = s.owned+' / '+s.total;
+  const bar = document.getElementById('big-bar-fill');
+  if(bar) bar.style.setProperty('--progress', s.pct+'%');
 }
 
 // ===== GASTO =====
