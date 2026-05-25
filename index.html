@@ -5008,8 +5008,9 @@ setLang(currentLang);
 <style>
 #scrollTopBtn{
   position:fixed;
-  bottom:calc(24px + var(--safe-bottom, 0px));
-  right:18px;
+  /* En mobile se apila encima del FAB de estadísticas (52px + 12px gap) */
+  bottom:calc(24px + var(--safe-bottom, 0px) + 64px);
+  right:calc(20px + var(--safe-right, 0px));
   z-index:200;
   width:44px;height:44px;
   background:var(--ink);
@@ -5023,6 +5024,10 @@ setLang(currentLang);
   pointer-events:none;
   transform:translateY(12px);
   transition:opacity .22s, transform .22s;
+}
+/* En desktop (sin FAB) lo ponemos más abajo */
+@media(min-width:769px){
+  #scrollTopBtn{ bottom:calc(24px + var(--safe-bottom, 0px)); right:24px; }
 }
 #scrollTopBtn.visible{
   opacity:1;
