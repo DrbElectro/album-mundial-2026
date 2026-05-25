@@ -1245,6 +1245,19 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 .masthead .arc.d{width:160px;height:160px;background:var(--wc-blue-light);left:38%;top:-90px;opacity:.28}
 .masthead-inner{position:relative;z-index:1}
 
+/* ── Lang toggle ── */
+.lang-toggle{
+  display:flex;border:1.5px solid var(--wc-blue-dark);overflow:hidden;flex-shrink:0;align-self:flex-start;
+}
+.lang-btn{
+  background:none;border:none;cursor:pointer;
+  font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;
+  letter-spacing:.12em;padding:5px 10px;color:var(--wc-blue-dark);
+  transition:background .15s,color .15s;display:flex;align-items:center;gap:4px;
+}
+.lang-btn.active{background:var(--wc-blue-dark);color:#fff}
+.lang-btn:not(.active):hover{background:rgba(28,56,112,.08)}
+.lang-sep{width:1px;background:var(--wc-blue-dark);flex-shrink:0}
 .masthead-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:6px}
 .masthead .kicker{
   font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.28em;text-transform:uppercase;
@@ -1347,22 +1360,27 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 
       <div class="masthead-head">
         <div class="kicker">
-          <span class="pill">Edición Coleccionista</span>
+          <span class="pill" data-i18n="pill">Edición Coleccionista</span>
           <span class="countries">· Canadá · México · USA ·</span>
         </div>
-        <div class="badge logo" aria-label="FIFA World Cup 2026"><img src="wc2026-logo.jpg" alt="FIFA World Cup 2026"></div>
+        <!-- Toggle idioma -->
+        <div class="lang-toggle">
+          <button class="lang-btn active" id="langBtnEs" onclick="setLang('es')">🇦🇷 ES</button>
+          <div class="lang-sep"></div>
+          <button class="lang-btn" id="langBtnEn" onclick="setLang('en')">🇺🇸 EN</button>
+        </div>
       </div>
 
       <div class="masthead-body">
         <div class="masthead-title-wrap">
-          <h1 class="masthead-title">Mi Álbum<em>Mundial <span class="t-2026">2026</span></em></h1>
-          <p class="masthead-sub">Mi colección personal — 994 figuritas, 48 selecciones. <span class="leg-pc">Click izquierdo para sumar, click derecho para restar.</span><span class="leg-mobile" style="display:none">Toque para sumar, mantené presionado para restar.</span> El álbum guarda todo localmente.</p>
+          <h1 class="masthead-title" id="main-title">Mi Álbum<em>Mundial <span class="t-2026">2026</span></em></h1>
+          <p class="masthead-sub" data-i18n="sub">Mi colección personal — 994 figuritas, 48 selecciones. <span class="leg-pc" data-i18n="hint-pc">Click izquierdo para sumar, click derecho para restar.</span><span class="leg-mobile" style="display:none" data-i18n="hint-mob">Toque para sumar, mantené presionado para restar.</span> <span data-i18n="hint-save">El álbum guarda todo localmente.</span></p>
         </div>
         <div class="progress-card">
           <div class="row">
             <div>
-              <div class="lbl">Progreso total</div>
-              <div class="frac"><span id="big-frac">0 / 994</span> figuritas</div>
+              <div class="lbl" data-i18n="progress-lbl">Progreso total</div>
+              <div class="frac"><span id="big-frac">0 / 994</span> <span data-i18n="stickers">figuritas</span></div>
             </div>
             <div class="num"><span id="big-pct">0</span><small>%</small></div>
           </div>
@@ -1371,10 +1389,10 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
       </div>
 
       <div class="stats">
-        <div class="stat total"><div class="lbl">Total</div><div class="val" id="s-total">995</div><div class="delta">figuritas en el álbum</div></div>
-        <div class="stat green"><div class="lbl">Pegadas</div><div class="val" id="s-owned">0</div><div class="delta">en su lugar</div></div>
-        <div class="stat gold"><div class="lbl">Repetidas</div><div class="val" id="s-rep">0</div><div class="delta">para cambiar</div></div>
-        <div class="stat orange"><div class="lbl">Faltan</div><div class="val" id="s-miss">995</div><div class="delta">por conseguir</div></div>
+        <div class="stat total"><div class="lbl">Total</div><div class="val" id="s-total">995</div><div class="delta" data-i18n="d-total">figuritas en el álbum</div></div>
+        <div class="stat green"><div class="lbl" data-i18n="lbl-placed">Pegadas</div><div class="val" id="s-owned">0</div><div class="delta" data-i18n="d-placed">en su lugar</div></div>
+        <div class="stat gold"><div class="lbl" data-i18n="lbl-dupes">Repetidas</div><div class="val" id="s-rep">0</div><div class="delta" data-i18n="d-dupes">para cambiar</div></div>
+        <div class="stat orange"><div class="lbl" data-i18n="lbl-miss">Faltan</div><div class="val" id="s-miss">995</div><div class="delta" data-i18n="d-miss">por conseguir</div></div>
       </div>
 
     </div>
@@ -1385,43 +1403,43 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 
     <main class="main">
       <div class="legend">
-        <div class="leg"><div class="leg-sw miss"></div>Falta</div>
-        <div class="leg"><div class="leg-sw own"></div>Pegada</div>
-        <div class="leg"><div class="leg-sw rep"></div>Repetida</div>
-        <div class="leg"><div class="leg-sw res"></div>Cambio pactado</div>
-        <div class="leg leg-pc" style="margin-left:auto">Click izquierdo: +1 · Click derecho: −1</div>
-        <div class="leg leg-mobile" style="margin-left:auto;display:none">Toque: +1 · Mantener: −1</div>
+        <div class="leg"><div class="leg-sw miss"></div><span data-i18n="leg-miss">Falta</span></div>
+        <div class="leg"><div class="leg-sw own"></div><span data-i18n="leg-own">Pegada</span></div>
+        <div class="leg"><div class="leg-sw rep"></div><span data-i18n="leg-rep">Repetida</span></div>
+        <div class="leg"><div class="leg-sw res"></div><span data-i18n="leg-res">Cambio pactado</span></div>
+        <div class="leg leg-pc" style="margin-left:auto" data-i18n="leg-hint-pc">Click izquierdo: +1 · Click derecho: −1</div>
+        <div class="leg leg-mobile" style="margin-left:auto;display:none" data-i18n="leg-hint-mob">Toque: +1 · Mantener: −1</div>
       </div>
 
       <div class="controls">
         <!-- fila 1: buscador -->
         <div class="ctrl-row">
-          <input type="text" id="search" placeholder="Buscar país, código o número…">
+          <input type="text" id="search" data-i18n-ph="search" placeholder="Buscar país, código o número…">
           <select id="filterSel" class="ctrl-pc-inline">
-            <option value="all">Todas</option>
-            <option value="missing">Faltan</option>
-            <option value="owned">Pegadas</option>
-            <option value="repeated">Repetidas</option>
-            <option value="reserved">Cambios pactados</option>
+            <option value="all" data-i18n="f-all">Todas</option>
+            <option value="missing" data-i18n="f-miss">Faltan</option>
+            <option value="owned" data-i18n="f-own">Pegadas</option>
+            <option value="repeated" data-i18n="f-dup">Repetidas</option>
+            <option value="reserved" data-i18n="f-res">Cambios pactados</option>
           </select>
           <select id="sortSel" class="ctrl-pc-inline">
-            <option value="default">Orden del álbum</option>
-            <option value="completion">Por completado %</option>
+            <option value="default" data-i18n="s-default">Orden del álbum</option>
+            <option value="completion" data-i18n="s-pct">Por completado %</option>
             <option value="alpha">A → Z</option>
           </select>
         </div>
         <!-- fila 2: filtros (solo mobile, en PC están arriba) -->
         <div class="ctrl-row ctrl-mobile-only">
           <select id="filterSelM">
-            <option value="all">Todas</option>
-            <option value="missing">Faltan</option>
-            <option value="owned">Pegadas</option>
-            <option value="repeated">Repetidas</option>
-            <option value="reserved">Cambios pactados</option>
+            <option value="all" data-i18n="f-all">Todas</option>
+            <option value="missing" data-i18n="f-miss">Faltan</option>
+            <option value="owned" data-i18n="f-own">Pegadas</option>
+            <option value="repeated" data-i18n="f-dup">Repetidas</option>
+            <option value="reserved" data-i18n="f-res">Cambios pactados</option>
           </select>
           <select id="sortSelM">
-            <option value="default">Orden del álbum</option>
-            <option value="completion">Por completado %</option>
+            <option value="default" data-i18n="s-default">Orden del álbum</option>
+            <option value="completion" data-i18n="s-pct">Por completado %</option>
             <option value="alpha">A → Z</option>
           </select>
         </div>
@@ -1434,7 +1452,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
               <path d="M9 4.5V3.5a1.5 1.5 0 011.5-1.5h3A1.5 1.5 0 0115 3.5v1"/>
               <path d="M9 10h6M9 13.5h6M9 17h4" stroke-dasharray="2 2"/>
             </svg>
-            Copiar faltantes
+            <span data-i18n="copy-miss">Copiar faltantes</span>
           </button>
           <button class="btn-arcos-copy" type="button" id="copyRepetidasBtn">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -1443,7 +1461,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
               <path d="M9 4.5V3.5a1.5 1.5 0 011.5-1.5h3A1.5 1.5 0 0115 3.5v1"/>
               <path d="M9 9h6M9 12.5h6M9 16h6"/>
             </svg>
-            Copiar repetidas
+            <span data-i18n="copy-dup">Copiar repetidas</span>
           </button>
         </div>
         <!-- Grilla 3×2 de acciones principales -->
@@ -1458,7 +1476,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
                 <circle cx="12" cy="13" r="3.5"/>
               </svg>
             </span>
-            <span class="lbl">Escanear Figus</span>
+            <span class="lbl" data-i18n="btn-scan">Escanear Figus</span>
           </button>
           <!-- 02 · Cambio x QR -->
           <button class="btn-arcos c-green" type="button" id="canjeBtn">
@@ -1475,7 +1493,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
                 <rect x="5.5" y="16.5" width="2" height="2" fill="currentColor" stroke="none"/>
               </svg>
             </span>
-            <span class="lbl">Cambio x QR</span>
+            <span class="lbl" data-i18n="btn-qr">Cambio x QR</span>
           </button>
           <!-- 03 · Cambios Pactados -->
           <button class="btn-arcos c-orange" type="button" id="canjesPendientesBtn">
@@ -1487,7 +1505,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
                 <path d="M9 8h6M9 12h4"/>
               </svg>
             </span>
-            <span class="lbl">Cambios Pactados</span>
+            <span class="lbl" data-i18n="btn-trades">Cambios Pactados</span>
             <span id="canjesPendientesBadge" class="badge-num"></span>
           </button>
           <!-- 04 · Sincronizar -->
@@ -1502,7 +1520,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
                 <path d="M9 14.5h6"/>
               </svg>
             </span>
-            <span class="lbl">Sincronizar</span>
+            <span class="lbl" data-i18n="btn-sync">Sincronizar</span>
             <span class="badge-on">ON</span>
           </button>
           <!-- 05 · Importar de otra App -->
@@ -1516,7 +1534,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
                 <path d="M14.5 6l3-3M17.5 3v3M17.5 3h-3"/>
               </svg>
             </span>
-            <span class="lbl">Importar de otra App</span>
+            <span class="lbl" data-i18n="btn-import">Importar de otra App</span>
           </button>
           <!-- 06 · Bloquear -->
           <button class="btn-arcos c-red" type="button" id="lockBtn">
@@ -1529,7 +1547,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
                 <circle cx="12" cy="15.5" r="1.2" fill="currentColor" stroke="none"/>
               </svg>
             </span>
-            <span class="lbl">Bloquear</span>
+            <span class="lbl" data-i18n="btn-lock">Bloquear</span>
           </button>
         </div>
         <!-- extras PC -->
@@ -1569,7 +1587,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
       <div class="card card-gasto">
         <div class="card-header">
           <span class="card-tag">$$$</span>
-          <h2>Gasto en figuritas</h2>
+          <h2 data-i18n="card-gasto">Gasto en figuritas</h2>
         </div>
         <div class="card-body">
           <div id="lotes-container"></div>
@@ -1593,7 +1611,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
       <div class="card card-progreso">
         <div class="card-header">
           <span class="card-tag">📈</span>
-          <h2>Progreso en el tiempo</h2>
+          <h2 data-i18n="card-progreso">Progreso en el tiempo</h2>
         </div>
         <div class="chart-body">
           <div class="chart-wrap">
@@ -1605,7 +1623,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
             <span id="chart-to">hoy</span>
           </div>
         </div>
-        <a href="manual.html" target="_blank" class="manual-btn">📖 Manual de uso</a>
+        <a href="manual.html" target="_blank" class="manual-btn" data-i18n="btn-manual">📖 Manual de uso</a>
       </div>
     </aside>
 
@@ -1816,16 +1834,16 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
       <span class="ac-star-md">★</span>
     </div>
     <div class="ac-content">
-      <span class="ac-tag">FIFA World Cup 2026</span>
-      <div class="ac-title">¡Felicitaciones!</div>
+      <span class="ac-tag" data-i18n="ac-tag">FIFA World Cup 2026</span>
+      <div class="ac-title" data-i18n="ac-title">¡Felicitaciones!</div>
       <div class="ac-trophy-wrap">
         <img class="ac-trophy" src="trofeo.png" alt="Trofeo Mundial">
       </div>
       <div class="ac-rule"></div>
-      <div class="ac-sub">¡Lo Lograste!!<br>Llenaste Mi Álbum Mundial 2026 🎉</div>
-      <div class="ac-meta">994 figuritas · 48 selecciones</div>
+      <div class="ac-sub" data-i18n="ac-sub">¡Lo Lograste!!<br>Llenaste Mi Álbum Mundial 2026 🎉</div>
+      <div class="ac-meta" data-i18n="ac-meta">994 figuritas · 48 selecciones</div>
       <div class="ac-btns">
-        <button class="ac-btn-main" id="acCompartir">🥳 Compartir logro</button>
+        <button class="ac-btn-main" id="acCompartir" data-i18n="ac-share">🥳 Compartir logro</button>
         <button class="ac-btn-sec" id="acCerrar">Cerrar</button>
       </div>
     </div>
@@ -4709,6 +4727,141 @@ if('serviceWorker' in navigator){
     });
   }
 })();
+
+// =====================================================
+// SISTEMA DE IDIOMAS (i18n) — Opción A: toggle en página
+// =====================================================
+const I18N = {
+  es: {
+    'pill':          'Edición Coleccionista',
+    'sub':           'Mi colección personal — 994 figuritas, 48 selecciones.',
+    'hint-pc':       'Click izquierdo para sumar, click derecho para restar.',
+    'hint-mob':      'Toque para sumar, mantené presionado para restar.',
+    'hint-save':     'El álbum guarda todo localmente.',
+    'progress-lbl':  'Progreso total',
+    'stickers':      'figuritas',
+    'd-total':       'figuritas en el álbum',
+    'lbl-placed':    'Pegadas',    'd-placed': 'en su lugar',
+    'lbl-dupes':     'Repetidas',  'd-dupes':  'para cambiar',
+    'lbl-miss':      'Faltan',     'd-miss':   'por conseguir',
+    'leg-miss':      'Falta',
+    'leg-own':       'Pegada',
+    'leg-rep':       'Repetida',
+    'leg-res':       'Cambio pactado',
+    'leg-hint-pc':   'Click izquierdo: +1 · Click derecho: −1',
+    'leg-hint-mob':  'Toque: +1 · Mantener: −1',
+    'search':        'Buscar país, código o número…',
+    'f-all':         'Todas',
+    'f-miss':        'Faltan',
+    'f-own':         'Pegadas',
+    'f-dup':         'Repetidas',
+    'f-res':         'Cambios pactados',
+    's-default':     'Orden del álbum',
+    's-pct':         'Por completado %',
+    'copy-miss':     'Copiar faltantes',
+    'copy-dup':      'Copiar repetidas',
+    'btn-scan':      'Escanear Figus',
+    'btn-qr':        'Cambio x QR',
+    'btn-trades':    'Cambios Pactados',
+    'btn-sync':      'Sincronizar',
+    'btn-import':    'Importar de otra App',
+    'btn-lock':      'Bloquear',
+    'card-gasto':    'Gasto en figuritas',
+    'card-progreso': 'Progreso en el tiempo',
+    'btn-manual':    '📖 Manual de uso',
+    'ac-tag':        'FIFA World Cup 2026',
+    'ac-title':      '¡Felicitaciones!',
+    'ac-sub':        '¡Lo Lograste!!<br>Llenaste Mi Álbum Mundial 2026 🎉',
+    'ac-meta':       '994 figuritas · 48 selecciones',
+    'ac-share':      '🥳 Compartir logro',
+    'title-l1':      'Mi Álbum',
+    'title-l2':      'Mundial',
+  },
+  en: {
+    'pill':          "Collector's Edition",
+    'sub':           'My personal collection — 994 stickers, 48 national teams.',
+    'hint-pc':       'Left click to add, right click to remove.',
+    'hint-mob':      'Tap to add, hold to remove.',
+    'hint-save':     'The album saves everything locally.',
+    'progress-lbl':  'Total progress',
+    'stickers':      'stickers',
+    'd-total':       'stickers in the album',
+    'lbl-placed':    'Placed',      'd-placed': 'in their spot',
+    'lbl-dupes':     'Duplicates',  'd-dupes':  'to trade',
+    'lbl-miss':      'Missing',     'd-miss':   'still needed',
+    'leg-miss':      'Missing',
+    'leg-own':       'Placed',
+    'leg-rep':       'Duplicate',
+    'leg-res':       'Trade agreed',
+    'leg-hint-pc':   'Left click: +1 · Right click: −1',
+    'leg-hint-mob':  'Tap: +1 · Hold: −1',
+    'search':        'Search country, code or number…',
+    'f-all':         'All',
+    'f-miss':        'Missing',
+    'f-own':         'Placed',
+    'f-dup':         'Duplicates',
+    'f-res':         'Trade agreed',
+    's-default':     'Album order',
+    's-pct':         'By completion %',
+    'copy-miss':     'Copy missing',
+    'copy-dup':      'Copy duplicates',
+    'btn-scan':      'Scan Stickers',
+    'btn-qr':        'Trade by QR',
+    'btn-trades':    'Agreed Trades',
+    'btn-sync':      'Sync',
+    'btn-import':    'Import from another App',
+    'btn-lock':      'Lock',
+    'card-gasto':    'Sticker spending',
+    'card-progreso': 'Progress over time',
+    'btn-manual':    '📖 User guide',
+    'ac-tag':        'FIFA World Cup 2026',
+    'ac-title':      'Congratulations!',
+    'ac-sub':        'You did it!!<br>My World Cup Album 2026 is complete 🎉',
+    'ac-meta':       '994 stickers · 48 national teams',
+    'ac-share':      '🥳 Share achievement',
+    'title-l1':      'My Album',
+    'title-l2':      'World Cup',
+  }
+};
+
+let currentLang = localStorage.getItem('lang') || 'es';
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('lang', lang);
+  const d = I18N[lang];
+  document.documentElement.lang = lang;
+
+  // Botones toggle
+  document.getElementById('langBtnEs').classList.toggle('active', lang === 'es');
+  document.getElementById('langBtnEn').classList.toggle('active', lang === 'en');
+
+  // Título principal
+  const t = document.getElementById('main-title');
+  if(t) t.innerHTML = `${d['title-l1']}<em>${d['title-l2']} <span class="t-2026">2026</span></em>`;
+
+  // Todos los elementos con data-i18n
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if(d[key] !== undefined) el.innerHTML = d[key];
+  });
+
+  // Placeholders con data-i18n-ph
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    const key = el.getAttribute('data-i18n-ph');
+    if(d[key] !== undefined) el.placeholder = d[key];
+  });
+
+  // Opciones de select con data-i18n
+  document.querySelectorAll('select option[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if(d[key] !== undefined) el.textContent = d[key];
+  });
+}
+
+// Aplicar idioma guardado al cargar
+setLang(currentLang);
+
 </script>
 
 </body>
