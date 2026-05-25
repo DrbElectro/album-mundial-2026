@@ -1454,6 +1454,10 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
             </svg>
             <span data-i18n="copy-miss">Copiar faltantes</span>
           </button>
+          <button class="btn-arcos-copy" type="button" id="waFaltantesBtn" style="color:#25d366;border-color:#25d366">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+            <span data-i18n="btn-wa-miss">📲 Compartir por WhatsApp</span>
+          </button>
           <button class="btn-arcos-copy" type="button" id="copyRepetidasBtn">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                  stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
@@ -1593,7 +1597,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
           <div id="lotes-container"></div>
           <button class="btn-add-lote" id="addLoteBtn" data-i18n="btn-add-lote">+ Agregar lote</button>
           <div class="gasto-album-row">
-            <span class="gar-label">Álbum</span>
+            <span class="gar-label" data-i18n="gasto-album-lbl">Álbum</span>
             <span class="gar-value">$19.000</span>
           </div>
         </div>
@@ -1640,7 +1644,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
   <div class="modal lime">
     <div class="modal-head">
       <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17h10a4 4 0 001-7.9A6 6 0 005.1 9 4 4 0 007 17z"/><path d="M10.5 13l-1.5 1.5 1.5 1.5"/><path d="M13.5 16l1.5-1.5-1.5-1.5"/><path d="M9 14.5h6"/></svg></span>
-      <div class="title-wrap"><span class="kicker">Acción 04</span><span>Sincronizar dispositivos</span></div>
+      <div class="title-wrap"><span class="kicker">Acción 04</span><span data-i18n="sync-modal-title">Sincronizar dispositivos</span></div>
       <button class="modal-close" id="syncClose">✕</button>
     </div>
     <div class="modal-body">
@@ -1730,17 +1734,17 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
   <div class="modal purple">
     <div class="modal-head">
       <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="2"/><path d="M10 18.5h4"/><path d="M14.5 6l3-3M17.5 3v3M17.5 3h-3"/></svg></span>
-      <div class="title-wrap"><span class="kicker">Acción 05</span><span>Importar de otra App</span></div>
+      <div class="title-wrap"><span class="kicker">Acción 05</span><span data-i18n="btn-import">Importar de otra App</span></div>
       <button class="modal-close" id="importOtraAppClose">✕</button>
     </div>
     <div class="modal-body">
-      <p class="hint" style="margin-bottom:12px">
+      <p class="hint" style="margin-bottom:12px" data-i18n="import-app-hint">
         En la otra app, exportá o copiá tu lista de figuritas (la que muestra <strong>"Me faltan"</strong> y <strong>"Repetidas"</strong>) y pegala acá abajo. Tu álbum va a quedar con las mismas faltantes y repetidas.
       </p>
-      <textarea id="importOtraAppText" class="textarea" placeholder="Pegá acá la lista de la otra app…" style="height:180px"></textarea>
+      <textarea id="importOtraAppText" class="textarea" data-i18n-ph="import-app-ph" placeholder="Pegá acá la lista de la otra app…" style="height:180px"></textarea>
       <div id="importOtraAppMsg" style="font-size:12px;color:var(--ink-soft);margin:10px 0;min-height:16px"></div>
-      <button class="btn green full" id="importOtraAppDo">✅ Importar al álbum</button>
-      <p class="hint" style="margin-top:10px">⚠️ Esto reemplaza el estado actual de tu álbum por el importado.</p>
+      <button class="btn green full" id="importOtraAppDo" data-i18n="import-app-do">✅ Importar al álbum</button>
+      <p class="hint" style="margin-top:10px" data-i18n="import-app-warn">⚠️ Esto reemplaza el estado actual de tu álbum por el importado.</p>
     </div>
   </div>
 </div>
@@ -1800,7 +1804,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
   <div class="modal green">
     <div class="modal-head">
       <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg></span>
-      <div class="title-wrap"><span class="kicker">Cambio x QR</span><span>Confirmá el intercambio</span></div>
+      <div class="title-wrap"><span class="kicker" data-i18n="btn-qr">Cambio x QR</span><span data-i18n="qr-confirm-title">Confirmá el intercambio</span></div>
       <button class="modal-close" id="canjeConfirmClose">✕</button>
     </div>
     <div class="modal-body">
@@ -1857,7 +1861,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 <div class="stats-modal-overlay hidden" id="statsModal">
   <div class="stats-modal">
     <div class="stats-modal-head">
-      <span>Mi Álbum Mundial</span>
+      <span data-i18n="modal-album-title">Mi Álbum Mundial</span>
       <button class="modal-close" id="statsClose">✕</button>
     </div>
     <div class="stats-tabs">
@@ -1877,7 +1881,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
       </div>
       <div style="height:1px;background:var(--rule);margin-bottom:18px"></div>
       <div style="margin-bottom:14px">
-        <div style="font-family:'Archivo Black',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Precio del álbum</div>
+        <div style="font-family:'Archivo Black',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px" data-i18n="precio-album-title">Precio del álbum</div>
         <div style="display:flex;align-items:center;gap:8px">
           <span style="font-family:'JetBrains Mono',monospace;font-size:13px">$</span>
           <input type="number" id="sm-precio-album" min="0" step="100"
@@ -1886,7 +1890,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
         </div>
       </div>
       <div style="margin-bottom:14px">
-        <div style="font-family:'Archivo Black',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Paquetes comprados</div>
+        <div style="font-family:'Archivo Black',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px" data-i18n="lotes-title">Paquetes comprados</div>
         <div id="lotes-container-m"></div>
         <button class="btn ghost" id="addLoteBtn-m" style="width:100%;margin-top:4px;font-size:11px" data-i18n="btn-add-lote">+ Agregar lote</button>
       </div>
@@ -1958,7 +1962,31 @@ const I18N = {
     'btn-export':'📝 Exportar Lista','btn-import-txt':'📥 Importar Lista',
     'autosave-off':'💾 Auto-Guardado','autosave-on':'✓ Auto-Guardado',
     'autosave-title-off':'Vincular un archivo .json para guardar automáticamente','autosave-title-on':'Click para desvincular el archivo',
-    'btn-add-lote':'+ Agregar lote',
+    'btn-add-lote':'+ Agregar lote','btn-locked':'Bloqueado',
+    'lote-sep':'paq a $','lote-qty-ph':'Cant.','lote-price-ph':'Precio','lote-del-title':'Quitar',
+    'lotes-title':'Paquetes comprados','precio-album-title':'Precio del álbum','gasto-album-lbl':'Álbum',
+    'sync-modal-title':'Sincronizar dispositivos',
+    'qr-confirm-title':'Confirmá el intercambio',
+    'import-app-hint':'En la otra app, exportá o copiá tu lista de figuritas (la que muestra <strong>"Me faltan"</strong> y <strong>"Repetidas"</strong>) y pegala acá abajo. Tu álbum va a quedar con las mismas faltantes y repetidas.',
+    'import-app-ph':'Pegá acá la lista de la otra app…',
+    'import-app-do':'✅ Importar al álbum',
+    'import-app-warn':'⚠️ Esto reemplaza el estado actual de tu álbum por el importado.',
+    'modal-album-title':'Mi Álbum Mundial',
+    'btn-wa-miss':'📲 Compartir por WhatsApp',
+    'toast-exported':'Lista exportada','toast-autosave-on':'Auto-guardado activo','toast-unlinked':'Desvinculado',
+    'toast-miss-copied':'¡Faltantes copiadas!','toast-dup-copied':'¡Repetidas copiadas!','toast-no-copy':'No se pudo copiar',
+    'toast-imported':'Importado','toast-reset':'Álbum reseteado',
+    'toast-locked':'🔒 Álbum bloqueado','toast-unlocked':'🔓 Desbloqueado',
+    'toast-sync-off':'✕ Sincronización desactivada','toast-synced':'¡Sincronizado!',
+    'toast-code-copied':'Código copiado','toast-invalid-code':'Código inválido',
+    'toast-trade-confirmed':'Cambio confirmado con','toast-trade-cancelled':'Cambio cancelado',
+    'toast-trade-saved':'Cambio guardado','toast-trade-updated':'Cambio actualizado',
+    'toast-trade-applied':'¡Intercambio aplicado!',
+    'toast-no-friend':'Ingresá el nombre del amigo','toast-no-stickers':'Agregá al menos una figurita',
+    'toast-copied':'¡Copiado! Pegalo donde quieras',
+    'toast-no-miss':'🎉 ¡No te faltan figuritas!','toast-no-miss-wa':'Sin faltantes',
+    'wa-miss-header':'🏆 Mi Álbum Mundial 2026\n📋 Me faltan:\n',
+    'wa-miss-footer':'faltantes',
     'card-gasto':'Gasto en figuritas','card-progreso':'Progreso en el tiempo',
     'btn-manual':'📖 Manual de uso',
     'tab-stats':'📊 Estadísticas','tab-howto':'📖 Cómo se usa','sm-progress':'Progreso del álbum',
@@ -1992,7 +2020,31 @@ const I18N = {
     'btn-export':'📝 Export List','btn-import-txt':'📥 Import List',
     'autosave-off':'💾 Auto-Save','autosave-on':'✓ Auto-Save',
     'autosave-title-off':'Link a .json file to save automatically','autosave-title-on':'Click to unlink the file',
-    'btn-add-lote':'+ Add pack',
+    'btn-add-lote':'+ Add pack','btn-locked':'Locked',
+    'lote-sep':'packs @ $','lote-qty-ph':'Qty.','lote-price-ph':'Price','lote-del-title':'Remove',
+    'lotes-title':'Packs purchased','precio-album-title':'Album price','gasto-album-lbl':'Album',
+    'sync-modal-title':'Sync devices',
+    'qr-confirm-title':'Confirm the trade',
+    'import-app-hint':'In the other app, export or copy your sticker list (the one showing <strong>"Missing"</strong> and <strong>"Duplicates"</strong>) and paste it below. Your album will have the same missing and duplicate stickers.',
+    'import-app-ph':'Paste your sticker list from the other app here…',
+    'import-app-do':'✅ Import to album',
+    'import-app-warn':'⚠️ This replaces the current state of your album with the imported one.',
+    'modal-album-title':'My World Cup Album',
+    'btn-wa-miss':'📲 Share on WhatsApp',
+    'toast-exported':'List exported','toast-autosave-on':'Auto-save active','toast-unlinked':'Unlinked',
+    'toast-miss-copied':'Missing stickers copied!','toast-dup-copied':'Duplicates copied!','toast-no-copy':'Could not copy',
+    'toast-imported':'Imported','toast-reset':'Album reset',
+    'toast-locked':'🔒 Album locked','toast-unlocked':'🔓 Unlocked',
+    'toast-sync-off':'✕ Sync disabled','toast-synced':'Synced!',
+    'toast-code-copied':'Code copied','toast-invalid-code':'Invalid code',
+    'toast-trade-confirmed':'Trade confirmed with','toast-trade-cancelled':'Trade cancelled',
+    'toast-trade-saved':'Trade saved','toast-trade-updated':'Trade updated',
+    'toast-trade-applied':'Trade applied!',
+    'toast-no-friend':"Enter your friend's name",'toast-no-stickers':'Add at least one sticker',
+    'toast-copied':'Copied! Paste it wherever you want',
+    'toast-no-miss':'🎉 No missing stickers!','toast-no-miss-wa':'No missing stickers',
+    'wa-miss-header':'🏆 My World Cup Album 2026\n📋 Missing stickers:\n',
+    'wa-miss-footer':'missing',
     'card-gasto':'Sticker spending','card-progreso':'Progress over time',
     'btn-manual':'📖 User guide',
     'tab-stats':'📊 Statistics','tab-howto':'📖 How to use','sm-progress':'Album progress',
@@ -2003,7 +2055,13 @@ const I18N = {
     'manual-html':'<p style="font-family:\'Archivo Black\',sans-serif;font-size:13px;color:var(--ink);margin-bottom:12px">How to use My World Cup Album?</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">Add sticker:</strong> Tap it once.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">Remove sticker:</strong> Hold 500ms (mobile) or right-click (PC).</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">Colors:</strong><br>· Beige = missing<br>· Green = placed<br>· Gold = duplicate<br>· White = reserved to give in a trade<br>· Blue = reserved to receive in a trade</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">🔄 Trade by QR:</strong> Show your QR or share it on WhatsApp. Your friend scans it and instantly sees which stickers you can swap.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">📷 Scan Stickers:</strong> Take a photo of your stickers and the app detects the codes automatically. Check the ones you want to add and tap <em>Mark as Received</em>.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">📌 Agreed Trades:</strong> Save trades agreed with friends to reserve stickers until the exchange is completed.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">☁ Sync:</strong> Sync across devices using a room code.</p><div style="margin-bottom:20px;padding:10px 12px;background:#f0e8ff;border:1.5px solid #7546b0;border-left:4px solid #7546b0"><strong style="color:#7546b0;font-family:\'Archivo Black\',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.06em">📲 NEW! Import from another App</strong><p style="margin-top:6px;margin-bottom:0;color:#4a2680;line-height:1.6">Already have your stickers in another app? Import them with one tap — without losing anything you already entered here.</p></div><div style="padding-top:16px;border-top:1px dashed var(--rule)"><p style="font-family:\'Archivo Black\',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;color:var(--ink)">Found a bug?</p><button id="reportarBtn" class="btn" style="width:100%;background:#25d366;border-color:#1ebe5d;color:#fff;font-size:12px">📲 Report on WhatsApp</button></div><div style="margin-top:20px;padding-top:16px;border-top:1px dashed var(--rule)"><p style="font-family:\'Archivo Black\',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;color:var(--ink)">🔒 Privacy Policy</p><p style="font-size:12px;color:var(--ink);opacity:.8;line-height:1.5;margin-bottom:6px">All your data (stickers, packs, trades) is saved <strong>locally on your device</strong>. This app does not collect or send any personal information to any server.</p><p style="font-size:12px;color:var(--ink);opacity:.8;line-height:1.5;margin-bottom:6px">The <strong>Sync</strong> feature uses Firebase solely to sync your data between devices when you voluntarily enable it. No personally identifiable data is stored.</p><p style="font-size:12px;color:var(--ink);opacity:.8;line-height:1.5">Made by <strong>DRB ELECTRO</strong> · 2026</p></div>',
   }
 };
-let currentLang = localStorage.getItem('lang') || 'es';
+function _detectLang(){
+  const saved = localStorage.getItem('lang');
+  if(saved) return saved;
+  const bl = (navigator.language || 'es').toLowerCase();
+  return bl.startsWith('es') ? 'es' : 'en';
+}
+let currentLang = _detectLang();
 
 function setLang(lang) {
   currentLang = lang;
@@ -2051,6 +2109,11 @@ function setLang(lang) {
   if(typeof refreshAllStickers==='function') refreshAllStickers();
   if(typeof calcGasto==='function') calcGasto();
   if(typeof updateAutosaveUI==='function') updateAutosaveUI();
+  if(typeof renderLotes==='function') renderLotes();
+  if(typeof renderLotesModal==='function') renderLotesModal();
+  // Re-lock label
+  const _lb = document.getElementById('lockBtn');
+  if(_lb){ const _lbl=_lb.querySelector('.lbl'); if(_lbl && typeof locked!=='undefined') _lbl.textContent = locked ? d['btn-locked'] : d['btn-lock']; }
 }
 
 // ===== DATA =====
@@ -2324,10 +2387,11 @@ function renderLotes(){
   (state.lotes||[]).forEach((lote,i)=>{
     const row=document.createElement('div');
     row.className='lote-row';
-    row.innerHTML=`<input type="number" class="lote-qty" min="0" placeholder="Cant." value="${lote.qty||''}">
-      <span class="lote-sep">paq a $</span>
-      <input type="number" class="lote-price" min="0" placeholder="Precio" value="${lote.price||''}">
-      <button class="lote-del" data-i="${i}" title="Quitar">✕</button>`;
+    const _ld = I18N[currentLang];
+    row.innerHTML=`<input type="number" class="lote-qty" min="0" placeholder="${_ld['lote-qty-ph']}" value="${lote.qty||''}">
+      <span class="lote-sep">${_ld['lote-sep']}</span>
+      <input type="number" class="lote-price" min="0" placeholder="${_ld['lote-price-ph']}" value="${lote.price||''}">
+      <button class="lote-del" data-i="${i}" title="${_ld['lote-del-title']}">✕</button>`;
     row.querySelector('.lote-qty').addEventListener('input',e=>{
       state.lotes[i].qty=+e.target.value||0; saveData(); calcGasto();
     });
@@ -2780,7 +2844,7 @@ function exportarTxt(){
   a.href = url; a.download = `album_mundial_2026_lista_${fecha}.txt`;
   document.body.appendChild(a); a.click();
   setTimeout(()=>{URL.revokeObjectURL(url);a.remove()}, 100);
-  showToast('Lista exportada');
+  showToast(I18N[currentLang]['toast-exported']);
 }
 document.getElementById('exportTxtBtn').addEventListener('click', exportarTxt);
 
@@ -2806,13 +2870,34 @@ function generarRepetidas(){
   return lines.join('\n');
 }
 document.getElementById('copyFaltantesBtn').addEventListener('click', async ()=>{
-  try{ await navigator.clipboard.writeText(generarFaltantes()); showToast('¡Faltantes copiadas!'); }
-  catch(e){ showToast('No se pudo copiar'); }
+  try{ await navigator.clipboard.writeText(generarFaltantes()); showToast(I18N[currentLang]['toast-miss-copied']); }
+  catch(e){ showToast(I18N[currentLang]['toast-no-copy']); }
 });
 document.getElementById('copyRepetidasBtn').addEventListener('click', async ()=>{
-  try{ await navigator.clipboard.writeText(generarRepetidas()); showToast('¡Repetidas copiadas!'); }
-  catch(e){ showToast('No se pudo copiar'); }
+  try{ await navigator.clipboard.writeText(generarRepetidas()); showToast(I18N[currentLang]['toast-dup-copied']); }
+  catch(e){ showToast(I18N[currentLang]['toast-no-copy']); }
 });
+
+// ===== COMPARTIR FALTANTES POR WHATSAPP =====
+function compartirFaltantesWA(){
+  const d = I18N[currentLang];
+  const isEn = currentLang === 'en';
+  const lines = [d['wa-miss-header']];
+  let total = 0;
+  SECTIONS.forEach(sec=>{
+    const ids = getIds(sec);
+    const missing = ids.filter(id=>(state.stickers[id]||0)===0 && !recibirReservado(id));
+    if(missing.length){
+      total += missing.length;
+      const secName = (isEn && COUNTRY_NAMES_EN[sec.id]) ? COUNTRY_NAMES_EN[sec.id] : sec.name;
+      lines.push('*'+secName+':* '+missing.map(formatStickerLabel).join(' - '));
+    }
+  });
+  if(total === 0){ showToast(d['toast-no-miss']); return; }
+  lines.push('\n_Total: '+total+' '+d['wa-miss-footer']+'_');
+  window.open('https://wa.me/?text='+encodeURIComponent(lines.join('\n')),'_blank');
+}
+document.getElementById('waFaltantesBtn').addEventListener('click', compartirFaltantesWA);
 
 // ===== IMPORT TXT =====
 function parseTxtImport(text){
@@ -2867,7 +2952,7 @@ function parseTxtImport(text){
   recordHistory();
   renderChart();
   calcGasto();
-  showToast('Importado · '+changed+' cambios aplicados');
+  showToast(I18N[currentLang]['toast-imported']+' · '+changed+(currentLang==='en'?' changes':' cambios aplicados'));
 }
 
 document.getElementById('importTxtBtn').addEventListener('click', ()=>{
@@ -2955,7 +3040,7 @@ document.getElementById('importOtraAppDo').addEventListener('click', ()=>{
     msg.style.color = 'var(--red)';
     return;
   }
-  showToast('Importado · ' + res.changed + ' cambios');
+  showToast(I18N[currentLang]['toast-imported']+' · '+res.changed+(currentLang==='en'?' changes':' cambios'));
   document.getElementById('importOtraAppModal').classList.add('hidden');
 });
 
@@ -2979,7 +3064,7 @@ async function pickAutosaveFile(){
     await persistHandle(fileHandle);
     await writeToFile();
     updateAutosaveUI();
-    showToast('Auto-guardado activo');
+    showToast(I18N[currentLang]['toast-autosave-on']);
   }catch(e){
     if(e.name!=='AbortError') alert('No se pudo abrir el archivo: '+e.message);
   }
@@ -3076,7 +3161,7 @@ document.getElementById('autosaveBtn').addEventListener('click', async ()=>{
       fileHandle = null;
       await clearHandle();
       updateAutosaveUI();
-      showToast('Desvinculado');
+      showToast(I18N[currentLang]['toast-unlinked']);
     }, 'Desvincular');
   } else {
     pickAutosaveFile();
@@ -3255,7 +3340,7 @@ function desincronizar(){
       setSyncStatus('Desincronizado', 'var(--ink-soft)');
       document.getElementById('syncCodeDisplay').textContent = '—';
       document.getElementById('syncDesincWrap').style.display = 'none';
-      showToast('✕ Sincronización desactivada');
+      showToast(I18N[currentLang]['toast-sync-off']);
       document.getElementById('syncModal').classList.add('hidden');
     },
     'Desincronizar',
@@ -3413,7 +3498,7 @@ function confirmarCanjePendiente(i){
     state.canjes.splice(i,1);
     saveData(); refreshAllStickers(); updateStats(); calcGasto(); recordHistory(); renderChart();
     renderCanjesPendientesList(); updateCanjesPendientesBtn();
-    showToast('✓ Cambio confirmado con '+cj.nombre);
+    showToast('✓ '+I18N[currentLang]['toast-trade-confirmed']+' '+cj.nombre);
   }, 'Confirmar', 'var(--green)');
 }
 
@@ -3424,7 +3509,7 @@ function cancelarCanjePendiente(i){
     state.canjes.splice(i,1);
     saveData(); refreshAllStickers(); updateCanjesPendientesBtn();
     renderCanjesPendientesList();
-    showToast('Cambio cancelado');
+    showToast(I18N[currentLang]['toast-trade-cancelled']);
   }, 'Cancelar cambio');
 }
 
@@ -3446,10 +3531,10 @@ function abrirEditCanje(i){
 
 document.getElementById('ecGuardar').addEventListener('click',()=>{
   const nombre = document.getElementById('ecNombre').value.trim();
-  if(!nombre){ showToast('Ingresá el nombre del amigo'); return; }
+  if(!nombre){ showToast(I18N[currentLang]['toast-no-friend']); return; }
   const dar     = [...ecDarSel];
   const recibir = [...ecRecibirSel];
-  if(!dar.length && !recibir.length){ showToast('Agregá al menos una figurita'); return; }
+  if(!dar.length && !recibir.length){ showToast(I18N[currentLang]['toast-no-stickers']); return; }
 
   // Si edita, liberar stickers viejos primero
   if(editCanjeId){
@@ -3472,7 +3557,7 @@ document.getElementById('ecGuardar').addEventListener('click',()=>{
   saveData(); refreshAllStickers(); updateCanjesPendientesBtn();
   renderCanjesPendientesList();
   document.getElementById('editCanjeModal').classList.add('hidden');
-  showToast(editCanjeId ? 'Cambio actualizado' : 'Cambio guardado');
+  showToast(I18N[currentLang][editCanjeId ? 'toast-trade-updated' : 'toast-trade-saved']);
   editCanjeId=null;
 });
 
@@ -3496,9 +3581,9 @@ const lockBtn = document.getElementById('lockBtn');
 lockBtn.addEventListener('click', ()=>{
   locked = !locked;
   const lbl = lockBtn.querySelector('.lbl');
-  if(lbl) lbl.textContent = locked ? 'Bloqueado' : 'Bloquear';
+  if(lbl) lbl.textContent = locked ? I18N[currentLang]['btn-locked'] : I18N[currentLang]['btn-lock'];
   document.body.classList.toggle('album-locked', locked);
-  showToast(locked ? '🔒 Álbum bloqueado' : '🔓 Desbloqueado');
+  showToast(locked ? I18N[currentLang]['toast-locked'] : I18N[currentLang]['toast-unlocked']);
 });
 
 // ===== CANJE RÁPIDO =====
@@ -3559,13 +3644,13 @@ document.getElementById('syncGenCode').addEventListener('click', async()=>{
 document.getElementById('syncCopyCode').addEventListener('click',()=>{
   const code = document.getElementById('syncCodeDisplay').textContent;
   if(code && code !== '—')
-    navigator.clipboard.writeText(code).then(()=>showToast('Código copiado'));
+    navigator.clipboard.writeText(code).then(()=>showToast(I18N[currentLang]['toast-code-copied']));
 });
 
 // Conectar desde otro dispositivo
 document.getElementById('syncConnectBtn').addEventListener('click', async()=>{
   const id = document.getElementById('syncCodeInput').value.trim().toUpperCase();
-  if(id.length < 4){ showToast('Código inválido'); return; }
+  if(id.length < 4){ showToast(I18N[currentLang]['toast-invalid-code']); return; }
   setSyncStatus('Conectando…','var(--gold-deep)');
   try{
     const file = await fbRead(id);
@@ -3577,7 +3662,7 @@ document.getElementById('syncConnectBtn').addEventListener('click', async()=>{
     document.getElementById('syncCodeInput').value = '';
     startSyncPoll();
     setSyncStatus('☁ Conectado y sincronizado','var(--green)');
-    showToast('¡Sincronizado!');
+    showToast(I18N[currentLang]['toast-synced']);
   }catch(e){ setSyncStatus('Error: '+e.message,'var(--red)'); }
 });
 
@@ -3668,7 +3753,7 @@ let lastCanjeData = {dar:[], recibir:[]};
 
 function runCanje(code){
   const friendS = decodeCanjeState(code);
-  if(!friendS){ showToast('Código inválido'); return; }
+  if(!friendS){ showToast(I18N[currentLang]['toast-invalid-code']); return; }
   lastCanjeData = computeCanje(state.stickers, friendS);
   const {dar, recibir} = lastCanjeData;
   const nDar     = renderCanjeList(document.getElementById('canjeDar'), dar);
@@ -3742,12 +3827,12 @@ function applyCanjeConfirm(){
   saveData(); refreshAllStickers(); updateStats(); calcGasto(); renderChart(); recordHistory();
   document.getElementById('canjeConfirmModal').classList.add('hidden');
   document.getElementById('canjeModal').classList.add('hidden');
-  showToast('¡Intercambio aplicado!');
+  showToast(I18N[currentLang]['toast-trade-applied']);
 }
 
 function saveCanjeComoFuturo(){
   const nombre = document.getElementById('canjeConfirmNombre').value.trim();
-  if(!nombre){ showToast('Ingresá el nombre del amigo'); return; }
+  if(!nombre){ showToast(I18N[currentLang]['toast-no-friend']); return; }
   const cj = {
     id: Date.now().toString(36),
     nombre,
@@ -3930,7 +4015,7 @@ document.getElementById('canjeShareMyCode').addEventListener('click',()=>{
   txt += seccionesToTxt(dar,     '📤 *Yo te doy:*');
   txt += seccionesToTxt(recibir, '📥 *Yo necesito:*');
   txt += document.getElementById('canjeSummary')?.textContent||'';
-  navigator.clipboard.writeText(txt).then(()=>showToast('¡Copiado! Pegalo donde quieras'));
+  navigator.clipboard.writeText(txt).then(()=>showToast(I18N[currentLang]['toast-copied']));
 });
 // Auto-open canje modal if page loaded with a friend's link
 if(location.hash.startsWith('#canje=')){
@@ -3991,10 +4076,11 @@ function renderLotesModal(){
   (state.lotes||[]).forEach((lote,i)=>{
     const row=document.createElement('div');
     row.className='lote-row';
-    row.innerHTML=`<input type="number" class="lote-qty" min="0" placeholder="Cant." value="${lote.qty||''}">
-      <span class="lote-sep">paq a $</span>
-      <input type="number" class="lote-price" min="0" placeholder="Precio" value="${lote.price||''}">
-      <button class="lote-del" data-i="${i}" title="Quitar">✕</button>`;
+    const _ldm = I18N[currentLang];
+    row.innerHTML=`<input type="number" class="lote-qty" min="0" placeholder="${_ldm['lote-qty-ph']}" value="${lote.qty||''}">
+      <span class="lote-sep">${_ldm['lote-sep']}</span>
+      <input type="number" class="lote-price" min="0" placeholder="${_ldm['lote-price-ph']}" value="${lote.price||''}">
+      <button class="lote-del" data-i="${i}" title="${_ldm['lote-del-title']}">✕</button>`;
     row.querySelector('.lote-qty').addEventListener('input',e=>{
       state.lotes[i].qty=+e.target.value||0; saveData(); calcGasto();
     });
@@ -4200,7 +4286,7 @@ document.getElementById('resetBtn').addEventListener('click',()=>{
   showConfirm('Resetear álbum', 'Se van a borrar todas las figuritas pegadas, repetidas y cambios.', ()=>{
     showConfirm('⚠️ Última confirmación', '¿Estás seguro? Esta acción no se puede deshacer.', ()=>{
       state=defaultData(); saveData(); refreshAllStickers(); updateStats(); calcGasto(); renderChart();
-      showToast('Álbum reseteado');
+      showToast(I18N[currentLang]['toast-reset']);
     }, 'Sí, resetear');
   }, 'Continuar');
 });
