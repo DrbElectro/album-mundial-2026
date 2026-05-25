@@ -540,11 +540,16 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 
 /* toast */
 .toast{
-  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
-  background:var(--ink);color:var(--paper);padding:10px 16px;
+  position:fixed;
+  /* suma la altura de los botones digitales de Android (--safe-bottom) */
+  bottom:calc(24px + var(--safe-bottom, 0px));
+  left:50%;transform:translateX(-50%);
+  background:var(--ink);color:var(--paper);padding:10px 18px;
   font-family:'Archivo Black',sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
   border:1px solid var(--ink);box-shadow:3px 3px 0 var(--red);z-index:50;
   opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;
+  /* evita que mensajes largos se corten en los bordes */
+  max-width:88vw;text-align:center;white-space:normal;word-break:break-word;
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
 
