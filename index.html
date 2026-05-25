@@ -1558,15 +1558,6 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
         <button id="resetBtn" class="btn ghost" style="font-size:10px;color:var(--ink-soft);border-color:var(--rule);padding:6px 16px">🗑 Resetear álbum</button>
       </div>
 
-      <!-- TEST PROVISIONAL — solo para probar el modal de álbum completo -->
-      <div style="margin-top:10px;text-align:center">
-        <button id="testCompletoBtn" style="
-          background:#2f7a3e;color:#fff;border:none;cursor:pointer;
-          font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;
-          padding:7px 16px;opacity:.75;
-        ">🧪 TEST · Completar todo</button>
-      </div>
-
       <div class="foot">
         <div>© Mi Álbum Mundial 2026 · 48 selecciones · 994 figuritas</div>
         <div>Realizado por DRB ELECTRO</div>
@@ -4123,20 +4114,6 @@ function updateStatsModal(){
 }
 
 // Reset
-// ===== TEST PROVISIONAL — completar todo el álbum =====
-document.getElementById('testCompletoBtn').addEventListener('click',()=>{
-  SECTIONS.forEach(sec => getIds(sec).forEach(id => { state.stickers[id] = 1; }));
-  saveData();
-  refreshAllStickers();
-  updateStats();
-  calcGasto();
-  renderChart();
-  recordHistory();
-  popConfetti();
-  setTimeout(popConfetti, 500);
-  setTimeout(popConfetti, 1100);
-  setTimeout(showAlbumCompleto, 800);
-});
 
 // ===== MODAL ÁLBUM COMPLETO =====
 function showAlbumCompleto(){
@@ -5019,6 +4996,54 @@ if('serviceWorker' in navigator){
 // Aplicar idioma guardado al cargar (I18N definido al inicio del script)
 setLang(currentLang);
 
+</script>
+
+<!-- ===== Botón scroll-to-top ===== -->
+<button id="scrollTopBtn" aria-label="Volver arriba" title="Volver arriba">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M18 15l-6-6-6 6"/>
+  </svg>
+</button>
+
+<style>
+#scrollTopBtn{
+  position:fixed;
+  bottom:calc(24px + var(--safe-bottom, 0px));
+  right:18px;
+  z-index:200;
+  width:44px;height:44px;
+  background:var(--ink);
+  color:var(--paper);
+  border:2px solid var(--paper);
+  border-radius:0;
+  box-shadow:3px 3px 0 rgba(0,0,0,.25);
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;
+  pointer-events:none;
+  transform:translateY(12px);
+  transition:opacity .22s, transform .22s;
+}
+#scrollTopBtn.visible{
+  opacity:1;
+  pointer-events:auto;
+  transform:translateY(0);
+}
+#scrollTopBtn svg{ width:20px;height:20px; }
+#scrollTopBtn:hover{ background:var(--wc-blue-dark); border-color:var(--wc-blue-dark); }
+#scrollTopBtn:active{ transform:translateY(2px); }
+</style>
+
+<script>
+(function(){
+  const btn = document.getElementById('scrollTopBtn');
+  window.addEventListener('scroll', ()=>{
+    btn.classList.toggle('visible', window.scrollY > 400);
+  }, {passive:true});
+  btn.addEventListener('click', ()=>{
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+})();
 </script>
 
 </body>
