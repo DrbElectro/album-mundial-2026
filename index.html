@@ -555,6 +555,95 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 
 /* confetti container */
 .confetti{position:fixed;inset:0;pointer-events:none;z-index:40;overflow:hidden}
+
+/* ===== Modal Álbum Completo ===== */
+.album-completo-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.88);
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;z-index:200;
+  opacity:0;pointer-events:none;
+  transition:opacity .35s;
+}
+.album-completo-overlay.show{opacity:1;pointer-events:all}
+.album-completo-modal{
+  width:min(420px,92vw);
+  background:linear-gradient(160deg,#0d0c0a 0%,#1a1814 40%,#0f1a2e 100%);
+  border:1px solid #c89a3a;
+  box-shadow:0 0 0 1px #8c6614,0 0 50px rgba(200,154,58,.35),6px 6px 0 #c89a3a;
+  position:relative;overflow:hidden;padding:36px 28px 28px;
+  transform:translateY(20px);transition:transform .35s;
+}
+.album-completo-overlay.show .album-completo-modal{transform:translateY(0)}
+.album-completo-modal::before{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 300px 200px at 50% 0%,rgba(200,154,58,.18),transparent 70%),
+    radial-gradient(ellipse 200px 200px at 20% 100%,rgba(56,120,192,.12),transparent 60%),
+    radial-gradient(ellipse 200px 200px at 80% 100%,rgba(47,122,62,.1),transparent 60%);
+  pointer-events:none;
+}
+.ac-stars{
+  display:flex;align-items:center;justify-content:center;gap:14px;
+  position:absolute;top:14px;left:50%;transform:translateX(-50%);white-space:nowrap;
+}
+.ac-star-md{font-size:16px;color:rgba(200,154,58,.55);line-height:1}
+.ac-star-lg{font-size:28px;color:rgba(200,154,58,.8);line-height:1;filter:drop-shadow(0 0 6px rgba(200,154,58,.6))}
+.ac-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:16px}
+.ac-tag{
+  font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;
+  color:#c89a3a;border:1px solid #c89a3a;padding:3px 14px;
+  letter-spacing:.25em;text-transform:uppercase;margin-top:10px;
+}
+.ac-title{
+  font-family:'Black Ops One',sans-serif;font-size:46px;line-height:.92;
+  text-align:center;letter-spacing:.02em;
+  background:linear-gradient(180deg,#f0c038 0%,#c89a3a 55%,#8c6614 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 18px rgba(240,192,56,.35));
+}
+.ac-trophy-wrap{
+  width:200px;height:200px;
+  display:flex;align-items:center;justify-content:center;position:relative;
+}
+.ac-trophy-wrap::before{
+  content:"";position:absolute;inset:20px;border-radius:50%;
+  background:radial-gradient(circle,rgba(200,154,58,.22) 0%,transparent 70%);
+}
+.ac-trophy{
+  width:185px;height:185px;object-fit:contain;
+  filter:drop-shadow(0 0 18px rgba(200,154,58,.8)) drop-shadow(0 0 6px rgba(200,154,58,.5));
+  position:relative;z-index:1;
+}
+.ac-rule{width:100px;height:1px;background:linear-gradient(90deg,transparent,#c89a3a,transparent)}
+.ac-sub{
+  font-family:'Archivo Black',sans-serif;font-size:20px;text-transform:uppercase;
+  letter-spacing:.07em;
+  background:linear-gradient(90deg,#5fb4e0,#ffffff,#5fb4e0);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  text-align:center;line-height:1.25;
+}
+.ac-meta{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:rgba(200,154,58,.55);letter-spacing:.12em;
+  text-transform:uppercase;text-align:center;
+}
+.ac-btns{display:flex;gap:10px;width:100%;margin-top:4px}
+.ac-btn-main{
+  flex:1;
+  background:linear-gradient(90deg,#c89a3a,#f0c038,#c89a3a);
+  color:#0d0c0a;border:none;cursor:pointer;
+  font-family:'Archivo Black',sans-serif;font-size:12px;
+  text-transform:uppercase;letter-spacing:.1em;padding:13px;
+  transition:opacity .15s;
+}
+.ac-btn-main:hover{opacity:.88}
+.ac-btn-sec{
+  background:none;border:1px solid rgba(200,154,58,.35);
+  color:rgba(200,154,58,.65);cursor:pointer;
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  letter-spacing:.1em;padding:13px 18px;transition:opacity .15s;
+}
+.ac-btn-sec:hover{opacity:.7}
 .confetti i{
   position:absolute;width:8px;height:12px;top:-20px;
   animation:fall linear forwards;
@@ -1709,6 +1798,31 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 <div class="toast" id="toast">¡Pegada!</div>
 <div class="confetti" id="confetti"></div>
 
+<!-- ===== Modal Álbum Completo ===== -->
+<div class="album-completo-overlay" id="albumCompletoOverlay">
+  <div class="album-completo-modal">
+    <div class="ac-stars">
+      <span class="ac-star-md">★</span>
+      <span class="ac-star-lg">★</span>
+      <span class="ac-star-md">★</span>
+    </div>
+    <div class="ac-content">
+      <span class="ac-tag">FIFA World Cup 2026</span>
+      <div class="ac-title">¡Felicitaciones!</div>
+      <div class="ac-trophy-wrap">
+        <img class="ac-trophy" src="trofeo.png" alt="Trofeo Mundial">
+      </div>
+      <div class="ac-rule"></div>
+      <div class="ac-sub">¡Lo lograste!<br>Álbum lleno 🎉</div>
+      <div class="ac-meta">994 figuritas · 48 selecciones</div>
+      <div class="ac-btns">
+        <button class="ac-btn-main" id="acCompartir">🥳 Compartir logro</button>
+        <button class="ac-btn-sec" id="acCerrar">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- FAB (solo mobile) -->
 <button class="fab" id="fabBtn" title="Estadísticas">📊</button>
 
@@ -2250,8 +2364,8 @@ function incSticker(id, el, sec){
   // album fully complete
   const totalOwned = computeStats().owned;
   if(totalOwned===TOTAL && before===0){
-    showToast('🏆 ¡ÁLBUM COMPLETO!');
     popConfetti();setTimeout(popConfetti,500);setTimeout(popConfetti,1100);
+    setTimeout(showAlbumCompleto, 800);
   }
 }
 let _lastDecId = null, _lastDecTime = 0;
@@ -3698,6 +3812,27 @@ function updateStatsModal(){
 }
 
 // Reset
+// ===== MODAL ÁLBUM COMPLETO =====
+function showAlbumCompleto(){
+  document.getElementById('albumCompletoOverlay').classList.add('show');
+}
+document.getElementById('acCerrar').addEventListener('click',()=>{
+  document.getElementById('albumCompletoOverlay').classList.remove('show');
+});
+document.getElementById('albumCompletoOverlay').addEventListener('click',(e)=>{
+  if(e.target===e.currentTarget) e.currentTarget.classList.remove('show');
+});
+document.getElementById('acCompartir').addEventListener('click',async()=>{
+  const s = computeStats();
+  const msg = `🏆 ¡Completé mi Álbum del Mundial 2026!\n✅ ${s.owned} figuritas pegadas · ${s.total} en total\n🔗 https://drbelectro.github.io/album-mundial-2026/`;
+  if(navigator.share){
+    try{ await navigator.share({title:'Mi Álbum Mundial 2026',text:msg}); return; }
+    catch(e){ if(e.name==='AbortError') return; }
+  }
+  const wa = 'https://wa.me/?text='+encodeURIComponent(msg);
+  window.open(wa,'_blank');
+});
+
 document.getElementById('resetBtn').addEventListener('click',()=>{
   showConfirm('Resetear álbum', 'Se van a borrar todas las figuritas pegadas, repetidas y cambios.', ()=>{
     showConfirm('⚠️ Última confirmación', '¿Estás seguro? Esta acción no se puede deshacer.', ()=>{
