@@ -2861,30 +2861,53 @@ function generarRepetidas(){
 }
 // ===== ENVIAR POR WHATSAPP =====
 function _waEnviar(tipo){
-  const d = I18N[currentLang];
   const isEn = currentLang === 'en';
   const esFaltantes = tipo === 'miss';
-  const lines = [];
-  const header = esFaltantes ? d['wa-miss-header'] : (isEn ? '🏆 My World Cup Album 2026\n🔄 Duplicates:\n' : '🏆 Mi Álbum Mundial 2026\n🔄 Tengo de más:\n');
-  lines.push(header);
+
+  // Línea 1: título
+  const titulo = isEn ? 'My World Cup Album 2026' : 'Mi Álbum Mundial 2026';
+  // Línea 2: subtítulo
+  const subtitulo = esFaltantes
+    ? (isEn ? 'Missing stickers:' : 'Me faltan:')
+    : (isEn ? 'I have duplicates:' : 'Tengo Repetidas:');
+  // Pie
+  const footerLbl = esFaltantes
+    ? (isEn ? 'Missing' : 'faltantes')
+    : (isEn ? 'Duplicates' : 'Repetidas');
+
+  const secLines = [];
   let total = 0;
+
   SECTIONS.forEach(sec=>{
     const ids = getIds(sec);
     const secName = (isEn && COUNTRY_NAMES_EN[sec.id]) ? COUNTRY_NAMES_EN[sec.id] : sec.name;
     let items;
     if(esFaltantes){
-      items = ids.filter(id=>(state.stickers[id]||0)===0 && !recibirReservado(id)).map(formatStickerLabel);
+      items = ids
+        .filter(id=>(state.stickers[id]||0)===0 && !recibirReservado(id))
+        .map(formatStickerLabel);
     } else {
       items = ids.map(id=>{
         const extras = Math.max(0,(state.stickers[id]||0)-1-darReservadoCount(id));
-        return extras>0 ? (extras>1?`${formatStickerLabel(id)} (${extras})`:formatStickerLabel(id)) : null;
+        return extras > 0 ? formatStickerLabel(id) : null;
       }).filter(Boolean);
     }
-    if(items.length){ total += items.length; lines.push('*'+secName+':* '+items.join(' - ')); }
+    if(items.length){
+      total += items.length;
+      secLines.push('*' + secName + ':* ' + items.join(' - '));
+    }
   });
-  if(total === 0){ showToast(d['toast-no-miss']); return; }
-  lines.push('\n_Total: '+total+' '+d['wa-miss-footer']+'_');
-  window.open('https://wa.me/?text='+encodeURIComponent(lines.join('\n')),'_blank');
+
+  if(total === 0){
+    showToast(I18N[currentLang]['toast-no-miss']);
+    return;
+  }
+
+  const msg = titulo + '\n' + subtitulo + '\n\n'
+    + secLines.join('\n')
+    + '\n\nTotal: ' + total + ' ' + footerLbl;
+
+  window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
 }
 document.getElementById('waEnviarFaltantesBtn').addEventListener('click', ()=>_waEnviar('miss'));
 document.getElementById('waEnviarRepetidasBtn').addEventListener('click', ()=>_waEnviar('dup'));
