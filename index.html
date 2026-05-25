@@ -2026,6 +2026,20 @@ function setLang(lang) {
     const rb=document.getElementById('reportarBtn');
     if(rb && typeof bindReportarBtn==='function') bindReportarBtn(rb);
   }
+  // Actualizar nombres de países en secciones ya renderizadas
+  document.querySelectorAll('.sec-title[data-sec-id]').forEach(el => {
+    const id = el.getAttribute('data-sec-id');
+    el.textContent = (lang==='en' && COUNTRY_NAMES_EN[id]) ? COUNTRY_NAMES_EN[id] : (SECTIONS.find(s=>s.id===id)||{name:id}).name;
+  });
+  // Actualizar "X figuritas / X stickers" en cabeceras de sección
+  document.querySelectorAll('[data-role="sec-label"]').forEach(el => {
+    const wrap = el.closest('.section');
+    if(!wrap) return;
+    const sec = SECTIONS.find(s=>s.id===wrap.dataset.id);
+    if(!sec) return;
+    const count = el.getAttribute('data-count');
+    el.textContent = sec.id + ' · ' + count + ' ' + d['stickers'];
+  });
   if(typeof refreshAllStickers==='function') refreshAllStickers();
   if(typeof calcGasto==='function') calcGasto();
 }
@@ -2339,8 +2353,8 @@ function buildSectionDOM(sec){
   head.innerHTML = `
     <div class="flag">${flagFor(sec)}</div>
     <div>
-      <div class="sec-id">${sec.id} · ${ids.length} ${I18N[currentLang]['stickers']}</div>
-      <div class="sec-title">${currentLang==='en' && COUNTRY_NAMES_EN[sec.id] ? COUNTRY_NAMES_EN[sec.id] : sec.name}</div>
+      <div class="sec-id" data-role="sec-label" data-count="${ids.length}">${sec.id} · ${ids.length} ${I18N[currentLang]['stickers']}</div>
+      <div class="sec-title" data-sec-id="${sec.id}">${currentLang==='en' && COUNTRY_NAMES_EN[sec.id] ? COUNTRY_NAMES_EN[sec.id] : sec.name}</div>
     </div>
     <div class="sec-meta">
       <span class="pct" data-role="pct">0%</span>
