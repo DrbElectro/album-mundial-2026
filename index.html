@@ -1861,12 +1861,12 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
       <button class="modal-close" id="statsClose">✕</button>
     </div>
     <div class="stats-tabs">
-      <button class="stats-tab active" data-tab="estadisticas">📊 Estadísticas</button>
-      <button class="stats-tab" data-tab="manual">📖 Cómo se usa</button>
+      <button class="stats-tab active" data-tab="estadisticas" data-i18n="tab-stats">📊 Estadísticas</button>
+      <button class="stats-tab" data-tab="manual" data-i18n="tab-howto">📖 Cómo se usa</button>
     </div>
     <div class="stats-panel active" id="panel-estadisticas">
       <div style="margin-bottom:18px">
-        <div style="font-family:'Archivo Black',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Progreso del álbum</div>
+        <div style="font-family:'Archivo Black',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px" data-i18n="sm-progress">Progreso del álbum</div>
         <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:6px">
           <span id="sm-pct" style="font-family:'Archivo Black',sans-serif;font-size:40px;line-height:1;letter-spacing:-.03em">0%</span>
           <span id="sm-frac" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-soft)">0 / 994</span>
@@ -2132,10 +2132,14 @@ function calcGasto(){
   const totalGasto = lotes.reduce((s,l)=>s+(+l.qty||0)*(+l.price||0),0)+19000;
   const figs = totalPaq*7;
   document.getElementById('gasto-v').textContent='$'+totalGasto.toLocaleString('es-AR');
-  document.getElementById('gasto-meta').textContent=totalPaq+' paquetes · '+figs+' figuritas recibidas';
+  const isEn = currentLang==='en';
+  document.getElementById('gasto-meta').textContent=isEn
+    ? totalPaq+' packs · '+figs+' stickers received'
+    : totalPaq+' paquetes · '+figs+' figuritas recibidas';
   const owned=computeStats().owned;
   document.getElementById('gasto-cost').textContent=owned>0
-    ?'$'+Math.round(totalGasto/owned).toLocaleString('es-AR')+' por figurita pegada':'';
+    ?(isEn?'$'+Math.round(totalGasto/owned).toLocaleString('es-AR')+' per sticker placed'
+          :'$'+Math.round(totalGasto/owned).toLocaleString('es-AR')+' por figurita pegada'):'';
 }
 function renderLotes(){
   const c=document.getElementById('lotes-container');
@@ -2181,7 +2185,7 @@ function buildSectionDOM(sec){
   head.innerHTML = `
     <div class="flag">${flagFor(sec)}</div>
     <div>
-      <div class="sec-id">${sec.id} · ${ids.length} figuritas</div>
+      <div class="sec-id">${sec.id} · ${ids.length} ${I18N[currentLang]['stickers']}</div>
       <div class="sec-title">${sec.name}</div>
     </div>
     <div class="sec-meta">
@@ -3787,16 +3791,19 @@ calcGasto = function(){
   const gv=document.getElementById('gasto-v');
   const gm=document.getElementById('gasto-meta');
   const gc=document.getElementById('gasto-cost');
+  const _en = currentLang==='en';
+  const _metaTxt = _en ? totalPaq+' packs · '+figs+' stickers received' : totalPaq+' paquetes · '+figs+' figuritas recibidas';
+  const _costTxt = (v) => _en ? '$'+v+' per sticker placed' : '$'+v+' por figurita pegada';
   if(gv) gv.textContent='$'+totalGasto.toLocaleString('es-AR');
-  if(gm) gm.textContent=totalPaq+' paquetes · '+figs+' figuritas recibidas';
+  if(gm) gm.textContent=_metaTxt;
   const owned=computeStats().owned;
-  if(gc) gc.textContent=owned>0?'$'+Math.round(totalGasto/owned).toLocaleString('es-AR')+' por figurita pegada':'';
+  if(gc) gc.textContent=owned>0?_costTxt(Math.round(totalGasto/owned).toLocaleString('es-AR')):'';
   const sv=document.getElementById('sm-gasto-v');
   const sm_=document.getElementById('sm-gasto-meta');
   const sc=document.getElementById('sm-gasto-cost');
   if(sv) sv.textContent='$'+totalGasto.toLocaleString('es-AR');
-  if(sm_) sm_.textContent=totalPaq+' paquetes · '+figs+' figuritas recibidas';
-  if(sc) sc.textContent=owned>0?'$'+Math.round(totalGasto/owned).toLocaleString('es-AR')+' por figurita pegada':'';
+  if(sm_) sm_.textContent=_metaTxt;
+  if(sc) sc.textContent=owned>0?_costTxt(Math.round(totalGasto/owned).toLocaleString('es-AR')):'';
 };
 
 function renderLotesModal(){
@@ -4769,6 +4776,9 @@ const I18N = {
     'card-gasto':    'Gasto en figuritas',
     'card-progreso': 'Progreso en el tiempo',
     'btn-manual':    '📖 Manual de uso',
+    'tab-stats':     '📊 Estadísticas',
+    'tab-howto':     '📖 Cómo se usa',
+    'sm-progress':   'Progreso del álbum',
     'ac-tag':        'FIFA World Cup 2026',
     'ac-title':      '¡Felicitaciones!',
     'ac-sub':        '¡Lo Lograste!!<br>Llenaste Mi Álbum Mundial 2026 🎉',
@@ -4814,6 +4824,9 @@ const I18N = {
     'card-gasto':    'Sticker spending',
     'card-progreso': 'Progress over time',
     'btn-manual':    '📖 User guide',
+    'tab-stats':     '📊 Statistics',
+    'tab-howto':     '📖 How to use',
+    'sm-progress':   'Album progress',
     'ac-tag':        'FIFA World Cup 2026',
     'ac-title':      'Congratulations!',
     'ac-sub':        'You did it!!<br>My World Cup Album 2026 is complete 🎉',
@@ -4857,6 +4870,13 @@ function setLang(lang) {
     const key = el.getAttribute('data-i18n');
     if(d[key] !== undefined) el.textContent = d[key];
   });
+
+  // Re-renderizar secciones para actualizar "X figuritas / X stickers"
+  if(typeof renderAllSections === 'function') renderAllSections();
+  else if(typeof refreshAllStickers === 'function') refreshAllStickers();
+
+  // Recalcular gasto para actualizar textos dinámicos
+  if(typeof calcGasto === 'function') calcGasto();
 }
 
 // Aplicar idioma guardado al cargar
