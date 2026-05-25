@@ -1930,6 +1930,106 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 </div>
 
 <script>
+// =====================================================
+// SISTEMA DE IDIOMAS (i18n) — DEBE estar antes de renderInitial()
+// =====================================================
+const I18N = {
+  es: {
+    'pill':'Edición Coleccionista',
+    'sub':'Mi colección personal — 994 figuritas, 48 selecciones.',
+    'hint-pc':'Click izquierdo para sumar, click derecho para restar.',
+    'hint-mob':'Toque para sumar, mantené presionado para restar.',
+    'hint-save':'El álbum guarda todo localmente.',
+    'progress-lbl':'Progreso total',
+    'stickers':'figuritas',
+    'd-total':'figuritas en el álbum',
+    'lbl-placed':'Pegadas','d-placed':'en su lugar',
+    'lbl-dupes':'Repetidas','d-dupes':'para cambiar',
+    'lbl-miss':'Faltan','d-miss':'por conseguir',
+    'leg-miss':'Falta','leg-own':'Pegada','leg-rep':'Repetida','leg-res':'Cambio pactado',
+    'leg-hint-pc':'Click izquierdo: +1 · Click derecho: −1',
+    'leg-hint-mob':'Toque: +1 · Mantener: −1',
+    'search':'Buscar país, código o número…',
+    'f-all':'Todas','f-miss':'Faltan','f-own':'Pegadas','f-dup':'Repetidas','f-res':'Cambios pactados',
+    's-default':'Orden del álbum','s-pct':'Por completado %',
+    'copy-miss':'Copiar faltantes','copy-dup':'Copiar repetidas',
+    'btn-scan':'Escanear Figus','btn-qr':'Cambio x QR','btn-trades':'Cambios Pactados',
+    'btn-sync':'Sincronizar','btn-import':'Importar de otra App','btn-lock':'Bloquear',
+    'card-gasto':'Gasto en figuritas','card-progreso':'Progreso en el tiempo',
+    'btn-manual':'📖 Manual de uso',
+    'tab-stats':'📊 Estadísticas','tab-howto':'📖 Cómo se usa','sm-progress':'Progreso del álbum',
+    'ac-tag':'FIFA World Cup 2026','ac-title':'¡Felicitaciones!',
+    'ac-sub':'¡Lo Lograste!!<br>Llenaste Mi Álbum Mundial 2026 🎉',
+    'ac-meta':'994 figuritas · 48 selecciones','ac-share':'🥳 Compartir logro',
+    'title-l1':'Mi Álbum','title-l2':'Mundial',
+    'manual-html':'<p style="font-family:\'Archivo Black\',sans-serif;font-size:13px;color:var(--ink);margin-bottom:12px">¿Cómo usar Mi Álbum Mundial?</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">Sumar figurita:</strong> Tocá una vez el sticker.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">Restar figurita:</strong> Mantené presionado 500ms (mobile) o click derecho (PC).</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">Colores:</strong><br>· Beige = falta<br>· Verde = pegada<br>· Dorado = repetida<br>· Blanco = reservada para dar en un cambio pactado<br>· Celeste = reservada para recibir en un cambio pactado</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">🔄 Cambio x QR:</strong> Mostrá tu QR o compartilo por WhatsApp. Tu amigo lo escanea y ven al instante qué figuritas pueden cambiar.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">📷 Escanea Figus:</strong> Fotografiá tus figuritas con la cámara y la app detecta los códigos automáticamente. Tildá las que querés sumar y tocá <em>Marcar Recibidas</em>.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">📌 Cambios Pactados:</strong> Guardá cambios acordados con amigos para reservar esas figuritas hasta concretar el intercambio.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">☁ Sync:</strong> Sincronizá entre dispositivos con un código de sala.</p><div style="margin-bottom:20px;padding:10px 12px;background:#f0e8ff;border:1.5px solid #7546b0;border-left:4px solid #7546b0"><strong style="color:#7546b0;font-family:\'Archivo Black\',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.06em">📲 ¡NUEVO! Importar de otra App</strong><p style="margin-top:6px;margin-bottom:0;color:#4a2680;line-height:1.6">¿Tenés tus figuritas cargadas en otra app? Importalas con un solo toque — sin perder nada de lo que ya tenés acá.</p></div><div style="padding-top:16px;border-top:1px dashed var(--rule)"><p style="font-family:\'Archivo Black\',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;color:var(--ink)">¿Encontraste un problema?</p><button id="reportarBtn" class="btn" style="width:100%;background:#25d366;border-color:#1ebe5d;color:#fff;font-size:12px">📲 Reportar por WhatsApp</button></div><div style="margin-top:20px;padding-top:16px;border-top:1px dashed var(--rule)"><p style="font-family:\'Archivo Black\',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;color:var(--ink)">🔒 Política de Privacidad</p><p style="font-size:12px;color:var(--ink);opacity:.8;line-height:1.5;margin-bottom:6px">Todos tus datos (figuritas, lotes, canjes) se guardan <strong>localmente en tu dispositivo</strong>. Esta app no recopila ni envía información personal a ningún servidor.</p><p style="font-size:12px;color:var(--ink);opacity:.8;line-height:1.5;margin-bottom:6px">La función <strong>Sync</strong> usa Firebase únicamente para sincronizar tus datos entre dispositivos cuando vos lo activás voluntariamente. No se almacena ningún dato personal identificable.</p><p style="font-size:12px;color:var(--ink);opacity:.8;line-height:1.5">Realizado por <strong>DRB ELECTRO</strong> · 2026</p></div>',
+  },
+  en: {
+    'pill':"Collector's Edition",
+    'sub':'My personal collection — 994 stickers, 48 national teams.',
+    'hint-pc':'Left click to add, right click to remove.',
+    'hint-mob':'Tap to add, hold to remove.',
+    'hint-save':'The album saves everything locally.',
+    'progress-lbl':'Total progress',
+    'stickers':'stickers',
+    'd-total':'stickers in the album',
+    'lbl-placed':'Placed','d-placed':'in their spot',
+    'lbl-dupes':'Duplicates','d-dupes':'to trade',
+    'lbl-miss':'Missing','d-miss':'still needed',
+    'leg-miss':'Missing','leg-own':'Placed','leg-rep':'Duplicate','leg-res':'Trade agreed',
+    'leg-hint-pc':'Left click: +1 · Right click: −1',
+    'leg-hint-mob':'Tap: +1 · Hold: −1',
+    'search':'Search country, code or number…',
+    'f-all':'All','f-miss':'Missing','f-own':'Placed','f-dup':'Duplicates','f-res':'Trade agreed',
+    's-default':'Album order','s-pct':'By completion %',
+    'copy-miss':'Copy missing','copy-dup':'Copy duplicates',
+    'btn-scan':'Scan Stickers','btn-qr':'Trade by QR','btn-trades':'Agreed Trades',
+    'btn-sync':'Sync','btn-import':'Import from another App','btn-lock':'Lock',
+    'card-gasto':'Sticker spending','card-progreso':'Progress over time',
+    'btn-manual':'📖 User guide',
+    'tab-stats':'📊 Statistics','tab-howto':'📖 How to use','sm-progress':'Album progress',
+    'ac-tag':'FIFA World Cup 2026','ac-title':'Congratulations!',
+    'ac-sub':'You did it!!<br>My World Cup Album 2026 is complete 🎉',
+    'ac-meta':'994 stickers · 48 national teams','ac-share':'🥳 Share achievement',
+    'title-l1':'My Album','title-l2':'World Cup',
+    'manual-html':'<p style="font-family:\'Archivo Black\',sans-serif;font-size:13px;color:var(--ink);margin-bottom:12px">How to use My World Cup Album?</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">Add sticker:</strong> Tap it once.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">Remove sticker:</strong> Hold 500ms (mobile) or right-click (PC).</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">Colors:</strong><br>· Beige = missing<br>· Green = placed<br>· Gold = duplicate<br>· White = reserved to give in a trade<br>· Blue = reserved to receive in a trade</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">🔄 Trade by QR:</strong> Show your QR or share it on WhatsApp. Your friend scans it and instantly sees which stickers you can swap.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">📷 Scan Stickers:</strong> Take a photo of your stickers and the app detects the codes automatically. Check the ones you want to add and tap <em>Mark as Received</em>.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">📌 Agreed Trades:</strong> Save trades agreed with friends to reserve stickers until the exchange is completed.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">☁ Sync:</strong> Sync across devices using a room code.</p><div style="margin-bottom:20px;padding:10px 12px;background:#f0e8ff;border:1.5px solid #7546b0;border-left:4px solid #7546b0"><strong style="color:#7546b0;font-family:\'Archivo Black\',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.06em">📲 NEW! Import from another App</strong><p style="margin-top:6px;margin-bottom:0;color:#4a2680;line-height:1.6">Already have your stickers in another app? Import them with one tap — without losing anything you already entered here.</p></div><div style="padding-top:16px;border-top:1px dashed var(--rule)"><p style="font-family:\'Archivo Black\',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;color:var(--ink)">Found a bug?</p><button id="reportarBtn" class="btn" style="width:100%;background:#25d366;border-color:#1ebe5d;color:#fff;font-size:12px">📲 Report on WhatsApp</button></div><div style="margin-top:20px;padding-top:16px;border-top:1px dashed var(--rule)"><p style="font-family:\'Archivo Black\',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;color:var(--ink)">🔒 Privacy Policy</p><p style="font-size:12px;color:var(--ink);opacity:.8;line-height:1.5;margin-bottom:6px">All your data (stickers, packs, trades) is saved <strong>locally on your device</strong>. This app does not collect or send any personal information to any server.</p><p style="font-size:12px;color:var(--ink);opacity:.8;line-height:1.5;margin-bottom:6px">The <strong>Sync</strong> feature uses Firebase solely to sync your data between devices when you voluntarily enable it. No personally identifiable data is stored.</p><p style="font-size:12px;color:var(--ink);opacity:.8;line-height:1.5">Made by <strong>DRB ELECTRO</strong> · 2026</p></div>',
+  }
+};
+let currentLang = localStorage.getItem('lang') || 'es';
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('lang', lang);
+  const d = I18N[lang];
+  document.documentElement.lang = lang;
+  const btnEs = document.getElementById('langBtnEs');
+  const btnEn = document.getElementById('langBtnEn');
+  if(btnEs) btnEs.classList.toggle('active', lang==='es');
+  if(btnEn) btnEn.classList.toggle('active', lang==='en');
+  const t = document.getElementById('main-title');
+  if(t) t.innerHTML = d['title-l1']+'<em>'+d['title-l2']+' <span class="t-2026">2026</span></em>';
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key=el.getAttribute('data-i18n');
+    if(d[key]!==undefined) el.innerHTML=d[key];
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{
+    const key=el.getAttribute('data-i18n-ph');
+    if(d[key]!==undefined) el.placeholder=d[key];
+  });
+  document.querySelectorAll('select option[data-i18n]').forEach(el=>{
+    const key=el.getAttribute('data-i18n');
+    if(d[key]!==undefined) el.textContent=d[key];
+  });
+  const manualEl=document.getElementById('panel-manual-content');
+  if(manualEl && d['manual-html']){
+    manualEl.innerHTML=d['manual-html'];
+    const rb=document.getElementById('reportarBtn');
+    if(rb && typeof bindReportarBtn==='function') bindReportarBtn(rb);
+  }
+  if(typeof refreshAllStickers==='function') refreshAllStickers();
+  if(typeof calcGasto==='function') calcGasto();
+}
+
 // ===== DATA =====
 const SECTIONS = [
   {id:"FWC",name:"FIFA World Cup",iso:"FWC",nums:["00","FWC1","FWC2","FWC3","FWC4","FWC5","FWC6","FWC7","FWC8","FWC9","FWC10","FWC11","FWC12","FWC13","FWC14","FWC15","FWC16","FWC17","FWC18","FWC19"]},
@@ -4793,185 +4893,7 @@ if('serviceWorker' in navigator){
   }
 })();
 
-// =====================================================
-// SISTEMA DE IDIOMAS (i18n) — Opción A: toggle en página
-// =====================================================
-const I18N = {
-  es: {
-    'pill':          'Edición Coleccionista',
-    'sub':           'Mi colección personal — 994 figuritas, 48 selecciones.',
-    'hint-pc':       'Click izquierdo para sumar, click derecho para restar.',
-    'hint-mob':      'Toque para sumar, mantené presionado para restar.',
-    'hint-save':     'El álbum guarda todo localmente.',
-    'progress-lbl':  'Progreso total',
-    'stickers':      'figuritas',
-    'd-total':       'figuritas en el álbum',
-    'lbl-placed':    'Pegadas',    'd-placed': 'en su lugar',
-    'lbl-dupes':     'Repetidas',  'd-dupes':  'para cambiar',
-    'lbl-miss':      'Faltan',     'd-miss':   'por conseguir',
-    'leg-miss':      'Falta',
-    'leg-own':       'Pegada',
-    'leg-rep':       'Repetida',
-    'leg-res':       'Cambio pactado',
-    'leg-hint-pc':   'Click izquierdo: +1 · Click derecho: −1',
-    'leg-hint-mob':  'Toque: +1 · Mantener: −1',
-    'search':        'Buscar país, código o número…',
-    'f-all':         'Todas',
-    'f-miss':        'Faltan',
-    'f-own':         'Pegadas',
-    'f-dup':         'Repetidas',
-    'f-res':         'Cambios pactados',
-    's-default':     'Orden del álbum',
-    's-pct':         'Por completado %',
-    'copy-miss':     'Copiar faltantes',
-    'copy-dup':      'Copiar repetidas',
-    'btn-scan':      'Escanear Figus',
-    'btn-qr':        'Cambio x QR',
-    'btn-trades':    'Cambios Pactados',
-    'btn-sync':      'Sincronizar',
-    'btn-import':    'Importar de otra App',
-    'btn-lock':      'Bloquear',
-    'card-gasto':    'Gasto en figuritas',
-    'card-progreso': 'Progreso en el tiempo',
-    'btn-manual':    '📖 Manual de uso',
-    'tab-stats':     '📊 Estadísticas',
-    'tab-howto':     '📖 Cómo se usa',
-    'sm-progress':   'Progreso del álbum',
-    'ac-tag':        'FIFA World Cup 2026',
-    'ac-title':      '¡Felicitaciones!',
-    'ac-sub':        '¡Lo Lograste!!<br>Llenaste Mi Álbum Mundial 2026 🎉',
-    'ac-meta':       '994 figuritas · 48 selecciones',
-    'ac-share':      '🥳 Compartir logro',
-    'title-l1':      'Mi Álbum',
-    'title-l2':      'Mundial',
-    'manual-html': `
-      <p style="font-family:'Archivo Black',sans-serif;font-size:13px;color:var(--ink);margin-bottom:12px">How to use My World Cup Album?</p>
-      <p style="margin-bottom:10px"><strong style="color:var(--ink)">Add sticker:</strong> Tap it once.</p>
-      <p style="margin-bottom:10px"><strong style="color:var(--ink)">Remove sticker:</strong> Hold 500ms (mobile) or right-click (PC).</p>
-      <p style="margin-bottom:10px"><strong style="color:var(--ink)">Colors:</strong><br>
-        · Beige = missing<br>· Green = placed<br>· Gold = duplicate<br>· White = reserved to give in a trade<br>· Blue = reserved to receive in a trade
-      </p>
-      <p style="margin-bottom:10px"><strong style="color:var(--ink)">🔄 Trade by QR:</strong> Show your QR or share it on WhatsApp. Your friend scans it and instantly sees which stickers you can swap.</p>
-      <p style="margin-bottom:10px"><strong style="color:var(--ink)">📷 Scan Stickers:</strong> Take a photo of your stickers and the app detects the codes automatically. Check the ones you want to add and tap <em>Mark as Received</em>.</p>
-      <p style="margin-bottom:10px"><strong style="color:var(--ink)">📌 Agreed Trades:</strong> Save trades agreed with friends to reserve stickers until the exchange is completed.</p>
-      <p style="margin-bottom:10px"><strong style="color:var(--ink)">☁ Sync:</strong> Sync across devices using a room code.</p>
-      <div style="margin-bottom:20px;padding:10px 12px;background:#f0e8ff;border:1.5px solid #7546b0;border-left:4px solid #7546b0">
-        <strong style="color:#7546b0;font-family:'Archivo Black',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.06em">📲 NEW! Import from another App</strong>
-        <p style="margin-top:6px;margin-bottom:0;color:#4a2680;line-height:1.6">Already have your stickers in another app? Import them with one tap — without losing anything you've already entered here.</p>
-      </div>
-      <div style="padding-top:16px;border-top:1px dashed var(--rule)">
-        <p style="font-family:'Archivo Black',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;color:var(--ink)">Found a bug?</p>
-        <button id="reportarBtn" class="btn" style="width:100%;background:#25d366;border-color:#1ebe5d;color:#fff;font-size:12px">📲 Report on WhatsApp</button>
-      </div>
-      <div style="margin-top:20px;padding-top:16px;border-top:1px dashed var(--rule)">
-        <p style="font-family:'Archivo Black',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;color:var(--ink)">🔒 Privacy Policy</p>
-        <p style="font-size:12px;color:var(--ink);opacity:.8;line-height:1.5;margin-bottom:6px">All your data (stickers, packs, trades) is saved <strong>locally on your device</strong>. This app does not collect or send any personal information to any server.</p>
-        <p style="font-size:12px;color:var(--ink);opacity:.8;line-height:1.5;margin-bottom:6px">The <strong>Sync</strong> feature uses Firebase solely to sync your data between devices when you voluntarily enable it. No personally identifiable data is stored.</p>
-        <p style="font-size:12px;color:var(--ink);opacity:.8;line-height:1.5">Made by <strong>DRB ELECTRO</strong> · 2026</p>
-      </div>`,
-  },
-  en: {
-    'pill':          "Collector's Edition",
-    'sub':           'My personal collection — 994 stickers, 48 national teams.',
-    'hint-pc':       'Left click to add, right click to remove.',
-    'hint-mob':      'Tap to add, hold to remove.',
-    'hint-save':     'The album saves everything locally.',
-    'progress-lbl':  'Total progress',
-    'stickers':      'stickers',
-    'd-total':       'stickers in the album',
-    'lbl-placed':    'Placed',      'd-placed': 'in their spot',
-    'lbl-dupes':     'Duplicates',  'd-dupes':  'to trade',
-    'lbl-miss':      'Missing',     'd-miss':   'still needed',
-    'leg-miss':      'Missing',
-    'leg-own':       'Placed',
-    'leg-rep':       'Duplicate',
-    'leg-res':       'Trade agreed',
-    'leg-hint-pc':   'Left click: +1 · Right click: −1',
-    'leg-hint-mob':  'Tap: +1 · Hold: −1',
-    'search':        'Search country, code or number…',
-    'f-all':         'All',
-    'f-miss':        'Missing',
-    'f-own':         'Placed',
-    'f-dup':         'Duplicates',
-    'f-res':         'Trade agreed',
-    's-default':     'Album order',
-    's-pct':         'By completion %',
-    'copy-miss':     'Copy missing',
-    'copy-dup':      'Copy duplicates',
-    'btn-scan':      'Scan Stickers',
-    'btn-qr':        'Trade by QR',
-    'btn-trades':    'Agreed Trades',
-    'btn-sync':      'Sync',
-    'btn-import':    'Import from another App',
-    'btn-lock':      'Lock',
-    'card-gasto':    'Sticker spending',
-    'card-progreso': 'Progress over time',
-    'btn-manual':    '📖 User guide',
-    'tab-stats':     '📊 Statistics',
-    'tab-howto':     '📖 How to use',
-    'sm-progress':   'Album progress',
-    'ac-tag':        'FIFA World Cup 2026',
-    'ac-title':      'Congratulations!',
-    'ac-sub':        'You did it!!<br>My World Cup Album 2026 is complete 🎉',
-    'ac-meta':       '994 stickers · 48 national teams',
-    'ac-share':      '🥳 Share achievement',
-    'title-l1':      'My Album',
-    'title-l2':      'World Cup',
-  }
-};
-
-let currentLang = localStorage.getItem('lang') || 'es';
-
-function setLang(lang) {
-  currentLang = lang;
-  localStorage.setItem('lang', lang);
-  const d = I18N[lang];
-  document.documentElement.lang = lang;
-
-  // Botones toggle
-  document.getElementById('langBtnEs').classList.toggle('active', lang === 'es');
-  document.getElementById('langBtnEn').classList.toggle('active', lang === 'en');
-
-  // Título principal
-  const t = document.getElementById('main-title');
-  if(t) t.innerHTML = `${d['title-l1']}<em>${d['title-l2']} <span class="t-2026">2026</span></em>`;
-
-  // Todos los elementos con data-i18n
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    if(d[key] !== undefined) el.innerHTML = d[key];
-  });
-
-  // Placeholders con data-i18n-ph
-  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
-    const key = el.getAttribute('data-i18n-ph');
-    if(d[key] !== undefined) el.placeholder = d[key];
-  });
-
-  // Opciones de select con data-i18n
-  document.querySelectorAll('select option[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    if(d[key] !== undefined) el.textContent = d[key];
-  });
-
-  // Panel "Cómo se usa / How to use"
-  const manualEl = document.getElementById('panel-manual-content');
-  if(manualEl && d['manual-html']) {
-    manualEl.innerHTML = d['manual-html'];
-    // Re-asignar el listener del botón reportar que quedó en el nuevo HTML
-    const rb = document.getElementById('reportarBtn');
-    if(rb && typeof bindReportarBtn === 'function') bindReportarBtn(rb);
-  }
-
-  // Re-renderizar secciones para actualizar "X figuritas / X stickers"
-  if(typeof renderAllSections === 'function') renderAllSections();
-  else if(typeof refreshAllStickers === 'function') refreshAllStickers();
-
-  // Recalcular gasto para actualizar textos dinámicos
-  if(typeof calcGasto === 'function') calcGasto();
-}
-
-// Aplicar idioma guardado al cargar
+// Aplicar idioma guardado al cargar (I18N definido al inicio del script)
 setLang(currentLang);
 
 </script>
