@@ -3847,14 +3847,150 @@ document.getElementById('albumCompletoOverlay').addEventListener('click',(e)=>{
   if(e.target===e.currentTarget) e.currentTarget.classList.remove('show');
 });
 document.getElementById('acCompartir').addEventListener('click',async()=>{
-  const s = computeStats();
-  const msg = `🏆 ¡Completé mi Álbum del Mundial 2026!\n✅ ${s.owned} figuritas pegadas · ${s.total} en total\n🔗 https://drbelectro.github.io/album-mundial-2026/`;
-  if(navigator.share){
-    try{ await navigator.share({title:'Mi Álbum Mundial 2026',text:msg}); return; }
-    catch(e){ if(e.name==='AbortError') return; }
+  // ── Generar imagen compartible con Canvas ──
+  const W = 1080, H = 1080;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  // Fondo degradado oscuro (igual al modal)
+  const bgGrad = ctx.createLinearGradient(0, 0, W*0.6, H);
+  bgGrad.addColorStop(0,   '#0d0c0a');
+  bgGrad.addColorStop(0.4, '#1a1814');
+  bgGrad.addColorStop(1,   '#0f1a2e');
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Brillo dorado superior (radial)
+  const gTop = ctx.createRadialGradient(W/2, 0, 0, W/2, 0, 480);
+  gTop.addColorStop(0,   'rgba(200,154,58,0.28)');
+  gTop.addColorStop(1,   'rgba(200,154,58,0)');
+  ctx.fillStyle = gTop;
+  ctx.fillRect(0, 0, W, H);
+
+  // Brillo azul inferior-izquierda
+  const gBL = ctx.createRadialGradient(0, H, 0, 0, H, 420);
+  gBL.addColorStop(0,   'rgba(56,120,192,0.18)');
+  gBL.addColorStop(1,   'rgba(56,120,192,0)');
+  ctx.fillStyle = gBL;
+  ctx.fillRect(0, 0, W, H);
+
+  // Borde dorado
+  ctx.strokeStyle = '#c89a3a';
+  ctx.lineWidth = 6;
+  ctx.strokeRect(28, 28, W-56, H-56);
+  ctx.strokeStyle = 'rgba(200,154,58,0.35)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(20, 20, W-40, H-40);
+
+  // ── Texto superior: "LO LOGRÉ" ──
+  ctx.save();
+  const topGrad = ctx.createLinearGradient(0, 60, 0, 200);
+  topGrad.addColorStop(0,   '#f0c038');
+  topGrad.addColorStop(0.55,'#c89a3a');
+  topGrad.addColorStop(1,   '#8c6614');
+  ctx.fillStyle = topGrad;
+  ctx.font = 'bold 148px "Arial Black", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  // Sombra glow dorada
+  ctx.shadowColor = 'rgba(240,192,56,0.6)';
+  ctx.shadowBlur = 32;
+  ctx.fillText('LO LOGRÉ', W/2, 68);
+  ctx.restore();
+
+  // ── Estrellas decorativas ──
+  ctx.save();
+  ctx.fillStyle = 'rgba(200,154,58,0.7)';
+  ctx.font = '48px serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.shadowColor = 'rgba(200,154,58,0.5)';
+  ctx.shadowBlur = 12;
+  ctx.fillText('★', W/2 - 220, 240);
+  ctx.fillText('★', W/2 + 220, 240);
+  ctx.font = '72px serif';
+  ctx.fillText('★', W/2, 238);
+  ctx.restore();
+
+  // ── Trofeo (imagen) ──
+  const drawTrophy = () => new Promise(resolve => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const size = 520;
+      const ix = (W - size) / 2;
+      const iy = 270;
+      // Glow dorado bajo el trofeo
+      const tGlow = ctx.createRadialGradient(W/2, iy + size/2, 0, W/2, iy + size/2, size*0.55);
+      tGlow.addColorStop(0,   'rgba(200,154,58,0.3)');
+      tGlow.addColorStop(1,   'rgba(200,154,58,0)');
+      ctx.fillStyle = tGlow;
+      ctx.fillRect(0, 0, W, H);
+      ctx.drawImage(img, ix, iy, size, size);
+      resolve();
+    };
+    img.onerror = () => {
+      // Fallback: emoji trofeo
+      ctx.font = '320px serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('🏆', W/2, 540);
+      resolve();
+    };
+    img.src = 'trofeo.png';
+  });
+
+  await drawTrophy();
+
+  // Línea separadora dorada
+  const lineGrad = ctx.createLinearGradient(W*0.2, 0, W*0.8, 0);
+  lineGrad.addColorStop(0,   'rgba(200,154,58,0)');
+  lineGrad.addColorStop(0.5, '#c89a3a');
+  lineGrad.addColorStop(1,   'rgba(200,154,58,0)');
+  ctx.strokeStyle = lineGrad;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(W*0.2, 832);
+  ctx.lineTo(W*0.8, 832);
+  ctx.stroke();
+
+  // ── Texto inferior: "LLENÉ MI ÁLBUM MUNDIAL 2026" ──
+  ctx.save();
+  // Texto en dos líneas
+  const line1 = 'LLENÉ MI ÁLBUM';
+  const line2 = 'MUNDIAL 2026';
+  const botGrad = ctx.createLinearGradient(W*0.1, 0, W*0.9, 0);
+  botGrad.addColorStop(0,   '#5fb4e0');
+  botGrad.addColorStop(0.5, '#ffffff');
+  botGrad.addColorStop(1,   '#5fb4e0');
+  ctx.fillStyle = botGrad;
+  ctx.font = 'bold 76px "Arial Black", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  ctx.shadowColor = 'rgba(95,180,224,0.35)';
+  ctx.shadowBlur = 16;
+  ctx.fillText(line1, W/2, 858);
+  ctx.fillText(line2,  W/2, 948);
+  ctx.restore();
+
+  // ── Compartir ──
+  const shareBlob = () => new Promise(res => canvas.toBlob(res, 'image/png'));
+  const blob = await shareBlob();
+  const file = new File([blob], 'album-mundial-2026.png', { type: 'image/png' });
+
+  if(navigator.canShare && navigator.canShare({ files: [file] })){
+    try{
+      await navigator.share({ files: [file], title: '¡Completé mi Álbum del Mundial 2026!' });
+      return;
+    } catch(e){ if(e.name === 'AbortError') return; }
   }
-  const wa = 'https://wa.me/?text='+encodeURIComponent(msg);
-  window.open(wa,'_blank');
+  // Fallback: descargar la imagen
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'album-mundial-2026.png';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 3000);
 });
 
 document.getElementById('resetBtn').addEventListener('click',()=>{
