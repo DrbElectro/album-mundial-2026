@@ -1552,9 +1552,9 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
         </div>
         <!-- extras PC -->
         <div class="ctrl-row ctrl-pc-only">
-          <button class="btn ghost" id="exportTxtBtn">📝 Exportar Lista</button>
+          <button class="btn ghost" id="exportTxtBtn" data-i18n="btn-export">📝 Exportar Lista</button>
           <button class="btn ghost" id="autosaveBtn">💾 Auto-Guardado</button>
-          <button class="btn ghost" id="importTxtBtn">📥 Importar Lista</button>
+          <button class="btn ghost" id="importTxtBtn" data-i18n="btn-import-txt">📥 Importar Lista</button>
           <input type="file" id="importTxtInput" accept=".txt" style="display:none">
         </div>
       </div>
@@ -1955,6 +1955,9 @@ const I18N = {
     'copy-miss':'Copiar faltantes','copy-dup':'Copiar repetidas',
     'btn-scan':'Escanear Figus','btn-qr':'Cambio x QR','btn-trades':'Cambios Pactados',
     'btn-sync':'Sincronizar','btn-import':'Importar de otra App','btn-lock':'Bloquear',
+    'btn-export':'📝 Exportar Lista','btn-import-txt':'📥 Importar Lista',
+    'autosave-off':'💾 Auto-Guardado','autosave-on':'✓ Auto-Guardado',
+    'autosave-title-off':'Vincular un archivo .json para guardar automáticamente','autosave-title-on':'Click para desvincular el archivo',
     'card-gasto':'Gasto en figuritas','card-progreso':'Progreso en el tiempo',
     'btn-manual':'📖 Manual de uso',
     'tab-stats':'📊 Estadísticas','tab-howto':'📖 Cómo se usa','sm-progress':'Progreso del álbum',
@@ -1985,6 +1988,9 @@ const I18N = {
     'copy-miss':'Copy missing','copy-dup':'Copy duplicates',
     'btn-scan':'Scan Stickers','btn-qr':'Trade by QR','btn-trades':'Agreed Trades',
     'btn-sync':'Sync','btn-import':'Import from another App','btn-lock':'Lock',
+    'btn-export':'📝 Export List','btn-import-txt':'📥 Import List',
+    'autosave-off':'💾 Auto-Save','autosave-on':'✓ Auto-Save',
+    'autosave-title-off':'Link a .json file to save automatically','autosave-title-on':'Click to unlink the file',
     'card-gasto':'Sticker spending','card-progreso':'Progress over time',
     'btn-manual':'📖 User guide',
     'tab-stats':'📊 Statistics','tab-howto':'📖 How to use','sm-progress':'Album progress',
@@ -2042,6 +2048,7 @@ function setLang(lang) {
   });
   if(typeof refreshAllStickers==='function') refreshAllStickers();
   if(typeof calcGasto==='function') calcGasto();
+  if(typeof updateAutosaveUI==='function') updateAutosaveUI();
 }
 
 // ===== DATA =====
@@ -3047,16 +3054,17 @@ async function clearHandle(){
 function updateAutosaveUI(){
   const btn = document.getElementById('autosaveBtn');
   if(!btn) return;
+  const d = I18N[currentLang];
   if(fileHandle){
-    btn.textContent = '✓ Auto-Guardado';
+    btn.textContent = d['autosave-on'];
     btn.classList.remove('ghost');
     btn.style.background='var(--ink)'; btn.style.borderColor='var(--ink)'; btn.style.color='#fff';
-    btn.title = 'Click para desvincular el archivo';
+    btn.title = d['autosave-title-on'];
   } else {
-    btn.textContent = '💾 Auto-Guardado';
+    btn.textContent = d['autosave-off'];
     btn.classList.add('ghost');
     btn.style.background=''; btn.style.borderColor=''; btn.style.color='';
-    btn.title = 'Vincular un archivo .json para guardar automáticamente';
+    btn.title = d['autosave-title-off'];
   }
 }
 
