@@ -2,563 +2,575 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Manual de uso · Álbum Mundial 2026</title>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#1a1814;
-    --soft:#3d362b;
-    --gold:#c89a3a;
-    --gold-deep:#8c6614;
-    --teal:#0f6e6a;
-    --green:#2f7a3e;
-    --red:#c0392b;
-    --purple:#7546b0;
-    --purple-deep:#4a2680;
-    --purple-light:#f0e8ff;
-    --rule:#c9bb95;
-    --paper:#f7f2e4;
-    --paper-2:#ede5cc;
+    --ink:#1a1814;--soft:#3d362b;--gold:#c89a3a;--gold-deep:#8c6614;
+    --teal:#0f6e6a;--green:#2f7a3e;--red:#c0392b;
+    --purple:#7546b0;--purple-deep:#4a2680;--purple-light:#f0e8ff;
+    --rule:#c9bb95;--paper:#f7f2e4;--paper-2:#ede5cc;
+    --wc-blue-dark:#1c3870;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{
-    font-family:'Archivo',sans-serif;
-    color:var(--ink);
-    background:#fff;
-    font-size:11pt;
-    line-height:1.55;
-  }
-  .page{
-    max-width:720px;
-    margin:0 auto;
-    padding:40px 48px;
-  }
+  body{font-family:'Archivo',sans-serif;color:var(--ink);background:#fff;font-size:11pt;line-height:1.55}
+  .page{max-width:720px;margin:0 auto;padding:40px 48px}
 
-  /* ---- Header ---- */
-  .cover{
-    background:var(--ink);
-    color:#fff;
-    padding:36px 40px;
-    margin-bottom:32px;
-  }
-  .cover-tag{
-    font-family:'JetBrains Mono',monospace;
-    font-size:9pt;
-    letter-spacing:.18em;
-    text-transform:uppercase;
-    color:var(--gold);
-    margin-bottom:8px;
-  }
-  .cover h1{
-    font-family:'Archivo Black',sans-serif;
-    font-size:26pt;
-    line-height:1.1;
-    margin-bottom:6px;
-  }
-  .cover-sub{
-    font-size:10pt;
-    opacity:.7;
-    font-family:'JetBrains Mono',monospace;
-    letter-spacing:.05em;
-  }
+  /* Header */
+  .cover{background:var(--ink);color:#fff;padding:36px 40px;margin-bottom:32px}
+  .cover-tag{font-family:'JetBrains Mono',monospace;font-size:9pt;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+  .cover h1{font-family:'Archivo Black',sans-serif;font-size:26pt;line-height:1.1;margin-bottom:6px}
+  .cover-sub{font-size:10pt;opacity:.7;font-family:'JetBrains Mono',monospace;letter-spacing:.05em}
 
-  /* ---- Sections ---- */
-  .section{
-    margin-bottom:28px;
-    break-inside:avoid;
-  }
-  .section-head{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    border-bottom:2px solid var(--ink);
-    padding-bottom:6px;
-    margin-bottom:14px;
-  }
-  .section-num{
-    font-family:'Archivo Black',sans-serif;
-    font-size:18pt;
-    color:var(--gold-deep);
-    line-height:1;
-    min-width:28px;
-  }
-  .section-title{
-    font-family:'Archivo Black',sans-serif;
-    font-size:13pt;
-    letter-spacing:-.01em;
-  }
+  /* Sections */
+  .section{margin-bottom:28px;break-inside:avoid}
+  .section-head{display:flex;align-items:center;gap:10px;border-bottom:2px solid var(--ink);padding-bottom:6px;margin-bottom:14px}
+  .section-num{font-family:'Archivo Black',sans-serif;font-size:18pt;color:var(--gold-deep);line-height:1;min-width:28px}
+  .section-title{font-family:'Archivo Black',sans-serif;font-size:13pt;letter-spacing:-.01em}
 
-  /* ---- Items ---- */
-  .item{
-    display:flex;
-    gap:12px;
-    margin-bottom:10px;
-    align-items:flex-start;
-  }
-  .item-icon{
-    font-size:14pt;
-    min-width:24px;
-    text-align:center;
-    margin-top:1px;
-  }
-  .item-body{}
-  .item-body strong{
-    font-weight:700;
-    color:var(--ink);
-  }
-  .item-body p{
-    color:var(--soft);
-    font-size:10.5pt;
-    margin-top:2px;
-  }
+  /* Items */
+  .item{display:flex;gap:12px;margin-bottom:10px;align-items:flex-start}
+  .item-icon{font-size:14pt;min-width:24px;text-align:center;margin-top:1px}
+  .item-body strong{font-weight:700;color:var(--ink)}
+  .item-body p{color:var(--soft);font-size:10.5pt;margin-top:2px}
 
-  /* ---- Tips / badges ---- */
-  .tip{
-    background:var(--paper);
-    border-left:3px solid var(--gold);
-    padding:8px 12px;
-    border-radius:0 6px 6px 0;
-    font-size:10pt;
-    color:var(--soft);
-    margin:10px 0 14px;
-  }
-  .tip-new{
-    background:var(--purple-light);
-    border-left:4px solid var(--purple);
-    padding:10px 14px;
-    font-size:10.5pt;
-    color:var(--purple-deep);
-    margin:10px 0 14px;
-  }
-  .tip-new strong{
-    font-family:'Archivo Black',sans-serif;
-    font-size:10pt;
-    text-transform:uppercase;
-    letter-spacing:.06em;
-    color:var(--purple);
-    display:block;
-    margin-bottom:4px;
-  }
-  .badge{
-    display:inline-block;
-    font-family:'JetBrains Mono',monospace;
-    font-size:8.5pt;
-    font-weight:700;
-    padding:2px 7px;
-    vertical-align:middle;
-    margin-right:3px;
-  }
-  .b-gold{background:var(--gold);color:#fff}
-  .b-teal{background:var(--teal);color:#fff}
-  .b-green{background:var(--green);color:#fff}
-  .b-red{background:var(--red);color:#fff}
-  .b-gray{background:#888;color:#fff}
-  .b-white{background:#fff;color:var(--ink);border:1px solid #bbb}
-  .b-celeste{background:#4db8e8;color:#0a2a3d}
-  .b-orange{background:#d4650a;color:#fff}
+  /* Tips */
+  .tip{background:var(--paper);border-left:3px solid var(--gold);padding:8px 12px;border-radius:0 6px 6px 0;font-size:10pt;color:var(--soft);margin:10px 0 14px}
+  .tip-new{background:var(--purple-light);border-left:4px solid var(--purple);padding:10px 14px;font-size:10.5pt;color:var(--purple-deep);margin:10px 0 14px}
+  .tip-new strong{font-family:'Archivo Black',sans-serif;font-size:10pt;text-transform:uppercase;letter-spacing:.06em;color:var(--purple);display:block;margin-bottom:4px}
+
+  /* Badges */
+  .badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:8.5pt;font-weight:700;padding:2px 7px;vertical-align:middle;margin-right:3px}
+  .b-gold{background:var(--gold);color:#fff}.b-teal{background:var(--teal);color:#fff}
+  .b-green{background:var(--green);color:#fff}.b-red{background:var(--red);color:#fff}
+  .b-gray{background:#888;color:#fff}.b-white{background:#fff;color:var(--ink);border:1px solid #bbb}
+  .b-celeste{background:#4db8e8;color:#0a2a3d}.b-orange{background:#d4650a;color:#fff}
   .b-purple{background:var(--purple);color:#fff}
-  .leg-split{
-    display:inline-flex;width:16px;height:16px;
-    border:1px solid #bbb;overflow:hidden;vertical-align:middle;margin-right:4px;
-  }
-  .leg-split span{flex:1}
-  .leg-split .ls-w{background:#fff}
-  .leg-split .ls-c{background:#4db8e8}
+  .leg-split{display:inline-flex;width:16px;height:16px;border:1px solid #bbb;overflow:hidden;vertical-align:middle;margin-right:4px}
+  .leg-split span{flex:1}.leg-split .ls-w{background:#fff}.leg-split .ls-c{background:#4db8e8}
 
-  /* ---- Steps ---- */
-  .steps{
-    counter-reset:step;
-    padding-left:0;
-    list-style:none;
-    margin:8px 0 12px;
-  }
-  .steps li{
-    counter-increment:step;
-    display:flex;
-    gap:10px;
-    align-items:flex-start;
-    margin-bottom:8px;
-    font-size:10.5pt;
-  }
-  .steps li::before{
-    content:counter(step);
-    font-family:'Archivo Black',sans-serif;
-    font-size:9pt;
-    background:var(--ink);
-    color:#fff;
-    min-width:20px;
-    height:20px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    margin-top:1px;
-    flex-shrink:0;
-  }
+  /* Steps */
+  .steps{counter-reset:step;padding-left:0;list-style:none;margin:8px 0 12px}
+  .steps li{counter-increment:step;display:flex;gap:10px;align-items:flex-start;margin-bottom:8px;font-size:10.5pt}
+  .steps li::before{content:counter(step);font-family:'Archivo Black',sans-serif;font-size:9pt;background:var(--ink);color:#fff;min-width:20px;height:20px;display:flex;align-items:center;justify-content:center;margin-top:1px;flex-shrink:0}
 
-  /* ---- Divider ---- */
-  .divider{
-    height:1px;
-    background:var(--rule);
-    margin:24px 0;
-  }
+  /* Divider / Footer */
+  .divider{height:1px;background:var(--rule);margin:24px 0}
+  .footer{margin-top:36px;padding-top:14px;border-top:1px solid var(--rule);font-family:'JetBrains Mono',monospace;font-size:8.5pt;color:#999;display:flex;justify-content:space-between}
 
-  /* ---- Footer ---- */
-  .footer{
-    margin-top:36px;
-    padding-top:14px;
-    border-top:1px solid var(--rule);
-    font-family:'JetBrains Mono',monospace;
-    font-size:8.5pt;
-    color:#999;
-    display:flex;
-    justify-content:space-between;
-  }
-
-  /* ---- Print ---- */
-  @media print{
-    body{font-size:10pt}
-    .page{padding:20px 28px}
-    .no-print{display:none}
-    .section{break-inside:avoid}
-    a{text-decoration:none;color:var(--teal)}
-  }
-
-  /* ---- Print button ---- */
-  .print-bar{
-    text-align:center;
-    padding:14px;
-    background:var(--paper-2);
-    border-bottom:1px solid var(--rule);
-    font-size:10pt;
-  }
-  .print-bar button{
-    background:var(--ink);
-    color:#fff;
-    border:none;
-    padding:8px 20px;
-    font-family:'Archivo',sans-serif;
-    font-weight:700;
-    font-size:10pt;
-    cursor:pointer;
-    margin-left:10px;
-  }
+  /* Print bar */
+  .print-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--paper-2);border-bottom:1px solid var(--rule);font-size:10pt;gap:10px}
+  .print-bar button{background:var(--ink);color:#fff;border:none;padding:8px 20px;font-family:'Archivo',sans-serif;font-weight:700;font-size:10pt;cursor:pointer}
   .print-bar button:hover{background:var(--gold-deep)}
+
+  /* Lang toggle */
+  .lang-toggle{display:flex;border:1.5px solid var(--wc-blue-dark);overflow:hidden;flex-shrink:0}
+  .lang-btn{background:none;border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.12em;padding:5px 10px;color:var(--wc-blue-dark);transition:background .15s,color .15s;display:flex;align-items:center;gap:4px}
+  .lang-btn.active{background:var(--wc-blue-dark);color:#fff}
+  .lang-btn:not(.active):hover{background:rgba(28,56,112,.08)}
+  .lang-sep{width:1px;background:var(--wc-blue-dark);flex-shrink:0}
+
+  @media print{
+    body{font-size:10pt}.page{padding:20px 28px}.no-print{display:none}
+    .section{break-inside:avoid}a{text-decoration:none;color:var(--teal)}
+  }
+  @media(max-width:600px){.page{padding:24px 18px}}
 </style>
 </head>
 <body>
 
 <div class="print-bar no-print">
-  Manual de uso · Álbum Mundial 2026
-  <button onclick="window.print()">🖨️ Guardar como PDF</button>
+  <span data-i18n="print-label">Manual de uso · Álbum Mundial 2026</span>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="langBtnEs" onclick="setLang('es')">🇦🇷 ES</button>
+      <div class="lang-sep"></div>
+      <button class="lang-btn" id="langBtnEn" onclick="setLang('en')">🇺🇸 EN</button>
+    </div>
+    <button onclick="window.print()" data-i18n="print-btn">🖨️ Guardar como PDF</button>
+  </div>
 </div>
 
 <div class="page">
 
   <div class="cover">
-    <div class="cover-tag">Manual de uso · v1.4</div>
-    <h1>Álbum Mundial 2026</h1>
+    <div class="cover-tag" data-i18n="cover-tag">Manual de uso · v1.4</div>
+    <h1 data-i18n="cover-title">Álbum Mundial 2026</h1>
     <div class="cover-sub">drbelectro.github.io/album-mundial-2026 · Mayo 2026</div>
   </div>
 
-  <!-- 1. FIGURITAS -->
+  <!-- 1 -->
   <div class="section">
     <div class="section-head">
       <div class="section-num">1</div>
-      <div class="section-title">Marcar figuritas</div>
+      <div class="section-title" data-i18n="s1-title">Marcar figuritas</div>
     </div>
-
     <div class="item">
       <div class="item-icon">🖱️</div>
       <div class="item-body">
-        <strong>Click izquierdo (PC) / Tap (celular)</strong>
-        <p>Suma 1 al contador. Si estaba en 0 pasa a pegada; si ya estaba pegada pasa a repetida (+1 cada vez).</p>
+        <strong data-i18n="s1-a-h">Click izquierdo (PC) / Tap (celular)</strong>
+        <p data-i18n="s1-a-p">Suma 1 al contador. Si estaba en 0 pasa a pegada; si ya estaba pegada pasa a repetida (+1 cada vez).</p>
       </div>
     </div>
     <div class="item">
       <div class="item-icon">🖱️</div>
       <div class="item-body">
-        <strong>Click derecho (PC) / Mantener presionado 500ms (celular)</strong>
-        <p>Resta 1 al contador. Si está en 1 vuelve a faltar. Mínimo: 0.</p>
+        <strong data-i18n="s1-b-h">Click derecho (PC) / Mantener presionado 500ms (celular)</strong>
+        <p data-i18n="s1-b-p">Resta 1 al contador. Si está en 1 vuelve a faltar. Mínimo: 0.</p>
       </div>
     </div>
-
     <div class="tip">
-      Colores: <span class="badge b-gray">beige</span> falta ·
+      <span data-i18n="s1-tip">Colores: <span class="badge b-gray">beige</span> falta ·
       <span class="badge b-green">verde</span> pegada ·
       <span class="badge b-gold">dorado</span> repetida ×N ·
       <span class="leg-split"><span class="ls-w"></span><span class="ls-c"></span></span>
-      reservada para cambio pactado (<span class="badge b-white">blanco</span> = das · <span class="badge b-celeste">celeste</span> = recibís)
+      reservada para cambio pactado (<span class="badge b-white">blanco</span> = das · <span class="badge b-celeste">celeste</span> = recibís)</span>
     </div>
   </div>
 
-  <!-- 2. ESTADÍSTICAS -->
+  <!-- 2 -->
   <div class="section">
     <div class="section-head">
       <div class="section-num">2</div>
-      <div class="section-title">Estadísticas</div>
+      <div class="section-title" data-i18n="s2-title">Estadísticas</div>
     </div>
     <div class="item">
       <div class="item-icon">📊</div>
       <div class="item-body">
-        <strong>Barra superior</strong>
-        <p>Muestra en tiempo real: total del álbum · cuántas pegaste · cuántas faltan · cuántas repetidas tenés.</p>
+        <strong data-i18n="s2-a-h">Barra superior</strong>
+        <p data-i18n="s2-a-p">Muestra en tiempo real: total del álbum · cuántas pegaste · cuántas faltan · cuántas repetidas tenés.</p>
       </div>
     </div>
     <div class="item">
       <div class="item-icon">📈</div>
       <div class="item-body">
-        <strong>Gráfico de progreso</strong>
-        <p>Panel derecho. Registra automáticamente cuántas figuritas tenías cada día que usaste la app y muestra la evolución en el tiempo.</p>
+        <strong data-i18n="s2-b-h">Gráfico de progreso</strong>
+        <p data-i18n="s2-b-p">Panel derecho. Registra automáticamente cuántas figuritas tenías cada día que usaste la app y muestra la evolución en el tiempo.</p>
       </div>
     </div>
   </div>
 
-  <!-- 3. GASTO -->
+  <!-- 3 -->
   <div class="section">
     <div class="section-head">
       <div class="section-num">3</div>
-      <div class="section-title">Gasto en figuritas</div>
+      <div class="section-title" data-i18n="s3-title">Gasto en figuritas</div>
     </div>
     <div class="item">
       <div class="item-icon">💰</div>
       <div class="item-body">
-        <strong>Lotes personalizados</strong>
-        <p>Panel derecho. Ingresá cuántos paquetes compraste y a qué precio. Podés agregar tantos lotes como quieras con <em>+ Agregar lote</em>. El total incluye el costo del álbum y calcula el costo por figurita pegada.</p>
+        <strong data-i18n="s3-a-h">Lotes personalizados</strong>
+        <p data-i18n="s3-a-p">Panel derecho. Ingresá cuántos paquetes compraste y a qué precio. Podés agregar tantos lotes como quieras con <em>+ Agregar lote</em>. El total incluye el costo del álbum y calcula el costo por figurita pegada.</p>
       </div>
     </div>
   </div>
 
-  <!-- 4. FILTROS -->
+  <!-- 4 -->
   <div class="section">
     <div class="section-head">
       <div class="section-num">4</div>
-      <div class="section-title">Búsqueda y filtros</div>
+      <div class="section-title" data-i18n="s4-title">Búsqueda y filtros</div>
     </div>
     <div class="item">
       <div class="item-icon">🔍</div>
       <div class="item-body">
-        <strong>Barra de búsqueda</strong>
-        <p>Escribí el nombre del país (ej: <em>Brasil</em>) o el código (ej: <em>ARG-7</em>) para ir directo a esa sección o figurita.</p>
+        <strong data-i18n="s4-a-h">Barra de búsqueda</strong>
+        <p data-i18n="s4-a-p">Escribí el nombre del país (ej: <em>Brasil</em>) o el código (ej: <em>ARG-7</em>) para ir directo a esa sección o figurita.</p>
       </div>
     </div>
     <div class="item">
       <div class="item-icon">🔽</div>
       <div class="item-body">
-        <strong>Filtros</strong>
-        <p>Mostrá solo las que <em>Faltan</em>, las <em>Pegadas</em>, las <em>Repetidas</em>, las de <em>Cambios pactados</em>, o <em>Todas</em>. Combinable con la búsqueda.</p>
+        <strong data-i18n="s4-b-h">Filtros</strong>
+        <p data-i18n="s4-b-p">Mostrá solo las que <em>Faltan</em>, las <em>Pegadas</em>, las <em>Repetidas</em>, las de <em>Cambios pactados</em>, o <em>Todas</em>. Combinable con la búsqueda.</p>
       </div>
     </div>
     <div class="item">
       <div class="item-icon">🔤</div>
       <div class="item-body">
-        <strong>Ordenar</strong>
-        <p>Ordená las secciones por completitud (% mayor primero) o alfabéticamente (A→Z).</p>
+        <strong data-i18n="s4-c-h">Ordenar</strong>
+        <p data-i18n="s4-c-p">Ordená las secciones por completitud (% mayor primero) o alfabéticamente (A→Z).</p>
       </div>
     </div>
   </div>
 
   <div class="divider"></div>
 
-  <!-- 5. SYNC -->
+  <!-- 5 -->
   <div class="section">
     <div class="section-head">
       <div class="section-num">5</div>
-      <div class="section-title">Sincronizar entre dispositivos</div>
+      <div class="section-title" data-i18n="s5-title">Sincronizar entre dispositivos</div>
     </div>
-    <p style="font-size:10.5pt;color:var(--soft);margin-bottom:12px">Mantiene el álbum sincronizado entre celular y PC en tiempo real, sin login ni contraseña.</p>
-
+    <p style="font-size:10.5pt;color:var(--soft);margin-bottom:12px" data-i18n="s5-intro">Mantiene el álbum sincronizado entre celular y PC en tiempo real, sin login ni contraseña.</p>
     <ol class="steps">
-      <li>Tocá <strong>☁ Sincronizar</strong> → se genera un código de sala automáticamente (ej: <em>AB3X7K</em>).</li>
-      <li>Copiá ese código y pasáselo al otro dispositivo.</li>
-      <li>En el otro dispositivo abrí <strong>☁ Sincronizar</strong> → pegá el código → <em>Conectar y sincronizar</em>.</li>
-      <li>A partir de ahí sincronizan automáticamente cada 10 segundos.</li>
+      <li data-i18n="s5-1">Tocá <strong>☁ Sincronizar</strong> → se genera un código de sala automáticamente (ej: <em>AB3X7K</em>).</li>
+      <li data-i18n="s5-2">Copiá ese código y pasáselo al otro dispositivo.</li>
+      <li data-i18n="s5-3">En el otro dispositivo abrí <strong>☁ Sincronizar</strong> → pegá el código → <em>Conectar y sincronizar</em>.</li>
+      <li data-i18n="s5-4">A partir de ahí sincronizan automáticamente cada 10 segundos.</li>
     </ol>
-
-    <div class="tip">
-      El código queda guardado. Al refrescar la página la sincronización se retoma sola, sin volver a ingresar el código.
-    </div>
+    <div class="tip" data-i18n="s5-tip">El código queda guardado. Al refrescar la página la sincronización se retoma sola, sin volver a ingresar el código.</div>
   </div>
 
-  <!-- 6. AUTO-GUARDADO -->
+  <!-- 6 -->
   <div class="section">
     <div class="section-head">
       <div class="section-num">6</div>
-      <div class="section-title">Auto-Guardado en archivo (solo PC)</div>
+      <div class="section-title" data-i18n="s6-title">Auto-Guardado en archivo (solo PC)</div>
     </div>
     <div class="item">
       <div class="item-icon">💾</div>
       <div class="item-body">
-        <strong>Vincular un archivo .json</strong>
-        <p>Tocá <em>💾 Auto-Guardado</em> → elegí o creá un archivo en tu PC. Cada cambio se guarda automáticamente en ese archivo además del almacenamiento local del navegador.</p>
+        <strong data-i18n="s6-a-h">Vincular un archivo .json</strong>
+        <p data-i18n="s6-a-p">Tocá <em>💾 Auto-Guardado</em> → elegí o creá un archivo en tu PC. Cada cambio se guarda automáticamente en ese archivo además del almacenamiento local del navegador.</p>
       </div>
     </div>
-    <div class="tip">
-      Solo disponible en Chrome, Edge y Opera. No funciona en Firefox ni Safari ni en el celular.
-    </div>
+    <div class="tip" data-i18n="s6-tip">Solo disponible en Chrome, Edge y Opera. No funciona en Firefox ni Safari ni en el celular.</div>
   </div>
 
-  <!-- 7. EXPORTAR / IMPORTAR -->
+  <!-- 7 -->
   <div class="section">
     <div class="section-head">
       <div class="section-num">7</div>
-      <div class="section-title">Exportar e Importar lista</div>
+      <div class="section-title" data-i18n="s7-title">Exportar e Importar lista</div>
     </div>
     <div class="item">
       <div class="item-icon">📝</div>
       <div class="item-body">
-        <strong>Exportar Lista</strong>
-        <p>Genera un archivo de texto con tus figuritas faltantes y repetidas agrupadas por selección.</p>
+        <strong data-i18n="s7-a-h">Exportar Lista</strong>
+        <p data-i18n="s7-a-p">Genera un archivo de texto con tus figuritas faltantes y repetidas agrupadas por selección.</p>
       </div>
     </div>
     <div class="item">
       <div class="item-icon">📥</div>
       <div class="item-body">
-        <strong>Importar Lista</strong>
-        <p>Cargá un archivo de texto exportado previamente para restaurar o combinar colecciones.</p>
+        <strong data-i18n="s7-b-h">Importar Lista</strong>
+        <p data-i18n="s7-b-p">Cargá un archivo de texto exportado previamente para restaurar o combinar colecciones.</p>
       </div>
     </div>
   </div>
 
   <div class="divider"></div>
 
-  <!-- 8. CAMBIO x QR -->
+  <!-- 8 -->
   <div class="section">
     <div class="section-head">
       <div class="section-num">8</div>
-      <div class="section-title">Cambio x QR</div>
+      <div class="section-title" data-i18n="s8-title">Cambio x QR</div>
     </div>
-    <p style="font-size:10.5pt;color:var(--soft);margin-bottom:12px">Compará tu colección con la de un amigo para ver exactamente qué pueden intercambiar, usando un código QR.</p>
-
+    <p style="font-size:10.5pt;color:var(--soft);margin-bottom:12px" data-i18n="s8-intro">Compará tu colección con la de un amigo para ver exactamente qué pueden intercambiar, usando un código QR.</p>
     <ol class="steps">
-      <li>Tocá <strong>🔄 Cambio x QR</strong>. Se genera tu QR de cambio automáticamente.</li>
-      <li>Mostráselo a tu amigo en pantalla o compartilo por WhatsApp.</li>
-      <li>Tu amigo escanea tu QR con su cámara o lo sube desde la galería.</li>
-      <li>La app muestra al instante qué figuritas pueden intercambiar: las que vos das y las que recibís.</li>
+      <li data-i18n="s8-1">Tocá <strong>🔄 Cambio x QR</strong>. Se genera tu QR de cambio automáticamente.</li>
+      <li data-i18n="s8-2">Mostráselo a tu amigo en pantalla o compartilo por WhatsApp.</li>
+      <li data-i18n="s8-3">Tu amigo escanea tu QR con su cámara o lo sube desde la galería.</li>
+      <li data-i18n="s8-4">La app muestra al instante qué figuritas pueden intercambiar: las que vos das y las que recibís.</li>
     </ol>
-
     <div class="item" style="margin-top:8px">
       <div class="item-icon">✓</div>
       <div class="item-body">
-        <strong>Confirmación parcial</strong>
-        <p>Podés destildar figuritas individuales antes de confirmar. Solo se aplican las marcadas. Al confirmar: las que diste bajan 1, las que recibiste se marcan como pegadas.</p>
+        <strong data-i18n="s8-a-h">Confirmación parcial</strong>
+        <p data-i18n="s8-a-p">Podés destildar figuritas individuales antes de confirmar. Solo se aplican las marcadas. Al confirmar: las que diste bajan 1, las que recibiste se marcan como pegadas.</p>
       </div>
     </div>
     <div class="item">
       <div class="item-icon">📋</div>
       <div class="item-body">
-        <strong>Copiar resumen</strong>
-        <p>El botón <em>📋 Copiar</em> en los resultados copia un texto con el detalle del intercambio para pegar en WhatsApp u otro mensajero.</p>
+        <strong data-i18n="s8-b-h">Copiar resumen</strong>
+        <p data-i18n="s8-b-p">El botón <em>📋 Copiar</em> en los resultados copia un texto con el detalle del intercambio para pegar en WhatsApp u otro mensajero.</p>
       </div>
     </div>
   </div>
 
-  <!-- 9. CAMBIOS PACTADOS -->
+  <!-- 9 -->
   <div class="section">
     <div class="section-head">
       <div class="section-num">9</div>
-      <div class="section-title">Cambios Pactados</div>
+      <div class="section-title" data-i18n="s9-title">Cambios Pactados</div>
     </div>
-    <p style="font-size:10.5pt;color:var(--soft);margin-bottom:12px">Reservá figuritas para cambios acordados con amigos que todavía no se concretaron. Así no las usás en otro cambio por error.</p>
-
+    <p style="font-size:10.5pt;color:var(--soft);margin-bottom:12px" data-i18n="s9-intro">Reservá figuritas para cambios acordados con amigos que todavía no se concretaron. Así no las usás en otro cambio por error.</p>
     <ol class="steps">
-      <li>Tocá <strong>📌 Cambios Pactados</strong> → <em>+ Nuevo cambio</em>, ingresá el nombre del amigo y fecha (opcional).</li>
-      <li>En la pestaña <strong>📤 Doy</strong> seleccioná las figuritas que le vas a dar (solo aparecen tus repetidas disponibles).</li>
-      <li>En la pestaña <strong>📥 Recibo</strong> seleccioná las que vas a recibir (solo las que faltan y no están reservadas para otro cambio).</li>
-      <li>Tocá <strong>Guardar</strong>. El cambio queda registrado como pendiente.</li>
+      <li data-i18n="s9-1">Tocá <strong>📌 Cambios Pactados</strong> → <em>+ Nuevo cambio</em>, ingresá el nombre del amigo y fecha (opcional).</li>
+      <li data-i18n="s9-2">En la pestaña <strong>📤 Doy</strong> seleccioná las figuritas que le vas a dar (solo aparecen tus repetidas disponibles).</li>
+      <li data-i18n="s9-3">En la pestaña <strong>📥 Recibo</strong> seleccioná las que vas a recibir (solo las que faltan y no están reservadas para otro cambio).</li>
+      <li data-i18n="s9-4">Tocá <strong>Guardar</strong>. El cambio queda registrado como pendiente.</li>
     </ol>
-
     <div class="item" style="margin-top:8px">
       <div class="item-icon">🎨</div>
       <div class="item-body">
-        <strong>Colores en el álbum</strong>
-        <p>Las figuritas reservadas cambian de color: <span class="badge b-white">blanco</span> = las que vos das · <span class="badge b-celeste">celeste</span> = las que vas a recibir.</p>
+        <strong data-i18n="s9-a-h">Colores en el álbum</strong>
+        <p data-i18n="s9-a-p">Las figuritas reservadas cambian de color: <span class="badge b-white">blanco</span> = las que vos das · <span class="badge b-celeste">celeste</span> = las que vas a recibir.</p>
       </div>
     </div>
     <div class="item">
       <div class="item-icon">✓</div>
       <div class="item-body">
-        <strong>Confirmar el cambio</strong>
-        <p>Cuando el intercambio se concrete, tocá <strong>Confirmar</strong>. Las figuritas que diste bajan 1, las que recibiste se marcan como pegadas y el cambio se elimina de la lista.</p>
+        <strong data-i18n="s9-b-h">Confirmar el cambio</strong>
+        <p data-i18n="s9-b-p">Cuando el intercambio se concrete, tocá <strong>Confirmar</strong>. Las figuritas que diste bajan 1, las que recibiste se marcan como pegadas y el cambio se elimina de la lista.</p>
       </div>
     </div>
-    <div class="tip">
-      También podés <em>Editar</em> un cambio o <em>Cancelar</em> si no se realizó. Las reservas se liberan automáticamente.
-    </div>
+    <div class="tip" data-i18n="s9-tip">También podés <em>Editar</em> un cambio o <em>Cancelar</em> si no se realizó. Las reservas se liberan automáticamente.</div>
   </div>
 
-  <!-- 10. IMPORTAR DE OTRA APP -->
+  <!-- 10 -->
   <div class="section">
     <div class="section-head">
       <div class="section-num">10</div>
-      <div class="section-title">Importar de otra App</div>
+      <div class="section-title" data-i18n="s10-title">Importar de otra App</div>
     </div>
-
     <div class="tip-new">
-      <strong>¡Novedad en v1.4!</strong>
-      Si tenés tus figuritas cargadas en otra app, podés traerlas a Mi Álbum Mundial sin perder nada de lo que ya tenés acá.
+      <strong data-i18n="s10-new">¡Novedad en v1.4!</strong>
+      <span data-i18n="s10-new-p">Si tenés tus figuritas cargadas en otra app, podés traerlas a Mi Álbum Mundial sin perder nada de lo que ya tenés acá.</span>
     </div>
-
     <ol class="steps">
-      <li>Tocá <strong>📲 Importar de otra App</strong>.</li>
-      <li>Desde la otra app, exportá o copiá tu lista de figuritas.</li>
-      <li>Pegá el texto en el cuadro que aparece y tocá <em>Importar</em>.</li>
-      <li>La app detecta automáticamente las figuritas que te faltan y las que tenés repetidas y las suma a tu álbum.</li>
+      <li data-i18n="s10-1">Tocá <strong>📲 Importar de otra App</strong>.</li>
+      <li data-i18n="s10-2">Desde la otra app, exportá o copiá tu lista de figuritas.</li>
+      <li data-i18n="s10-3">Pegá el texto en el cuadro que aparece y tocá <em>Importar</em>.</li>
+      <li data-i18n="s10-4">La app detecta automáticamente las figuritas que te faltan y las que tenés repetidas y las suma a tu álbum.</li>
     </ol>
-
     <div class="item" style="margin-top:4px">
       <div class="item-icon">📱</div>
       <div class="item-body">
-        <strong>Compatibilidad</strong>
-        <p>Funciona con el formato de exportación de <em>Figuritas App</em> y otros formatos similares con listas de "Me faltan" / "Repetidas" separadas por sección.</p>
+        <strong data-i18n="s10-a-h">Compatibilidad</strong>
+        <p data-i18n="s10-a-p">Funciona con el formato de exportación de <em>Figuritas App</em> y otros formatos similares con listas de "Me faltan" / "Repetidas" separadas por sección.</p>
       </div>
     </div>
   </div>
 
   <div class="divider"></div>
 
-  <!-- PREGUNTAS FRECUENTES -->
+  <!-- FAQ -->
   <div class="section">
     <div class="section-head">
       <div class="section-num">?</div>
-      <div class="section-title">Preguntas frecuentes</div>
+      <div class="section-title" data-i18n="faq-title">Preguntas frecuentes</div>
     </div>
-
     <div class="item">
       <div class="item-icon">🔄</div>
       <div class="item-body">
-        <strong>¿Si refresco la página se pierde todo?</strong>
-        <p>No. Los datos se guardan automáticamente en el almacenamiento local del navegador. Solo se perderían si borrás los datos del sitio. Para mayor seguridad usá Sincronizar o Auto-Guardado (PC).</p>
+        <strong data-i18n="faq-1-h">¿Si refresco la página se pierde todo?</strong>
+        <p data-i18n="faq-1-p">No. Los datos se guardan automáticamente en el almacenamiento local del navegador. Solo se perderían si borrás los datos del sitio. Para mayor seguridad usá Sincronizar o Auto-Guardado (PC).</p>
       </div>
     </div>
     <div class="item">
       <div class="item-icon">📱</div>
       <div class="item-body">
-        <strong>¿Funciona en el celular?</strong>
-        <p>Sí. Disponible como app en Google Play (Mi Álbum Mundial 2026) y como web mobile en el navegador. El Sync funciona igual en todos los dispositivos.</p>
+        <strong data-i18n="faq-2-h">¿Funciona en el celular?</strong>
+        <p data-i18n="faq-2-p">Sí. Disponible como app en Google Play (Mi Álbum Mundial 2026) y como web mobile en el navegador. El Sync funciona igual en todos los dispositivos.</p>
       </div>
     </div>
     <div class="item">
       <div class="item-icon">🌐</div>
       <div class="item-body">
-        <strong>¿Necesita internet?</strong>
-        <p>Para usar el álbum no. Para Sincronizar y el escaneo de figuritas (OCR) sí necesita conexión.</p>
+        <strong data-i18n="faq-3-h">¿Necesita internet?</strong>
+        <p data-i18n="faq-3-p">Para usar el álbum no. Para Sincronizar y el escaneo de figuritas (OCR) sí necesita conexión.</p>
       </div>
     </div>
     <div class="item">
       <div class="item-icon">💬</div>
       <div class="item-body">
-        <strong>¿El QR de cambio funciona sin internet?</strong>
-        <p>El QR se genera localmente sin conexión. Para escanearlo con la cámara desde la web sí necesita internet (para el OCR). En la app Android funciona sin conexión.</p>
+        <strong data-i18n="faq-4-h">¿El QR de cambio funciona sin internet?</strong>
+        <p data-i18n="faq-4-p">El QR se genera localmente sin conexión. Para escanearlo con la cámara desde la web sí necesita internet (para el OCR). En la app Android funciona sin conexión.</p>
       </div>
     </div>
   </div>
 
   <div class="footer">
-    <span>Álbum Mundial 2026 · Manual de uso · v1.4</span>
+    <span data-i18n="footer-l">Álbum Mundial 2026 · Manual de uso · v1.4</span>
     <span>drbelectro.github.io/album-mundial-2026</span>
   </div>
 
 </div>
 
+<script>
+const T = {
+  es:{
+    'print-label':'Manual de uso · Álbum Mundial 2026',
+    'print-btn':'🖨️ Guardar como PDF',
+    'cover-tag':'Manual de uso · v1.4',
+    'cover-title':'Álbum Mundial 2026',
+    's1-title':'Marcar figuritas',
+    's1-a-h':'Click izquierdo (PC) / Tap (celular)',
+    's1-a-p':'Suma 1 al contador. Si estaba en 0 pasa a pegada; si ya estaba pegada pasa a repetida (+1 cada vez).',
+    's1-b-h':'Click derecho (PC) / Mantener presionado 500ms (celular)',
+    's1-b-p':'Resta 1 al contador. Si está en 1 vuelve a faltar. Mínimo: 0.',
+    's1-tip':'Colores: <span class="badge b-gray">beige</span> falta · <span class="badge b-green">verde</span> pegada · <span class="badge b-gold">dorado</span> repetida ×N · <span class="leg-split"><span class="ls-w"></span><span class="ls-c"></span></span> reservada para cambio pactado (<span class="badge b-white">blanco</span> = das · <span class="badge b-celeste">celeste</span> = recibís)',
+    's2-title':'Estadísticas',
+    's2-a-h':'Barra superior',
+    's2-a-p':'Muestra en tiempo real: total del álbum · cuántas pegaste · cuántas faltan · cuántas repetidas tenés.',
+    's2-b-h':'Gráfico de progreso',
+    's2-b-p':'Panel derecho. Registra automáticamente cuántas figuritas tenías cada día que usaste la app y muestra la evolución en el tiempo.',
+    's3-title':'Gasto en figuritas',
+    's3-a-h':'Lotes personalizados',
+    's3-a-p':'Panel derecho. Ingresá cuántos paquetes compraste y a qué precio. Podés agregar tantos lotes como quieras con <em>+ Agregar lote</em>. El total incluye el costo del álbum y calcula el costo por figurita pegada.',
+    's4-title':'Búsqueda y filtros',
+    's4-a-h':'Barra de búsqueda',
+    's4-a-p':'Escribí el nombre del país (ej: <em>Brasil</em>) o el código (ej: <em>ARG-7</em>) para ir directo a esa sección o figurita.',
+    's4-b-h':'Filtros',
+    's4-b-p':'Mostrá solo las que <em>Faltan</em>, las <em>Pegadas</em>, las <em>Repetidas</em>, las de <em>Cambios pactados</em>, o <em>Todas</em>. Combinable con la búsqueda.',
+    's4-c-h':'Ordenar',
+    's4-c-p':'Ordená las secciones por completitud (% mayor primero) o alfabéticamente (A→Z).',
+    's5-title':'Sincronizar entre dispositivos',
+    's5-intro':'Mantiene el álbum sincronizado entre celular y PC en tiempo real, sin login ni contraseña.',
+    's5-1':'Tocá <strong>☁ Sincronizar</strong> → se genera un código de sala automáticamente (ej: <em>AB3X7K</em>).',
+    's5-2':'Copiá ese código y pasáselo al otro dispositivo.',
+    's5-3':'En el otro dispositivo abrí <strong>☁ Sincronizar</strong> → pegá el código → <em>Conectar y sincronizar</em>.',
+    's5-4':'A partir de ahí sincronizan automáticamente cada 10 segundos.',
+    's5-tip':'El código queda guardado. Al refrescar la página la sincronización se retoma sola, sin volver a ingresar el código.',
+    's6-title':'Auto-Guardado en archivo (solo PC)',
+    's6-a-h':'Vincular un archivo .json',
+    's6-a-p':'Tocá <em>💾 Auto-Guardado</em> → elegí o creá un archivo en tu PC. Cada cambio se guarda automáticamente en ese archivo además del almacenamiento local del navegador.',
+    's6-tip':'Solo disponible en Chrome, Edge y Opera. No funciona en Firefox ni Safari ni en el celular.',
+    's7-title':'Exportar e Importar lista',
+    's7-a-h':'Exportar Lista',
+    's7-a-p':'Genera un archivo de texto con tus figuritas faltantes y repetidas agrupadas por selección.',
+    's7-b-h':'Importar Lista',
+    's7-b-p':'Cargá un archivo de texto exportado previamente para restaurar o combinar colecciones.',
+    's8-title':'Cambio x QR',
+    's8-intro':'Compará tu colección con la de un amigo para ver exactamente qué pueden intercambiar, usando un código QR.',
+    's8-1':'Tocá <strong>🔄 Cambio x QR</strong>. Se genera tu QR de cambio automáticamente.',
+    's8-2':'Mostráselo a tu amigo en pantalla o compartilo por WhatsApp.',
+    's8-3':'Tu amigo escanea tu QR con su cámara o lo sube desde la galería.',
+    's8-4':'La app muestra al instante qué figuritas pueden intercambiar: las que vos das y las que recibís.',
+    's8-a-h':'Confirmación parcial',
+    's8-a-p':'Podés destildar figuritas individuales antes de confirmar. Solo se aplican las marcadas. Al confirmar: las que diste bajan 1, las que recibiste se marcan como pegadas.',
+    's8-b-h':'Copiar resumen',
+    's8-b-p':'El botón <em>📋 Copiar</em> en los resultados copia un texto con el detalle del intercambio para pegar en WhatsApp u otro mensajero.',
+    's9-title':'Cambios Pactados',
+    's9-intro':'Reservá figuritas para cambios acordados con amigos que todavía no se concretaron. Así no las usás en otro cambio por error.',
+    's9-1':'Tocá <strong>📌 Cambios Pactados</strong> → <em>+ Nuevo cambio</em>, ingresá el nombre del amigo y fecha (opcional).',
+    's9-2':'En la pestaña <strong>📤 Doy</strong> seleccioná las figuritas que le vas a dar (solo aparecen tus repetidas disponibles).',
+    's9-3':'En la pestaña <strong>📥 Recibo</strong> seleccioná las que vas a recibir (solo las que faltan y no están reservadas para otro cambio).',
+    's9-4':'Tocá <strong>Guardar</strong>. El cambio queda registrado como pendiente.',
+    's9-a-h':'Colores en el álbum',
+    's9-a-p':'Las figuritas reservadas cambian de color: <span class="badge b-white">blanco</span> = las que vos das · <span class="badge b-celeste">celeste</span> = las que vas a recibir.',
+    's9-b-h':'Confirmar el cambio',
+    's9-b-p':'Cuando el intercambio se concrete, tocá <strong>Confirmar</strong>. Las figuritas que diste bajan 1, las que recibiste se marcan como pegadas y el cambio se elimina de la lista.',
+    's9-tip':'También podés <em>Editar</em> un cambio o <em>Cancelar</em> si no se realizó. Las reservas se liberan automáticamente.',
+    's10-title':'Importar de otra App',
+    's10-new':'¡Novedad en v1.4!',
+    's10-new-p':'Si tenés tus figuritas cargadas en otra app, podés traerlas a Mi Álbum Mundial sin perder nada de lo que ya tenés acá.',
+    's10-1':'Tocá <strong>📲 Importar de otra App</strong>.',
+    's10-2':'Desde la otra app, exportá o copiá tu lista de figuritas.',
+    's10-3':'Pegá el texto en el cuadro que aparece y tocá <em>Importar</em>.',
+    's10-4':'La app detecta automáticamente las figuritas que te faltan y las que tenés repetidas y las suma a tu álbum.',
+    's10-a-h':'Compatibilidad',
+    's10-a-p':'Funciona con el formato de exportación de <em>Figuritas App</em> y otros formatos similares con listas de "Me faltan" / "Repetidas" separadas por sección.',
+    'faq-title':'Preguntas frecuentes',
+    'faq-1-h':'¿Si refresco la página se pierde todo?',
+    'faq-1-p':'No. Los datos se guardan automáticamente en el almacenamiento local del navegador. Solo se perderían si borrás los datos del sitio. Para mayor seguridad usá Sincronizar o Auto-Guardado (PC).',
+    'faq-2-h':'¿Funciona en el celular?',
+    'faq-2-p':'Sí. Disponible como app en Google Play (Mi Álbum Mundial 2026) y como web mobile en el navegador. El Sync funciona igual en todos los dispositivos.',
+    'faq-3-h':'¿Necesita internet?',
+    'faq-3-p':'Para usar el álbum no. Para Sincronizar y el escaneo de figuritas (OCR) sí necesita conexión.',
+    'faq-4-h':'¿El QR de cambio funciona sin internet?',
+    'faq-4-p':'El QR se genera localmente sin conexión. Para escanearlo con la cámara desde la web sí necesita internet (para el OCR). En la app Android funciona sin conexión.',
+    'footer-l':'Álbum Mundial 2026 · Manual de uso · v1.4',
+  },
+  en:{
+    'print-label':'User guide · World Cup Album 2026',
+    'print-btn':'🖨️ Save as PDF',
+    'cover-tag':'User guide · v1.4',
+    'cover-title':'World Cup Album 2026',
+    's1-title':'Marking stickers',
+    's1-a-h':'Left click (PC) / Tap (mobile)',
+    's1-a-p':'Adds 1 to the counter. If it was 0 it becomes placed; if already placed it becomes a duplicate (+1 each time).',
+    's1-b-h':'Right click (PC) / Hold 500ms (mobile)',
+    's1-b-p':'Removes 1 from the counter. If it is at 1 it goes back to missing. Minimum: 0.',
+    's1-tip':'Colors: <span class="badge b-gray">beige</span> missing · <span class="badge b-green">green</span> placed · <span class="badge b-gold">gold</span> duplicate ×N · <span class="leg-split"><span class="ls-w"></span><span class="ls-c"></span></span> reserved for agreed trade (<span class="badge b-white">white</span> = giving · <span class="badge b-celeste">blue</span> = receiving)',
+    's2-title':'Statistics',
+    's2-a-h':'Top bar',
+    's2-a-p':'Shows in real time: album total · how many placed · how many missing · how many duplicates.',
+    's2-b-h':'Progress chart',
+    's2-b-p':'Right panel. Automatically records how many stickers you had each day you used the app and shows your progress over time.',
+    's3-title':'Sticker spending',
+    's3-a-h':'Custom packs',
+    's3-a-p':'Right panel. Enter how many packs you bought and at what price. You can add as many batches as you want with <em>+ Add pack</em>. The total includes the album cost and calculates cost per placed sticker.',
+    's4-title':'Search and filters',
+    's4-a-h':'Search bar',
+    's4-a-p':'Type the country name (e.g. <em>Brazil</em>) or the code (e.g. <em>ARG-7</em>) to jump directly to that section or sticker.',
+    's4-b-h':'Filters',
+    's4-b-p':'Show only <em>Missing</em>, <em>Placed</em>, <em>Duplicate</em>, <em>Trade agreed</em>, or <em>All</em>. Can be combined with the search.',
+    's4-c-h':'Sort',
+    's4-c-p':'Sort sections by completion (highest % first) or alphabetically (A→Z).',
+    's5-title':'Sync across devices',
+    's5-intro':'Keeps the album synced between phone and PC in real time, with no login or password required.',
+    's5-1':'Tap <strong>☁ Sync</strong> → a room code is generated automatically (e.g. <em>AB3X7K</em>).',
+    's5-2':'Copy that code and share it with the other device.',
+    's5-3':'On the other device open <strong>☁ Sync</strong> → paste the code → <em>Connect and sync</em>.',
+    's5-4':'From then on they sync automatically every 10 seconds.',
+    's5-tip':'The code is saved. When you refresh the page the sync resumes automatically without re-entering the code.',
+    's6-title':'Auto-Save to file (PC only)',
+    's6-a-h':'Link a .json file',
+    's6-a-p':'Tap <em>💾 Auto-Save</em> → choose or create a file on your PC. Every change is saved automatically to that file in addition to the browser\'s local storage.',
+    's6-tip':'Only available in Chrome, Edge and Opera. Does not work in Firefox, Safari or on mobile.',
+    's7-title':'Export and Import list',
+    's7-a-h':'Export list',
+    's7-a-p':'Generates a text file with your missing and duplicate stickers grouped by national team.',
+    's7-b-h':'Import list',
+    's7-b-p':'Load a previously exported text file to restore or merge collections.',
+    's8-title':'Trade by QR',
+    's8-intro':'Compare your collection with a friend\'s to see exactly what you can swap, using a QR code.',
+    's8-1':'Tap <strong>🔄 Trade by QR</strong>. Your trade QR is generated automatically.',
+    's8-2':'Show it to your friend on screen or share it on WhatsApp.',
+    's8-3':'Your friend scans your QR with their camera or uploads it from their gallery.',
+    's8-4':'The app instantly shows which stickers you can swap: the ones you give and the ones you receive.',
+    's8-a-h':'Partial confirmation',
+    's8-a-p':'You can uncheck individual stickers before confirming. Only the checked ones are applied. On confirm: the ones you gave go down 1, the ones you received are marked as placed.',
+    's8-b-h':'Copy summary',
+    's8-b-p':'The <em>📋 Copy</em> button in the results copies a text with the trade details to paste in WhatsApp or another messenger.',
+    's9-title':'Agreed Trades',
+    's9-intro':'Reserve stickers for trades agreed with friends that haven\'t happened yet. This way you won\'t accidentally use them in another trade.',
+    's9-1':'Tap <strong>📌 Agreed Trades</strong> → <em>+ New trade</em>, enter your friend\'s name and date (optional).',
+    's9-2':'In the <strong>📤 Giving</strong> tab select the stickers you\'ll give (only your available duplicates appear).',
+    's9-3':'In the <strong>📥 Receiving</strong> tab select the ones you\'ll receive (only missing ones not reserved for another trade).',
+    's9-4':'Tap <strong>Save</strong>. The trade is recorded as pending.',
+    's9-a-h':'Colors in the album',
+    's9-a-p':'Reserved stickers change color: <span class="badge b-white">white</span> = ones you\'re giving · <span class="badge b-celeste">blue</span> = ones you\'re receiving.',
+    's9-b-h':'Confirm the trade',
+    's9-b-p':'When the exchange happens, tap <strong>Confirm</strong>. The stickers you gave go down 1, the ones you received are marked as placed, and the trade is removed from the list.',
+    's9-tip':'You can also <em>Edit</em> a trade or <em>Cancel</em> it if it didn\'t happen. Reservations are released automatically.',
+    's10-title':'Import from another App',
+    's10-new':'New in v1.4!',
+    's10-new-p':'If you have your stickers loaded in another app, you can bring them to My World Cup Album without losing anything you already have here.',
+    's10-1':'Tap <strong>📲 Import from another App</strong>.',
+    's10-2':'From the other app, export or copy your sticker list.',
+    's10-3':'Paste the text in the box that appears and tap <em>Import</em>.',
+    's10-4':'The app automatically detects your missing and duplicate stickers and adds them to your album.',
+    's10-a-h':'Compatibility',
+    's10-a-p':'Works with the export format of <em>Figuritas App</em> and similar formats with "Missing" / "Duplicates" lists separated by section.',
+    'faq-title':'Frequently asked questions',
+    'faq-1-h':'If I refresh the page, does everything get lost?',
+    'faq-1-p':'No. Data is automatically saved in the browser\'s local storage. It would only be lost if you clear the site data. For extra safety use Sync or Auto-Save (PC).',
+    'faq-2-h':'Does it work on mobile?',
+    'faq-2-p':'Yes. Available as an app on Google Play (Mi Álbum Mundial 2026) and as a mobile web app in the browser. Sync works the same on all devices.',
+    'faq-3-h':'Does it need internet?',
+    'faq-3-p':'To use the album, no. For Sync and sticker scanning (OCR) a connection is required.',
+    'faq-4-h':'Does the trade QR work without internet?',
+    'faq-4-p':'The QR is generated locally without a connection. To scan it with the camera from the web, internet is needed (for OCR). In the Android app it works offline.',
+    'footer-l':'World Cup Album 2026 · User guide · v1.4',
+  }
+};
+
+function setLang(lang){
+  localStorage.setItem('lang', lang);
+  document.documentElement.lang = lang;
+  document.getElementById('langBtnEs').classList.toggle('active', lang==='es');
+  document.getElementById('langBtnEn').classList.toggle('active', lang==='en');
+  const d = T[lang];
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k = el.getAttribute('data-i18n');
+    if(d[k]!==undefined) el.innerHTML = d[k];
+  });
+}
+
+// Sincronizar con el idioma elegido en el álbum principal
+const saved = localStorage.getItem('lang') || 'es';
+if(saved==='en'){
+  document.getElementById('langBtnEn').classList.add('active');
+  document.getElementById('langBtnEs').classList.remove('active');
+  setLang('en');
+}
+</script>
 </body>
 </html>
