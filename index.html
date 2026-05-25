@@ -1899,7 +1899,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
       <div id="sm-gasto-cost" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-soft)"></div>
     </div>
     <div class="stats-panel" id="panel-manual">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.8;color:var(--ink-soft)">
+      <div id="panel-manual-content" style="font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.8;color:var(--ink-soft)">
         <p style="font-family:'Archivo Black',sans-serif;font-size:13px;color:var(--ink);margin-bottom:12px">¿Cómo usar Mi Álbum Mundial?</p>
         <p style="margin-bottom:10px"><strong style="color:var(--ink)">Sumar figurita:</strong> Tocá una vez el sticker.</p>
         <p style="margin-bottom:10px"><strong style="color:var(--ink)">Restar figurita:</strong> Mantené presionado 500ms (mobile) o click derecho (PC).</p>
@@ -4117,12 +4117,16 @@ document.getElementById('addLoteBtn-m').addEventListener('click',()=>{
 });
 
 // Reporte WhatsApp
-document.getElementById('reportarBtn').addEventListener('click',()=>{
-  const st=computeStats();
-  const pct=st.total>0?Math.round(st.owned/st.total*100):0;
-  const msg=encodeURIComponent('🐛 *Reporte - Mi Álbum Mundial 2026*\n\n📊 Estado: '+st.owned+'/'+st.total+' figuritas ('+pct+'%)\n\n❓ Descripción del problema:\n_(escribí acá qué pasó)_');
-  window.open('https://wa.me/5491169340242?text='+msg,'_blank');
-});
+function bindReportarBtn(btn){
+  if(!btn) return;
+  btn.onclick = () => {
+    const st=computeStats();
+    const pct=st.total>0?Math.round(st.owned/st.total*100):0;
+    const msg=encodeURIComponent('🐛 *Reporte - Mi Álbum Mundial 2026*\n\n📊 Estado: '+st.owned+'/'+st.total+' figuritas ('+pct+'%)\n\n❓ Descripción del problema:\n_(escribí acá qué pasó)_');
+    window.open('https://wa.me/5491169340242?text='+msg,'_blank');
+  };
+}
+bindReportarBtn(document.getElementById('reportarBtn'));
 
 renderInitial();
 bindGastoInputs();
@@ -4840,6 +4844,31 @@ const I18N = {
     'ac-share':      '🥳 Compartir logro',
     'title-l1':      'Mi Álbum',
     'title-l2':      'Mundial',
+    'manual-html': `
+      <p style="font-family:'Archivo Black',sans-serif;font-size:13px;color:var(--ink);margin-bottom:12px">How to use My World Cup Album?</p>
+      <p style="margin-bottom:10px"><strong style="color:var(--ink)">Add sticker:</strong> Tap it once.</p>
+      <p style="margin-bottom:10px"><strong style="color:var(--ink)">Remove sticker:</strong> Hold 500ms (mobile) or right-click (PC).</p>
+      <p style="margin-bottom:10px"><strong style="color:var(--ink)">Colors:</strong><br>
+        · Beige = missing<br>· Green = placed<br>· Gold = duplicate<br>· White = reserved to give in a trade<br>· Blue = reserved to receive in a trade
+      </p>
+      <p style="margin-bottom:10px"><strong style="color:var(--ink)">🔄 Trade by QR:</strong> Show your QR or share it on WhatsApp. Your friend scans it and instantly sees which stickers you can swap.</p>
+      <p style="margin-bottom:10px"><strong style="color:var(--ink)">📷 Scan Stickers:</strong> Take a photo of your stickers and the app detects the codes automatically. Check the ones you want to add and tap <em>Mark as Received</em>.</p>
+      <p style="margin-bottom:10px"><strong style="color:var(--ink)">📌 Agreed Trades:</strong> Save trades agreed with friends to reserve stickers until the exchange is completed.</p>
+      <p style="margin-bottom:10px"><strong style="color:var(--ink)">☁ Sync:</strong> Sync across devices using a room code.</p>
+      <div style="margin-bottom:20px;padding:10px 12px;background:#f0e8ff;border:1.5px solid #7546b0;border-left:4px solid #7546b0">
+        <strong style="color:#7546b0;font-family:'Archivo Black',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.06em">📲 NEW! Import from another App</strong>
+        <p style="margin-top:6px;margin-bottom:0;color:#4a2680;line-height:1.6">Already have your stickers in another app? Import them with one tap — without losing anything you've already entered here.</p>
+      </div>
+      <div style="padding-top:16px;border-top:1px dashed var(--rule)">
+        <p style="font-family:'Archivo Black',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;color:var(--ink)">Found a bug?</p>
+        <button id="reportarBtn" class="btn" style="width:100%;background:#25d366;border-color:#1ebe5d;color:#fff;font-size:12px">📲 Report on WhatsApp</button>
+      </div>
+      <div style="margin-top:20px;padding-top:16px;border-top:1px dashed var(--rule)">
+        <p style="font-family:'Archivo Black',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;color:var(--ink)">🔒 Privacy Policy</p>
+        <p style="font-size:12px;color:var(--ink);opacity:.8;line-height:1.5;margin-bottom:6px">All your data (stickers, packs, trades) is saved <strong>locally on your device</strong>. This app does not collect or send any personal information to any server.</p>
+        <p style="font-size:12px;color:var(--ink);opacity:.8;line-height:1.5;margin-bottom:6px">The <strong>Sync</strong> feature uses Firebase solely to sync your data between devices when you voluntarily enable it. No personally identifiable data is stored.</p>
+        <p style="font-size:12px;color:var(--ink);opacity:.8;line-height:1.5">Made by <strong>DRB ELECTRO</strong> · 2026</p>
+      </div>`,
   },
   en: {
     'pill':          "Collector's Edition",
@@ -4924,6 +4953,15 @@ function setLang(lang) {
     const key = el.getAttribute('data-i18n');
     if(d[key] !== undefined) el.textContent = d[key];
   });
+
+  // Panel "Cómo se usa / How to use"
+  const manualEl = document.getElementById('panel-manual-content');
+  if(manualEl && d['manual-html']) {
+    manualEl.innerHTML = d['manual-html'];
+    // Re-asignar el listener del botón reportar que quedó en el nuevo HTML
+    const rb = document.getElementById('reportarBtn');
+    if(rb && typeof bindReportarBtn === 'function') bindReportarBtn(rb);
+  }
 
   // Re-renderizar secciones para actualizar "X figuritas / X stickers"
   if(typeof renderAllSections === 'function') renderAllSections();
