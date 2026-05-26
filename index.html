@@ -2850,18 +2850,25 @@ function generarRepetidas(){
   });
   return lines.join('\n');
 }
+// ===== BANDERAS POR SECCIÓN =====
+const FLAG_EMOJI = {
+  FWC:'🏆', MEX:'🇲🇽', RSA:'🇿🇦', KOR:'🇰🇷', CZE:'🇨🇿', CAN:'🇨🇦',
+  BIH:'🇧🇦', QAT:'🇶🇦', SUI:'🇨🇭', BRA:'🇧🇷', MAR:'🇲🇦', HAI:'🇭🇹',
+  SCO:'🏴󠁧󠁢󠁳󠁣󠁴󠁿', USA:'🇺🇸', PAR:'🇵🇾', AUS:'🇦🇺', TUR:'🇹🇷', GER:'🇩🇪',
+  CUW:'🇨🇼', CIV:'🇨🇮', ECU:'🇪🇨', NED:'🇳🇱', JPN:'🇯🇵', SWE:'🇸🇪',
+  TUN:'🇹🇳', BEL:'🇧🇪', EGY:'🇪🇬', IRN:'🇮🇷', NZL:'🇳🇿', ESP:'🇪🇸',
+  CPV:'🇨🇻', KSA:'🇸🇦', URU:'🇺🇾', FRA:'🇫🇷', SEN:'🇸🇳', IRQ:'🇮🇶',
+  NOR:'🇳🇴', ARG:'🇦🇷', ALG:'🇩🇿', AUT:'🇦🇹', JOR:'🇯🇴', POR:'🇵🇹',
+  COD:'🇨🇩', UZB:'🇺🇿', COL:'🇨🇴', ENG:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', CRO:'🇭🇷',
+  GHA:'🇬🇭', PAN:'🇵🇦', CC:'🥤',
+};
+
 // ===== ENVIAR POR WHATSAPP =====
 function _waEnviar(tipo){
   const isEn = currentLang === 'en';
   const esFaltantes = tipo === 'miss';
 
-  // Línea 1: título
   const titulo = isEn ? 'My World Cup Album 2026' : 'Mi Álbum Mundial 2026';
-  // Línea 2: subtítulo
-  const subtitulo = esFaltantes
-    ? (isEn ? 'Missing stickers:' : 'Me faltan:')
-    : (isEn ? 'I have duplicates:' : 'Tengo Repetidas:');
-  // Pie
   const footerLbl = esFaltantes
     ? (isEn ? 'Missing' : 'faltantes')
     : (isEn ? 'Duplicates' : 'Repetidas');
@@ -2872,6 +2879,7 @@ function _waEnviar(tipo){
   SECTIONS.forEach(sec=>{
     const ids = getIds(sec);
     const secName = (isEn && COUNTRY_NAMES_EN[sec.id]) ? COUNTRY_NAMES_EN[sec.id] : sec.name;
+    const flag = FLAG_EMOJI[sec.id] || '🏳';
     let items;
     if(esFaltantes){
       items = ids
@@ -2885,7 +2893,7 @@ function _waEnviar(tipo){
     }
     if(items.length){
       total += items.length;
-      secLines.push('*' + secName + ':* ' + items.join(' - '));
+      secLines.push(flag + ' *' + secName + ':* ' + items.join(' · '));
     }
   });
 
@@ -2894,9 +2902,13 @@ function _waEnviar(tipo){
     return;
   }
 
+  const subtitulo = esFaltantes
+    ? (isEn ? 'Missing stickers: ' : 'Me faltan: ') + total
+    : (isEn ? 'I have duplicates: ' : 'Tengo Repetidas: ') + total;
+
   const msg = titulo + '\n' + subtitulo + '\n\n'
-    + secLines.join('\n')
-    + '\n\nTotal: ' + total + ' ' + footerLbl;
+    + secLines.join('\n\n')
+    + '\n\n_Total: ' + total + ' ' + footerLbl + '_';
 
   window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
 }
@@ -3978,18 +3990,22 @@ document.getElementById('canjeQRGalleryInput').addEventListener('change', async 
 // En todas las plataformas abrimos la cámara nativa y procesamos la foto con jsQR.
 function startCanjeQRScan(){
   if(window.Android){
-    // App Android: escáner de QR en vivo (detecta solo, sin tocar para capturar)
-    if(Android.scanQRCode){
-      Android.scanQRCode();
-      return;
-    }
-    // Fallback APK viejo: cámara nativa + foto
+    // Intentar escáner en vivo de Google (detecta solo, sin foto)
+    try {
+      if(typeof Android.scanQRCode === 'function'){
+        Android.scanQRCode();
+        return;
+      }
+    } catch(e){ /* método no disponible, caer al fallback */ }
+    // Fallback: cámara nativa + procesar foto con jsQR
     _canjeQRAndroidPending = true;
-    if(Android.openCameraForQR) Android.openCameraForQR();
-    else Android.openCamera();
+    try {
+      if(typeof Android.openCameraForQR === 'function') Android.openCameraForQR();
+      else Android.openCamera();
+    } catch(e){}
     return;
   }
-  // Web mobile: input file con capture abre la cámara del sistema
+  // Web: input file con capture abre la cámara del sistema
   document.getElementById('canjeQRCameraInput').click();
 }
 document.getElementById('canjeQRCameraInput').addEventListener('change', async (e)=>{
