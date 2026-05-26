@@ -2910,6 +2910,15 @@ function _waEnviar(tipo){
     + secLines.join('\n\n')
     + '\n\n_Total: ' + total + ' ' + footerLbl + '_';
 
+  _shareWhatsApp(msg);
+}
+
+// Compartir texto: usa el share nativo (preserva emojis) y cae a wa.me
+async function _shareWhatsApp(msg){
+  if(navigator.share){
+    try{ await navigator.share({ text: msg }); return; }
+    catch(e){ if(e.name === 'AbortError') return; }
+  }
   window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
 }
 document.getElementById('waEnviarFaltantesBtn').addEventListener('click', ()=>_waEnviar('miss'));
