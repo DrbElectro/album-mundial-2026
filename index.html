@@ -3248,13 +3248,16 @@ saveHistory = function(h){
 const FIREBASE_DB   = 'https://album-mundial-2026-e3e63-default-rtdb.firebaseio.com';
 const SYNC_ROOM_KEY = 'album_sync_room_v2';
 
+const SYNC_LOCALAT_KEY = 'album_sync_local_at';
 let syncRoom       = localStorage.getItem(SYNC_ROOM_KEY) || null;
 let syncLastAt     = null;
+let syncLocalAt    = localStorage.getItem(SYNC_LOCALAT_KEY) || null; // marca de tiempo del último cambio LOCAL
 let syncWriteTimer = null;
 let syncPollTimer  = null;
 let syncReadFails  = 0;     // lecturas fallidas consecutivas (detección offline)
 let syncPendingWrite = false; // hay un cambio sin subir por falta de conexión
 
+function setSyncLocalAt(iso){ syncLocalAt = iso; if(iso) localStorage.setItem(SYNC_LOCALAT_KEY, iso); }
 function _hora(){ return new Date().toLocaleTimeString(currentLang==='en'?'en-US':'es-AR',{hour:'2-digit',minute:'2-digit'}); }
 
 function genRoomCode(){ return Math.random().toString(36).slice(2,8).toUpperCase(); }
@@ -3291,6 +3294,7 @@ async function fbWrite(attempt){
     });
     if(!resp.ok) throw new Error('write '+resp.status);
     syncLastAt = p.savedAt;
+    setSyncLocalAt(p.savedAt); // local ya coincide con lo subido a la nube
     syncPendingWrite = false;
     syncReadFails = 0;
     setSyncStatus(I18N[currentLang]['sync-saved']+' · '+_hora(),'var(--green)');
@@ -3334,6 +3338,7 @@ function applyRemoteState(file){
   if(file.history) saveHistory(file.history);
   refreshAllStickers(); updateStats(); renderLotes(); calcGasto(); renderChart(); renderCanjesPendientesList(); updateCanjesPendientesBtn();
   syncLastAt = file.savedAt;
+  setSyncLocalAt(file.savedAt); // adoptamos los datos de la nube
   setSyncStatus(I18N[currentLang]['sync-updated']+' · '+_hora(),'var(--teal)');
 }
 async function pollFb(){
@@ -3366,12 +3371,30 @@ function startSyncPoll(){
 }
 
 const _origSaveData_beforeSync = saveData;
-saveData = function(){ _origSaveData_beforeSync(); scheduleWrite(); };
+saveData = function(){
+  _origSaveData_beforeSync();
+  if(syncRoom) setSyncLocalAt(new Date().toISOString()); // hay un cambio local pendiente de subir
+  scheduleWrite();
+};
 
-// Auto-iniciar si ya hay sala guardada
+// Auto-iniciar si ya hay sala guardada: comparar timestamps (no perder datos)
 if(syncRoom && FIREBASE_DB!=='FIREBASE_URL_PLACEHOLDER'){
   fbRead(syncRoom).then(file=>{
-    if(file?.savedAt) syncLastAt = file.savedAt;
+    if(file?.savedAt){
+      const remoteAt = file.savedAt;
+      if(!syncLocalAt || remoteAt > syncLocalAt){
+        // La nube tiene datos más nuevos → adoptarlos
+        if(file.data) applyRemoteState(file);
+        else syncLastAt = remoteAt;
+      } else if(syncLocalAt > remoteAt){
+        // Lo local es más nuevo → subirlo a la nube
+        syncLastAt = remoteAt;
+        fbWrite();
+      } else {
+        // Ya están en sync
+        syncLastAt = remoteAt;
+      }
+    }
     setSyncStatus(I18N[currentLang]['sync-active'],'var(--green)');
     startSyncPoll();
   }).catch(()=>{ setSyncStatus(I18N[currentLang]['sync-offline'],'var(--gold-deep)'); startSyncPoll(); });
@@ -3410,7 +3433,9 @@ function desincronizar(){
       syncWriteTimer = null;
       syncRoom = null;
       syncLastAt = null;
+      syncLocalAt = null;
       localStorage.removeItem(SYNC_ROOM_KEY);
+      localStorage.removeItem(SYNC_LOCALAT_KEY);
       updateSyncBtn();
       setSyncStatus(I18N[currentLang]['sync-disconnected'], 'var(--ink-soft)');
       document.getElementById('syncCodeDisplay').textContent = '—';
