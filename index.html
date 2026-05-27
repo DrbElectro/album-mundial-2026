@@ -2925,8 +2925,15 @@ function _waEnviar(tipo){
   _shareWhatsApp(msg);
 }
 
-// Compartir texto: usa el share nativo (preserva emojis) y cae a wa.me
+// Compartir texto preservando emojis.
+// 1) App Android: bridge nativo (navigator.share no anda en file://)
+// 2) Web: navigator.share
+// 3) Fallback: wa.me (puede romper emojis en algunos casos)
 async function _shareWhatsApp(msg){
+  if(window.Android && typeof Android.shareText === 'function'){
+    Android.shareText(msg);
+    return;
+  }
   if(navigator.share){
     try{ await navigator.share({ text: msg }); return; }
     catch(e){ if(e.name === 'AbortError') return; }
