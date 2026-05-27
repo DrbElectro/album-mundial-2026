@@ -1965,6 +1965,12 @@ const I18N = {
     'toast-no-friend':'Ingresá el nombre del amigo','toast-no-stickers':'Agregá al menos una figurita',
     'toast-copied':'¡Copiado! Pegalo donde quieras',
     'toast-no-miss':'🎉 ¡No te faltan figuritas!','toast-no-miss-wa':'Sin faltantes',
+    'sync-connecting':'Conectando…','sync-saved':'🟢 Sincronizado','sync-offline':'🟡 Sin conexión · reintentando…',
+    'sync-error':'🔴 Error · tocá para reintentar','sync-updated':'↓ Actualizado','sync-connected':'🟢 Conectado y sincronizado',
+    'sync-active':'🟢 Sync activo','sync-disconnected':'Desincronizado','sync-room-created':'🟢 Sala creada',
+    'sync-join-title':'¿Unirte a esta sala?',
+    'sync-join-msg':'⚠️ El progreso actual de ESTE dispositivo se va a reemplazar por el de la sala. Esto no se puede deshacer.',
+    'sync-join-ok':'Sí, unirme',
     'wa-miss-header':'🏆 Mi Álbum Mundial 2026\n📋 Me faltan:\n',
     'wa-miss-footer':'faltantes',
     'card-gasto':'Gasto en figuritas','card-progreso':'Progreso en el tiempo',
@@ -2024,6 +2030,12 @@ const I18N = {
     'toast-no-friend':"Enter your friend's name",'toast-no-stickers':'Add at least one sticker',
     'toast-copied':'Copied! Paste it wherever you want',
     'toast-no-miss':'🎉 No missing stickers!','toast-no-miss-wa':'No missing stickers',
+    'sync-connecting':'Connecting…','sync-saved':'🟢 Synced','sync-offline':'🟡 Offline · retrying…',
+    'sync-error':'🔴 Error · tap to retry','sync-updated':'↓ Updated','sync-connected':'🟢 Connected and synced',
+    'sync-active':'🟢 Sync active','sync-disconnected':'Disconnected','sync-room-created':'🟢 Room created',
+    'sync-join-title':'Join this room?',
+    'sync-join-msg':'⚠️ The current progress on THIS device will be replaced by the room data. This cannot be undone.',
+    'sync-join-ok':'Yes, join',
     'wa-miss-header':'🏆 My World Cup Album 2026\n📋 Missing stickers:\n',
     'wa-miss-footer':'missing',
     'card-gasto':'Sticker spending','card-progreso':'Progress over time',
@@ -3240,6 +3252,10 @@ let syncRoom       = localStorage.getItem(SYNC_ROOM_KEY) || null;
 let syncLastAt     = null;
 let syncWriteTimer = null;
 let syncPollTimer  = null;
+let syncReadFails  = 0;     // lecturas fallidas consecutivas (detección offline)
+let syncPendingWrite = false; // hay un cambio sin subir por falta de conexión
+
+function _hora(){ return new Date().toLocaleTimeString(currentLang==='en'?'en-US':'es-AR',{hour:'2-digit',minute:'2-digit'}); }
 
 function genRoomCode(){ return Math.random().toString(36).slice(2,8).toUpperCase(); }
 function roomUrl(r){ return FIREBASE_DB+'/rooms/'+r+'.json'; }
@@ -3265,8 +3281,9 @@ function updateSyncBtn(){
   }
 }
 
-async function fbWrite(){
+async function fbWrite(attempt){
   if(!syncRoom || FIREBASE_DB==='FIREBASE_URL_PLACEHOLDER') return;
+  attempt = attempt || 0;
   try{
     const p = syncPayload();
     const resp = await fetch(roomUrl(syncRoom),{
@@ -3274,8 +3291,20 @@ async function fbWrite(){
     });
     if(!resp.ok) throw new Error('write '+resp.status);
     syncLastAt = p.savedAt;
-    setSyncStatus('☁ Guardado · '+new Date().toLocaleString('es-AR',{hour:'2-digit',minute:'2-digit'}),'var(--green)');
-  }catch(e){ setSyncStatus('Error al guardar','var(--red)'); }
+    syncPendingWrite = false;
+    syncReadFails = 0;
+    setSyncStatus(I18N[currentLang]['sync-saved']+' · '+_hora(),'var(--green)');
+  }catch(e){
+    syncPendingWrite = true;
+    if(attempt < 2){
+      // Reintento con espera creciente: 3s, 6s
+      setSyncStatus(I18N[currentLang]['sync-offline'],'var(--gold-deep)');
+      setTimeout(()=>fbWrite(attempt+1), (attempt+1)*3000);
+    } else {
+      // Agotó reintentos: queda en rojo, se puede tocar para reintentar
+      setSyncStatus(I18N[currentLang]['sync-error'],'var(--red)');
+    }
+  }
 }
 function scheduleWrite(){
   if(!syncRoom) return;
@@ -3305,15 +3334,30 @@ function applyRemoteState(file){
   if(file.history) saveHistory(file.history);
   refreshAllStickers(); updateStats(); renderLotes(); calcGasto(); renderChart(); renderCanjesPendientesList(); updateCanjesPendientesBtn();
   syncLastAt = file.savedAt;
-  setSyncStatus('↓ Actualizado · '+new Date().toLocaleString('es-AR',{timeStyle:'short'}),'var(--teal)');
+  setSyncStatus(I18N[currentLang]['sync-updated']+' · '+_hora(),'var(--teal)');
 }
 async function pollFb(){
   if(!syncRoom || syncWriteTimer) return;
   try{
     const file = await fbRead(syncRoom);
+    syncReadFails = 0;
+    // Si había un cambio pendiente sin subir, lo reintentamos ahora que hay conexión
+    if(syncPendingWrite){ fbWrite(); return; }
     if(!file?.savedAt || !file?.data || file.savedAt===syncLastAt) return;
     applyRemoteState(file);
-  }catch(e){}
+  }catch(e){
+    syncReadFails++;
+    // Tras 2 fallos seguidos avisamos que no hay conexión (sin pisar un error de escritura)
+    if(syncReadFails >= 2 && !syncPendingWrite){
+      setSyncStatus(I18N[currentLang]['sync-offline'],'var(--gold-deep)');
+    }
+  }
+}
+// Reintento manual: tocar la barra de estado fuerza una sincronización
+function syncManualRetry(){
+  if(!syncRoom) return;
+  setSyncStatus(I18N[currentLang]['sync-connecting'],'var(--gold-deep)');
+  if(syncPendingWrite) fbWrite(); else pollFb();
 }
 function startSyncPoll(){
   if(syncPollTimer) clearInterval(syncPollTimer);
@@ -3328,11 +3372,17 @@ saveData = function(){ _origSaveData_beforeSync(); scheduleWrite(); };
 if(syncRoom && FIREBASE_DB!=='FIREBASE_URL_PLACEHOLDER'){
   fbRead(syncRoom).then(file=>{
     if(file?.savedAt) syncLastAt = file.savedAt;
-    setSyncStatus('☁ Sync activo','var(--green)');
+    setSyncStatus(I18N[currentLang]['sync-active'],'var(--green)');
     startSyncPoll();
-  }).catch(()=>{ setSyncStatus('',''); });
+  }).catch(()=>{ setSyncStatus(I18N[currentLang]['sync-offline'],'var(--gold-deep)'); startSyncPoll(); });
 }
 updateSyncBtn();
+
+// Reintento manual al tocar la barra de estado
+['sync-status-bar','syncStatusArea'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el){ el.style.cursor='pointer'; el.title='Tocar para reintentar'; el.addEventListener('click', syncManualRetry); }
+});
 
 // ---- Modal ----
 function openSyncModal(){
@@ -3362,7 +3412,7 @@ function desincronizar(){
       syncLastAt = null;
       localStorage.removeItem(SYNC_ROOM_KEY);
       updateSyncBtn();
-      setSyncStatus('Desincronizado', 'var(--ink-soft)');
+      setSyncStatus(I18N[currentLang]['sync-disconnected'], 'var(--ink-soft)');
       document.getElementById('syncCodeDisplay').textContent = '—';
       document.getElementById('syncDesincWrap').style.display = 'none';
       showToast(I18N[currentLang]['toast-sync-off']);
@@ -3660,7 +3710,7 @@ document.getElementById('syncGenCode').addEventListener('click', async()=>{
   syncRoom = genRoomCode();
   localStorage.setItem(SYNC_ROOM_KEY, syncRoom);
   document.getElementById('syncCodeDisplay').textContent = syncRoom;
-  setSyncStatus('Sala creada','var(--green)');
+  setSyncStatus(I18N[currentLang]['sync-room-created'],'var(--green)');
   await fbWrite();
   startSyncPoll();
 });
@@ -3672,23 +3722,54 @@ document.getElementById('syncCopyCode').addEventListener('click',()=>{
     navigator.clipboard.writeText(code).then(()=>showToast(I18N[currentLang]['toast-code-copied']));
 });
 
-// Conectar desde otro dispositivo
+// ¿Este dispositivo tiene progreso cargado? (para decidir si avisar antes de unirse)
+function hasLocalProgress(){
+  try{
+    const st = computeStats();
+    if(st && st.owned > 0) return true;
+  }catch(e){}
+  if((state.canjes||[]).length > 0) return true;
+  if((state.lotes||[]).some(l => (+l.qty||0) > 0)) return true;
+  return false;
+}
+
+// Aplica efectivamente la conexión a la sala (reemplaza datos locales)
+function _doSyncConnect(id, file){
+  syncRoom = id;
+  localStorage.setItem(SYNC_ROOM_KEY, id);
+  applyRemoteState(file);
+  document.getElementById('syncCodeDisplay').textContent = id;
+  document.getElementById('syncCodeInput').value = '';
+  document.getElementById('syncDesincWrap').style.display = 'block';
+  startSyncPoll();
+  setSyncStatus(I18N[currentLang]['sync-connected'],'var(--green)');
+  showToast(I18N[currentLang]['toast-synced']);
+}
+
+// Conectar desde otro dispositivo (con aviso si hay progreso local)
 document.getElementById('syncConnectBtn').addEventListener('click', async()=>{
   const id = document.getElementById('syncCodeInput').value.trim().toUpperCase();
   if(id.length < 4){ showToast(I18N[currentLang]['toast-invalid-code']); return; }
-  setSyncStatus('Conectando…','var(--gold-deep)');
+  setSyncStatus(I18N[currentLang]['sync-connecting'],'var(--gold-deep)');
+  let file;
   try{
-    const file = await fbRead(id);
+    file = await fbRead(id);
     if(!file?.data) throw new Error('datos inválidos');
-    syncRoom = id;
-    localStorage.setItem(SYNC_ROOM_KEY, id);
-    applyRemoteState(file);
-    document.getElementById('syncCodeDisplay').textContent = id;
-    document.getElementById('syncCodeInput').value = '';
-    startSyncPoll();
-    setSyncStatus('☁ Conectado y sincronizado','var(--green)');
-    showToast(I18N[currentLang]['toast-synced']);
-  }catch(e){ setSyncStatus('Error: '+e.message,'var(--red)'); }
+  }catch(e){ setSyncStatus(I18N[currentLang]['sync-error'],'var(--red)'); return; }
+
+  // A — Si el dispositivo ya tiene progreso, pedir confirmación antes de reemplazar
+  if(hasLocalProgress()){
+    const d = I18N[currentLang];
+    showConfirm(
+      d['sync-join-title'],
+      d['sync-join-msg'],
+      () => _doSyncConnect(id, file),
+      d['sync-join-ok'],
+      'var(--red)'
+    );
+  } else {
+    _doSyncConnect(id, file);
+  }
 });
 
 // ===== CANJE =====
