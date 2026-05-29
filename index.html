@@ -1971,6 +1971,7 @@ const I18N = {
     'sync-join-title':'¿Unirte a esta sala?',
     'sync-join-msg':'⚠️ El progreso actual de ESTE dispositivo se va a reemplazar por el de la sala. Esto no se puede deshacer.',
     'sync-join-ok':'Sí, unirme',
+    'scan-review':'Revisá antes de marcar — algunas se autocorrigieron',
     'wa-miss-header':'🏆 Mi Álbum Mundial 2026\n📋 Me faltan:\n',
     'wa-miss-footer':'faltantes',
     'card-gasto':'Gasto en figuritas','card-progreso':'Progreso en el tiempo',
@@ -2036,6 +2037,7 @@ const I18N = {
     'sync-join-title':'Join this room?',
     'sync-join-msg':'⚠️ The current progress on THIS device will be replaced by the room data. This cannot be undone.',
     'sync-join-ok':'Yes, join',
+    'scan-review':'Review before marking — some were auto-corrected',
     'wa-miss-header':'🏆 My World Cup Album 2026\n📋 Missing stickers:\n',
     'wa-miss-footer':'missing',
     'card-gasto':'Sticker spending','card-progreso':'Progress over time',
@@ -4626,7 +4628,10 @@ window.tryCloseTopModal = function() {
 .scan-bar{background:var(--paper-3);border:1px solid var(--ink);height:14px;overflow:hidden}
 .scan-bar-fill{height:100%;background:var(--gold-deep);transition:width .3s;width:0%}
 .scan-bar-text{font-family:'JetBrains Mono',monospace;font-size:11px;text-align:center;color:var(--ink-soft);margin-top:8px;letter-spacing:.05em}
-.scan-chip{display:flex;align-items:center;gap:7px;background:var(--paper-2);border:1.5px solid var(--ink);padding:6px 10px;cursor:pointer;user-select:none;transition:transform .08s}
+.scan-chip{display:flex;align-items:center;gap:7px;background:var(--paper-2);border:1.5px solid var(--ink);padding:6px 10px;cursor:pointer;user-select:none;transition:transform .08s;position:relative}
+.scan-chip.suggested{background:#fff4cc;border-color:var(--gold-deep)}
+.scan-chip.suggested::after{content:'⚠';position:absolute;top:-7px;right:-7px;background:var(--gold-deep);color:#fff;font-size:10px;width:16px;height:16px;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--ink)}
+.scan-review-notice{display:none;background:#fff4cc;border:1.5px solid var(--gold-deep);padding:8px 12px;margin-bottom:10px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink);letter-spacing:.04em;line-height:1.4}
 .scan-chip:hover{transform:translate(-1px,-1px);box-shadow:2px 2px 0 var(--ink)}
 .scan-chip input{width:16px;height:16px;accent-color:var(--green);cursor:pointer}
 .scan-chip .sc-id{font-family:'Archivo Black',sans-serif;font-size:14px;letter-spacing:.03em}
@@ -4673,6 +4678,9 @@ window.tryCloseTopModal = function() {
       <!-- Resultados -->
       <div id="webScanResultsWrap" style="display:none;margin-top:16px">
         <p class="scan-section-title">Figuritas detectadas</p>
+        <div id="webScanReviewNotice" class="scan-review-notice">
+          ⚠️ <span data-i18n="scan-review">Revisá antes de marcar — algunas se autocorrigieron</span>
+        </div>
         <div id="webScanResultsList" style="display:flex;flex-wrap:wrap;gap:8px;max-height:200px;overflow-y:auto;margin-bottom:12px"></div>
         <div style="display:flex;gap:8px;margin-bottom:8px">
           <button class="btn ghost" id="webScanRetryBtn" style="flex:1;font-size:12px">↺ Limpiar</button>
@@ -4934,8 +4942,7 @@ function onOCRTextReady(text) {
       + '<textarea readonly class="scan-debug">' + (text || '(vacío)').substring(0, 600) + '</textarea>';
     el.style.display = 'block';
   } else {
-    if (scanAddMode) appendWebScanResults(found);
-    else renderWebScanResults(found);
+    renderWebScanResults(found, { append: scanAddMode });
   }
   scanAddMode = false;
 }
@@ -4980,8 +4987,7 @@ async function runWebOCR(dataUrl, canvas, colorDataUrl) {
       el.innerHTML = '<p style="font-size:12px;color:var(--ink-soft);text-align:center;line-height:1.5;margin-bottom:8px">No se encontraron códigos. Probá con una foto más cercana y con buena luz.</p><textarea readonly class="scan-debug">' + (text || '(vacío)').substring(0,600) + '</textarea>';
       el.style.display = 'block';
     } else {
-      if (scanAddMode) appendWebScanResults(found);
-      else renderWebScanResults(found);
+      renderWebScanResults(found, { append: scanAddMode });
     }
     scanAddMode = false;
   } catch (err) {
@@ -4990,52 +4996,95 @@ async function runWebOCR(dataUrl, canvas, colorDataUrl) {
   }
 }
 
-function parseStickerCodesWeb(rawText) {
+// Índice de stickers para escaneo — se construye una sola vez al cargar
+const _SCAN_INDEX = (() => {
   const allIds = new Set();
-  SECTIONS.forEach(sec => getIds(sec).forEach(id => allIds.add(id.toUpperCase())));
   const allIdsList = [];
-  SECTIONS.forEach(sec => getIds(sec).forEach(id => allIdsList.push(id.toUpperCase())));
+  const upperToReal = new Map();
+  const validPrefixes = new Set();
+  ALL_IDS.forEach(id => {
+    const u = id.toUpperCase();
+    allIds.add(u);
+    allIdsList.push(u);
+    upperToReal.set(u, id);
+    const p = u.match(/^([A-Z]+)/);
+    if (p) validPrefixes.add(p[1]);
+  });
+  return { allIds, allIdsList, upperToReal, validPrefixes };
+})();
 
+// Caracteres que el OCR suele confundir (mayúsculas/dígitos)
+const _OCR_SIMILAR = {
+  'O':['Q','0'], 'Q':['O','0'], '0':['O','Q'],
+  '1':['I','L'], 'I':['1','L'], 'L':['1','I'],
+  '5':['S'], 'S':['5'],
+  '8':['B'], 'B':['8'],
+  '2':['Z'], 'Z':['2'],
+  '6':['G','C'], 'G':['6'], 'C':['6'],
+};
+
+// Devuelve un prefijo válido a 1 sustitución de distancia, o null
+function _correctPrefix(prefix, validPrefixes) {
+  if (validPrefixes.has(prefix)) return null;
+  for (let i = 0; i < prefix.length; i++) {
+    const alts = _OCR_SIMILAR[prefix[i]] || [];
+    for (const alt of alts) {
+      const cand = prefix.slice(0, i) + alt + prefix.slice(i + 1);
+      if (validPrefixes.has(cand)) return cand;
+    }
+  }
+  return null;
+}
+
+function parseStickerCodesWeb(rawText) {
+  const { allIds, allIdsList, validPrefixes } = _SCAN_INDEX;
   const text = rawText.toUpperCase().replace(/[^A-Z0-9\s]/g, ' ').replace(/\s+/g, ' ');
-  const found = new Set();
+  const found = new Map(); // id -> suggested:bool
   const pattern = /\b([A-Z]{2,4})\s*(\d{1,2})\b/g;
   let m;
   while ((m = pattern.exec(text)) !== null) {
-    const noSpace = m[1] + m[2];
-    const noLeadZero = m[1] + String(parseInt(m[2]));
-    [noSpace, noLeadZero].forEach(c => { if (allIds.has(c)) found.add(c); });
+    const prefix = m[1], num = m[2];
+    const c1 = prefix + num, c2 = prefix + String(parseInt(num));
+    let hit = allIds.has(c1) ? c1 : (allIds.has(c2) ? c2 : null);
+    if (hit) { if (!found.has(hit)) found.set(hit, false); continue; }
+    const fixed = _correctPrefix(prefix, validPrefixes);
+    if (!fixed) continue;
+    const f1 = fixed + num, f2 = fixed + String(parseInt(num));
+    hit = allIds.has(f1) ? f1 : (allIds.has(f2) ? f2 : null);
+    if (hit && !found.has(hit)) found.set(hit, true);
   }
-  return allIdsList.filter(id => found.has(id));
+  // Single pass — devuelve solo los hallados, en el orden del álbum
+  const out = [];
+  for (const id of allIdsList) {
+    if (found.has(id)) out.push({ id, suggested: found.get(id) });
+  }
+  return out;
 }
 
-function makeScanChip(id) {
-  const realId = Object.keys(state.stickers).find(k => k.toUpperCase() === id) || id;
+function makeScanChip({ id, suggested }) {
+  const realId = _SCAN_INDEX.upperToReal.get(id) || id;
   const current = state.stickers[realId] || 0;
   const label = ['falta','pegada','×1 rep','×2 rep','×3 rep','×4 rep'][Math.min(current, 5)] || `×${current-1} rep`;
   const chip = document.createElement('label');
-  chip.className = 'scan-chip';
+  chip.className = 'scan-chip' + (suggested ? ' suggested' : '');
   chip.innerHTML = `<input type="checkbox" data-id="${id}" checked><span class="sc-id">${displayId(realId)}</span><span class="sc-st">${label}</span>`;
   return chip;
 }
-function renderWebScanResults(ids) {
+function renderWebScanResults(items, { append = false } = {}) {
   const list = document.getElementById('webScanResultsList');
-  list.innerHTML = '';
-  ids.forEach(id => list.appendChild(makeScanChip(id)));
+  if (!append) list.innerHTML = '';
+  items.forEach(it => list.appendChild(makeScanChip(it)));
   document.getElementById('webScanResultsWrap').style.display = 'block';
-}
-function appendWebScanResults(ids) {
-  const list = document.getElementById('webScanResultsList');
-  ids.forEach(id => list.appendChild(makeScanChip(id)));
-  document.getElementById('webScanResultsWrap').style.display = 'block';
+  // Cartel "Revisá antes de marcar" solo si hay chips autocorregidos
+  const notice = document.getElementById('webScanReviewNotice');
+  if (notice) notice.style.display = list.querySelector('.scan-chip.suggested') ? 'block' : 'none';
 }
 
 document.getElementById('webScanApplyBtn').addEventListener('click', () => {
   const checkboxes = document.querySelectorAll('#webScanResultsList input[type=checkbox]:checked');
   let count = 0;
   checkboxes.forEach(cb => {
-    const id = cb.dataset.id;
-    const realId = Object.keys(state.stickers).find(k => k.toUpperCase() === id)
-      || SECTIONS.flatMap(s => getIds(s)).find(k => k.toUpperCase() === id);
+    const realId = _SCAN_INDEX.upperToReal.get(cb.dataset.id);
     if (realId !== undefined) {
       state.stickers[realId] = (state.stickers[realId] || 0) + 1;
       count++;
