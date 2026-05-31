@@ -2,7 +2,7 @@
 // Mi Álbum Mundial 2026 — Service Worker
 // Incrementar CACHE_VER con cada deploy importante
 // =====================================================
-const CACHE_VER   = 'v9';
+const CACHE_VER   = 'v10';
 const CACHE_MAIN  = 'album-mundial-2026-' + CACHE_VER;
 const CACHE_FONTS = 'album-mundial-2026-fonts-' + CACHE_VER;
 

@@ -4394,10 +4394,15 @@ document.getElementById('acCompartir').addEventListener('click',async()=>{
   ctx.restore();
 
   // ── Compartir ──
+  // Android (file://): usar bridge nativo con base64
+  if(window.Android && typeof Android.shareImage === 'function'){
+    Android.shareImage(canvas.toDataURL('image/png'));
+    return;
+  }
+  // Web HTTPS: share nativo con File (solo si el navegador lo soporta)
   const shareBlob = () => new Promise(res => canvas.toBlob(res, 'image/png'));
   const blob = await shareBlob();
   const file = new File([blob], 'album-mundial-2026.png', { type: 'image/png' });
-
   if(navigator.canShare && navigator.canShare({ files: [file] })){
     try{
       await navigator.share({ files: [file], title: '¡Completé mi Álbum del Mundial 2026!' });
