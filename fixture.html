@@ -176,6 +176,59 @@ body{padding-top:var(--safe-top);padding-bottom:calc(32px + var(--safe-bottom))}
   color:var(--ink-soft);text-align:center;margin-top:4px;letter-spacing:.04em;
 }
 
+/* ── Tabla de posiciones ── */
+.standings-wrap{padding:0 16px 24px}
+.st-group{margin-bottom:16px;border:1.5px solid var(--rule);overflow:hidden}
+.st-group-header{
+  background:var(--wc-blue-dark);color:#fff8ee;
+  padding:7px 12px;
+  font-family:'Archivo Black',sans-serif;font-size:11px;
+  letter-spacing:.12em;text-transform:uppercase;
+}
+.st-table{width:100%;border-collapse:collapse}
+.st-table th{
+  font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink-soft);
+  padding:5px 6px;text-align:center;
+  border-bottom:1.5px solid var(--rule);background:var(--paper-2);
+}
+.st-table th.th-team{text-align:left;padding-left:10px}
+.st-table td{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  padding:8px 6px;text-align:center;
+  border-bottom:1px solid var(--paper-3);
+}
+.st-table tr:last-child td{border-bottom:none}
+.st-table td.td-pos{
+  font-family:'Archivo Black',sans-serif;font-size:12px;
+  width:24px;padding-left:8px;
+}
+.st-table td.td-team{
+  text-align:left;padding-left:6px;
+  font-family:'Archivo',sans-serif;font-size:12px;font-weight:600;
+}
+.st-team-inner{display:flex;align-items:center;gap:6px}
+.st-flag{width:28px;height:19px;flex-shrink:0;border:1px solid var(--rule);overflow:hidden}
+.st-flag svg{display:block;width:100%;height:100%}
+.st-table td.td-pts{
+  font-family:'Archivo Black',sans-serif;font-size:13px;color:var(--ink);
+}
+/* Colores por posición */
+.st-table tr.st-qualify td:first-child{box-shadow:inset 3px 0 0 var(--green)}
+.st-table tr.st-maybe   td:first-child{box-shadow:inset 3px 0 0 var(--wc-gold)}
+.st-table tr.st-out     td:first-child{box-shadow:inset 3px 0 0 var(--rule)}
+.st-table tr.st-qualify{background:rgba(47,122,62,.06)}
+.st-legend{
+  display:flex;gap:14px;padding:8px 16px;font-family:'JetBrains Mono',monospace;
+  font-size:9px;color:var(--ink-soft);letter-spacing:.06em;flex-wrap:wrap;
+}
+.st-legend span{display:flex;align-items:center;gap:5px}
+.st-legend .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.st-loading{
+  text-align:center;padding:32px 16px;font-family:'JetBrains Mono',monospace;
+  font-size:11px;color:var(--ink-soft);letter-spacing:.06em;
+}
+
 /* ── KO teams (no flag) ── */
 .match-team-ko{font-family:'Archivo',sans-serif;font-size:12px;color:var(--ink-soft);text-align:right;line-height:1.4}
 .match-team.away .match-team-ko{text-align:left}
@@ -216,6 +269,7 @@ body{padding-top:var(--safe-top);padding-bottom:calc(32px + var(--safe-bottom))}
     <span class="fix-filter-label">Vista</span>
     <button class="fchip today-chip" id="fHoy" onclick="toggleFilter('hoy')">⚡ Hoy</button>
     <button class="fchip active" id="fTodos" onclick="toggleFilter('todos')">Todos</button>
+    <button class="fchip" id="fTabla" onclick="toggleFilter('tabla')" style="margin-left:4px">📊 Tabla</button>
   </div>
   <!-- Fila 2: grupos -->
   <div class="fix-filter-row">
@@ -263,6 +317,7 @@ body{padding-top:var(--safe-top);padding-bottom:calc(32px + var(--safe-bottom))}
 
 <div class="fix-body" id="fixBody"></div>
 <div class="fix-empty" id="fixEmpty" style="display:none">Sin partidos para los filtros seleccionados.</div>
+<div class="standings-wrap" id="standingsWrap" style="display:none"></div>
 
 <div class="fix-footer">
   <div>Horarios en tu hora local · FIFA World Cup 2026</div>
@@ -494,6 +549,23 @@ const TEAMS = [...new Set(
 let filterHoy   = false;
 let filterGroup = null;
 let filterTeam  = null;
+let viewMode    = 'fixture'; // 'fixture' | 'standings'
+
+// Grupos de equipos extraídos del fixture (para tabla pre-torneo)
+const GROUP_TEAMS = {};
+MATCHES.forEach(m=>{
+  if(m.g.length!==1) return; // solo grupos A-L
+  if(!GROUP_TEAMS[m.g]) GROUP_TEAMS[m.g]=[new Set(),new Set()];
+  GROUP_TEAMS[m.g][0].add(m.h); GROUP_TEAMS[m.g][1].add(m.a);
+});
+// Convertir a array de equipos únicos por grupo
+const GROUPS_LIST = 'ABCDEFGHIJKL'.split('');
+const GROUP_TEAMS_ARR = {};
+GROUPS_LIST.forEach(g=>{
+  const s = new Set();
+  MATCHES.filter(m=>m.g===g).forEach(m=>{s.add(m.h);s.add(m.a);});
+  GROUP_TEAMS_ARR[g] = [...s];
+});
 
 // ── API football-data.org ─────────────────────────
 const API_KEY  = '4a48a6cf07064ff3822c431323c47a7d';
@@ -702,19 +774,173 @@ function _resetGroupSelect(){
   const sel=document.getElementById('groupSelect');
   if(sel){ sel.value=''; sel.classList.remove('has-value'); }
 }
+function _setView(mode){
+  viewMode=mode;
+  const showFixture = mode==='fixture'||mode==='hoy';
+  document.getElementById('fixBody').style.display   = showFixture?'':'none';
+  document.getElementById('fixEmpty').style.display  = 'none';
+  document.getElementById('standingsWrap').style.display = mode==='standings'?'':'none';
+  // Filtros de grupo y selección: ocultar en modo tabla (no aplican)
+  const filterRows = document.querySelectorAll('.fix-filter-row');
+  filterRows.forEach((r,i)=>{ if(i>0) r.style.display = mode==='standings'?'none':''; });
+}
 function toggleFilter(type){
-  if(type==='hoy'){
-    filterHoy=!filterHoy; filterGroup=null; filterTeam=null;
+  document.querySelectorAll('.fchip').forEach(b=>b.classList.remove('active'));
+  if(type==='tabla'){
+    filterHoy=false; filterGroup=null; filterTeam=null;
     clearTeamFilter(); _resetGroupSelect();
-    document.getElementById('fHoy').classList.toggle('active',filterHoy);
-    document.getElementById('fTodos').classList.toggle('active',!filterHoy);
+    document.getElementById('fTabla').classList.add('active');
+    _setView('standings');
+    fetchStandingsData();
+    return;
+  }
+  _setView('fixture');
+  if(type==='hoy'){
+    filterHoy=true; filterGroup=null; filterTeam=null;
+    clearTeamFilter(); _resetGroupSelect();
+    document.getElementById('fHoy').classList.add('active');
   } else {
     filterHoy=false; filterGroup=null; filterTeam=null;
     clearTeamFilter(); _resetGroupSelect();
-    document.querySelectorAll('.fchip').forEach(b=>b.classList.remove('active'));
     document.getElementById('fTodos').classList.add('active');
   }
   render();
+}
+
+// ── Tabla de posiciones ──────────────────────────────
+
+const STANDINGS_URL = 'https://api.football-data.org/v4/competitions/2000/standings';
+const STANDINGS_CACHE_KEY = 'fixture_standings_cache_v1';
+let _standingsTimer = null;
+
+// Mapeo nombre API → nombre ES (reutiliza el mismo de partidos)
+function _stTeamName(apiName){ return API_TEAM_ES[apiName] || apiName; }
+
+async function fetchStandingsData(){
+  const wrap = document.getElementById('standingsWrap');
+  // Cache: válido 5 min si no hay partidos en juego
+  try{
+    const raw = sessionStorage.getItem(STANDINGS_CACHE_KEY);
+    if(raw){
+      const {ts, data} = JSON.parse(raw);
+      if(Date.now()-ts < 300000){ renderStandings(data); return; }
+    }
+  }catch(_){}
+
+  wrap.innerHTML='<div class="st-loading">Cargando tabla de posiciones…</div>';
+
+  // Android: bridge nativo
+  if(window.Android && typeof Android.fetchStandingsData==='function'){
+    try{ Android.fetchStandingsData(); } catch(e){ renderStandingsStatic(); }
+    return;
+  }
+
+  // Web: fetch normal
+  try{
+    const resp = await fetch(STANDINGS_URL,{headers:{'X-Auth-Token':API_KEY}});
+    if(!resp.ok) throw new Error('HTTP '+resp.status);
+    const json = await resp.json();
+    const data = json.standings||[];
+    sessionStorage.setItem(STANDINGS_CACHE_KEY, JSON.stringify({ts:Date.now(), data}));
+    renderStandings(data);
+  }catch(e){
+    console.warn('[Standings]',e);
+    renderStandingsStatic();
+  }
+}
+
+function onStandingsData(b64){
+  try{
+    const json = JSON.parse(atob(b64));
+    const data = json.standings||[];
+    sessionStorage.setItem(STANDINGS_CACHE_KEY, JSON.stringify({ts:Date.now(), data}));
+    renderStandings(data);
+  }catch(e){ renderStandingsStatic(); }
+}
+function onStandingsDataErr(){ renderStandingsStatic(); }
+
+// Renderizar con datos de la API
+function renderStandings(standings){
+  const wrap = document.getElementById('standingsWrap');
+  if(!wrap) return;
+  wrap.innerHTML='';
+  // Leyenda
+  const leg = document.createElement('div');
+  leg.className='st-legend';
+  leg.innerHTML='<span><span class="dot" style="background:var(--green)"></span>Clasifica directo</span>'+
+    '<span><span class="dot" style="background:var(--wc-gold)"></span>Posible 3.º mejor</span>'+
+    '<span><span class="dot" style="background:var(--rule)"></span>Eliminado</span>';
+  wrap.appendChild(leg);
+
+  GROUPS_LIST.forEach(g=>{
+    const apiGroup = standings.find(s=>s.group && s.group.replace('Group ','')===g);
+    const table = apiGroup ? apiGroup.table : [];
+    wrap.appendChild(_buildGroupTable(g, table));
+  });
+
+  // Auto-refresh cada 5 min
+  clearTimeout(_standingsTimer);
+  _standingsTimer = setTimeout(fetchStandingsData, 300000);
+}
+
+// Fallback estático (antes del torneo o sin internet): equipos con 0 puntos
+function renderStandingsStatic(){
+  const wrap = document.getElementById('standingsWrap');
+  if(!wrap) return;
+  wrap.innerHTML='<div class="st-loading" style="margin-bottom:8px">Sin datos de la API · Mostrando grupos</div>';
+  const leg = document.createElement('div');
+  leg.className='st-legend';
+  leg.innerHTML='<span><span class="dot" style="background:var(--green)"></span>Clasifica directo</span>'+
+    '<span><span class="dot" style="background:var(--wc-gold)"></span>Posible 3.º mejor</span>';
+  wrap.appendChild(leg);
+  GROUPS_LIST.forEach(g=>{
+    const table = (GROUP_TEAMS_ARR[g]||[]).map((name,i)=>({
+      position:i+1, team:{name}, playedGames:0, won:0, draw:0, lost:0,
+      goalsFor:0, goalsAgainst:0, goalDifference:0, points:0
+    }));
+    wrap.appendChild(_buildGroupTable(g, table));
+  });
+}
+
+function _buildGroupTable(g, table){
+  const div = document.createElement('div');
+  div.className='st-group';
+  div.innerHTML=`<div class="st-group-header">Grupo ${g}</div>`;
+  const t = document.createElement('table');
+  t.className='st-table';
+  t.innerHTML=`<thead><tr>
+    <th class="th-pos">#</th>
+    <th class="th-team">Equipo</th>
+    <th title="Partidos jugados">PJ</th>
+    <th title="Ganados">G</th>
+    <th title="Empatados">E</th>
+    <th title="Perdidos">P</th>
+    <th title="Diferencia de gol">DG</th>
+    <th title="Puntos">Pts</th>
+  </tr></thead>`;
+  const tbody = document.createElement('tbody');
+  table.forEach((row,i)=>{
+    const name = _stTeamName(row.team?.name||'');
+    const tr = document.createElement('tr');
+    // Clasificación: pos 1-2 = verde, pos 3 = amarillo, pos 4 = gris
+    tr.className = i<2 ? 'st-qualify' : i===2 ? 'st-maybe' : 'st-out';
+    const flagDiv = flagEl(name);
+    const flagHtml = flagDiv ? `<div class="st-flag">${flagDiv.innerHTML}</div>` : '';
+    const dg = row.goalDifference > 0 ? '+'+row.goalDifference : row.goalDifference;
+    tr.innerHTML=`
+      <td class="td-pos">${row.position}</td>
+      <td class="td-team"><div class="st-team-inner">${flagHtml}<span>${name}</span></div></td>
+      <td>${row.playedGames}</td>
+      <td>${row.won}</td>
+      <td>${row.draw}</td>
+      <td>${row.lost}</td>
+      <td>${dg}</td>
+      <td class="td-pts">${row.points}</td>`;
+    tbody.appendChild(tr);
+  });
+  t.appendChild(tbody);
+  div.appendChild(t);
+  return div;
 }
 
 // ── Filtrar ───────────────────────────────────────
