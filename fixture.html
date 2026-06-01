@@ -812,10 +812,9 @@ function render(){
         const nm=document.createElement('div');nm.className='match-team-ko';nm.textContent=dispH;teamH.appendChild(nm);
       }
 
-      // Centro — score real de API si disponible
+      // Centro — score real de API si disponible (api ya declarado arriba)
       const center=document.createElement('div');
       center.className='match-center';
-      const api=apiForMatch(m);
       if(st==='played'){
         const score = (api && api.scoreH!==null) ? `${api.scoreH} – ${api.scoreA}` : '– – –';
         const ht    = (api && api.htH!==null)    ? `(${api.htH}–${api.htA}) MT` : 'FT';
@@ -860,18 +859,8 @@ function render(){
 // ── Init ─────────────────────────────────────────
 try{ buildTeamDropdown(''); }catch(e){ console.warn('buildTeamDropdown:',e); }
 try{ updateNextBanner(); }catch(e){ console.warn('updateNextBanner:',e); }
-try{ render(); }catch(e){
-  console.warn('render:',e);
-  // Fallback: mostrar los partidos de forma básica si render() falla
-  const fb = document.getElementById('fixBody');
-  if(fb && !fb.children.length){
-    fb.innerHTML = '<div style="padding:16px;font-family:monospace;font-size:12px;color:var(--ink-soft)">'+
-      'Error al renderizar partidos.<br>Revisá la consola para más detalles.<br><br>'+
-      'MATCHES cargados: '+MATCHES.length+'</div>';
-  }
-}
+try{ render(); }catch(e){ console.warn('render:',e); }
 setInterval(()=>{ try{updateNextBanner();}catch(_){} }, 30000);
-// Cargar datos en vivo de la API
 try{ fetchLiveData(); }catch(e){ console.warn('fetchLiveData:',e); }
 </script>
 </body>
