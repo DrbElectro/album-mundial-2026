@@ -530,9 +530,23 @@ let _apiLoaded = false;
 let _apiTimer  = null;
 let _lastUpdate = null;
 
-async function fetchLiveData(){
+// Callbacks del bridge Android
+function onFixtureData(b64){
   try{
-    // Caché en sessionStorage
+    const json = JSON.parse(atob(b64));
+    const data = json.matches || [];
+    sessionStorage.setItem(API_CACHE_KEY, JSON.stringify({ts:Date.now(), data}));
+    _processApi(data);
+  }catch(e){ _updateApiStatusBar(false); }
+}
+function onFixtureDataErr(code){
+  console.warn('[Fixture API Android] error', code);
+  _updateApiStatusBar(false);
+}
+
+async function fetchLiveData(){
+  // Caché en sessionStorage (válida para ambas plataformas)
+  try{
     const raw = sessionStorage.getItem(API_CACHE_KEY);
     if(raw){
       const {ts, data} = JSON.parse(raw);
@@ -540,6 +554,17 @@ async function fetchLiveData(){
       const ttl = hasLive ? 30000 : 90000;
       if(Date.now()-ts < ttl){ _processApi(data); return; }
     }
+  }catch(_){}
+
+  // Android: bridge nativo (evita bloqueo CORS en file://)
+  if(window.Android && typeof Android.fetchFixtureData === 'function'){
+    try{ Android.fetchFixtureData(); }
+    catch(e){ _updateApiStatusBar(false); }
+    return;
+  }
+
+  // Web: fetch normal
+  try{
     const resp = await fetch(API_URL, {headers:{'X-Auth-Token': API_KEY}});
     if(!resp.ok) throw new Error('HTTP '+resp.status);
     const json = await resp.json();
