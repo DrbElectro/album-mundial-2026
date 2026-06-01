@@ -163,10 +163,13 @@ body{padding-top:var(--safe-top);padding-bottom:calc(32px + var(--safe-bottom))}
 .match-live-dot{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--red)}
 
 .match-meta{
-  position:absolute;top:4px;right:10px;
-  font-family:'JetBrains Mono',monospace;font-size:9px;
-  color:var(--ink-soft);letter-spacing:.05em;
+  position:absolute;top:0;left:0;right:0;
+  font-family:'Archivo Black',sans-serif;font-size:10px;
+  letter-spacing:.1em;text-transform:uppercase;
+  background:var(--ink);color:var(--paper);
+  padding:3px 10px;text-align:center;
 }
+.match-card{padding-top:26px}
 .match-stadium{
   grid-column:1/-1;font-family:'JetBrains Mono',monospace;font-size:9px;
   color:var(--ink-soft);text-align:center;margin-top:4px;letter-spacing:.04em;
@@ -478,7 +481,7 @@ function isToday(m){
   const d=new Date(m.utc), n=new Date();
   return d.getFullYear()===n.getFullYear()&&d.getMonth()===n.getMonth()&&d.getDate()===n.getDate();
 }
-function formatTime(utc){ return new Date(utc).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); }
+function formatTime(utc){ return new Date(utc).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:false}); }
 function formatDay(utc){ return new Date(utc).toLocaleDateString([],{weekday:'long',day:'numeric',month:'long'}); }
 function capitalize(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
 
