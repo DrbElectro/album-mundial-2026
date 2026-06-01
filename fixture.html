@@ -257,6 +257,10 @@ body{padding-top:var(--safe-top);padding-bottom:calc(32px + var(--safe-bottom))}
   </div>
 </div>
 
+<!-- Barra de estado API -->
+<div id="apiStatusBar" style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;
+  text-align:right;padding:4px 16px 0;color:var(--ink-soft);min-height:20px"></div>
+
 <div class="fix-body" id="fixBody"></div>
 <div class="fix-empty" id="fixEmpty" style="display:none">Sin partidos para los filtros seleccionados.</div>
 
@@ -491,8 +495,111 @@ let filterHoy   = false;
 let filterGroup = null;
 let filterTeam  = null;
 
+// ── API football-data.org ─────────────────────────
+const API_KEY  = '4a48a6cf07064ff3822c431323c47a7d';
+const API_URL  = 'https://api.football-data.org/v4/competitions/2000/matches';
+const API_CACHE_KEY = 'wc2026_api_v2';
+
+// Nombres de la API → nombres en español de nuestra app
+const API_TEAM_ES = {
+  'Algeria':'Argelia','Argentina':'Argentina','Australia':'Australia',
+  'Austria':'Austria','Belgium':'Bélgica','Bosnia-Herzegovina':'Bosnia-Herz.',
+  'Brazil':'Brasil','Canada':'Canadá','Cape Verde Islands':'Cabo Verde',
+  'Colombia':'Colombia','Congo DR':'RD Congo','Croatia':'Croacia',
+  'Curaçao':'Curazao','Czechia':'Rep. Checa','Ecuador':'Ecuador',
+  'Egypt':'Egipto','England':'Inglaterra','France':'Francia',
+  'Germany':'Alemania','Ghana':'Ghana','Haiti':'Haití',
+  'Iran':'Irán','Iraq':'Irak','Ivory Coast':'Costa de Marfil',
+  'Japan':'Japón','Jordan':'Jordania','Mexico':'México',
+  'Morocco':'Marruecos','Netherlands':'Holanda','New Zealand':'Nueva Zelanda',
+  'Norway':'Noruega','Panama':'Panamá','Paraguay':'Paraguay',
+  'Portugal':'Portugal','Qatar':'Qatar','Saudi Arabia':'Arabia Saudita',
+  'Scotland':'Escocia','Senegal':'Senegal','South Africa':'Sudáfrica',
+  'South Korea':'Corea del Sur','Spain':'España','Sweden':'Suecia',
+  'Switzerland':'Suiza','Tunisia':'Túnez','Turkey':'Turquía',
+  'United States':'Estados Unidos','Uruguay':'Uruguay','Uzbekistan':'Uzbekistán',
+};
+const API_STAGE_MAP = {
+  GROUP_STAGE:'A',LAST_32:'R32',LAST_16:'R16',
+  QUARTER_FINALS:'QF',SEMI_FINALS:'SF',THIRD_PLACE:'3P',FINAL:'FIN'
+};
+
+// Map<"2026-06-11T19:00" → {status, scoreH, scoreA, htH, htA, homeTeam, awayTeam}>
+let _apiScores = new Map();
+let _apiLoaded = false;
+let _apiTimer  = null;
+let _lastUpdate = null;
+
+async function fetchLiveData(){
+  try{
+    // Caché en sessionStorage
+    const raw = sessionStorage.getItem(API_CACHE_KEY);
+    if(raw){
+      const {ts, data} = JSON.parse(raw);
+      const hasLive = data.some(m=>m.status==='IN_PLAY'||m.status==='PAUSED');
+      const ttl = hasLive ? 30000 : 90000;
+      if(Date.now()-ts < ttl){ _processApi(data); return; }
+    }
+    const resp = await fetch(API_URL, {headers:{'X-Auth-Token': API_KEY}});
+    if(!resp.ok) throw new Error('HTTP '+resp.status);
+    const json = await resp.json();
+    const data = json.matches || [];
+    sessionStorage.setItem(API_CACHE_KEY, JSON.stringify({ts:Date.now(), data}));
+    _processApi(data);
+  }catch(e){
+    console.warn('[Fixture API]', e.message);
+    _updateApiStatusBar(false);
+  }
+}
+
+function _processApi(apiMatches){
+  _apiScores.clear();
+  let hasLive = false;
+  for(const m of apiMatches){
+    const key = m.utcDate.substring(0,16); // "2026-06-11T19:00"
+    const sH = m.score?.fullTime?.home ?? null;
+    const sA = m.score?.fullTime?.away ?? null;
+    const hH = m.score?.halfTime?.home ?? null;
+    const hA = m.score?.halfTime?.away ?? null;
+    const home = m.homeTeam?.name ? (API_TEAM_ES[m.homeTeam.name] || m.homeTeam.name) : null;
+    const away = m.awayTeam?.name ? (API_TEAM_ES[m.awayTeam.name] || m.awayTeam.name) : null;
+    _apiScores.set(key, { status: m.status, scoreH:sH, scoreA:sA, htH:hH, htA:hA, home, away });
+    if(m.status==='IN_PLAY'||m.status==='PAUSED') hasLive = true;
+  }
+  _apiLoaded = true;
+  _lastUpdate = new Date();
+  _updateApiStatusBar(true, hasLive);
+  updateNextBanner();
+  render();
+  // Auto-refresh: cada 30s si hay partido en vivo, 90s si no
+  clearTimeout(_apiTimer);
+  _apiTimer = setTimeout(fetchLiveData, hasLive ? 30000 : 90000);
+}
+
+function _updateApiStatusBar(ok, hasLive){
+  const bar = document.getElementById('apiStatusBar');
+  if(!bar) return;
+  if(!ok){ bar.textContent='⚠ Sin conexión con la API'; bar.style.color='var(--red)'; return; }
+  const t = _lastUpdate ? _lastUpdate.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:false}) : '';
+  bar.textContent = (hasLive ? '🔴 En vivo · ' : '🟢 ') + 'Actualizado ' + t;
+  bar.style.color = hasLive ? 'var(--red)' : 'var(--green)';
+}
+
+// Obtiene datos de API para un partido dado su utc
+function apiForMatch(m){
+  return _apiScores.get(m.utc.substring(0,16)) || null;
+}
+
 // ── Helpers ──────────────────────────────────────
 function matchStatus(m){
+  const api = apiForMatch(m);
+  // Si la API responde, usamos su status
+  if(api){
+    if(api.status==='FINISHED') return 'played';
+    if(api.status==='IN_PLAY'||api.status==='PAUSED') return 'live';
+    return 'upcoming';
+  }
+  // Fallback: estimación por tiempo
   const now=Date.now(), start=new Date(m.utc).getTime(), end=start+110*60000;
   if(now>end)    return 'played';
   if(now>=start) return 'live';
@@ -652,7 +759,11 @@ function render(){
       const isNext=!nextRendered&&st==='upcoming';
       if(isNext)nextRendered=true;
       const isKO=m.g.length>1;
-      const isHL=filterTeam&&(m.h===filterTeam||m.a===filterTeam);
+      // Para eliminatorias, usar nombre real de la API si está disponible
+      const api=apiForMatch(m);
+      const dispH = (isKO && api?.home) ? api.home : m.h;
+      const dispA = (isKO && api?.away) ? api.away : m.a;
+      const isHL=filterTeam&&(dispH===filterTeam||dispA===filterTeam);
 
       const card=document.createElement('div');
       card.className='match-card'+(st==='played'?' played':st==='live'?' live':isNext?' next-match':'')+(isKO?' ko':'')+(isHL?' highlighted':'');
@@ -669,19 +780,24 @@ function render(){
       if(!isKO){
         const fl=flagEl(m.h);
         if(fl)teamH.appendChild(fl);
-        const nm=document.createElement('div');nm.className='match-team-name';nm.textContent=m.h;
+        const nm=document.createElement('div');nm.className='match-team-name';nm.textContent=dispH;
         teamH.appendChild(nm);
       } else {
-        const nm=document.createElement('div');nm.className='match-team-ko';nm.textContent=m.h;teamH.appendChild(nm);
+        const fl2=flagEl(dispH); if(fl2)teamH.appendChild(fl2);
+        const nm=document.createElement('div');nm.className='match-team-ko';nm.textContent=dispH;teamH.appendChild(nm);
       }
 
-      // Centro
+      // Centro — score real de API si disponible
       const center=document.createElement('div');
       center.className='match-center';
+      const api=apiForMatch(m);
       if(st==='played'){
-        center.innerHTML='<div class="match-result">– – –</div><div class="match-vs">FT</div>';
+        const score = (api && api.scoreH!==null) ? `${api.scoreH} – ${api.scoreA}` : '– – –';
+        const ht    = (api && api.htH!==null)    ? `(${api.htH}–${api.htA}) MT` : 'FT';
+        center.innerHTML=`<div class="match-result">${score}</div><div class="match-vs">${ht}</div>`;
       } else if(st==='live'){
-        center.innerHTML='<div class="match-result">– – –</div><div class="match-live-dot">● EN VIVO</div>';
+        const score = (api && api.scoreH!==null) ? `${api.scoreH} – ${api.scoreA}` : '– –';
+        center.innerHTML=`<div class="match-result">${score}</div><div class="match-live-dot">● EN VIVO</div>`;
       } else {
         center.innerHTML=`<div class="match-time">${formatTime(m.utc)}</div><div class="match-vs">vs</div>`;
       }
@@ -692,10 +808,11 @@ function render(){
       if(!isKO){
         const fl=flagEl(m.a);
         if(fl)teamA.appendChild(fl);
-        const nm=document.createElement('div');nm.className='match-team-name';nm.textContent=m.a;
+        const nm=document.createElement('div');nm.className='match-team-name';nm.textContent=dispA;
         teamA.appendChild(nm);
       } else {
-        const nm=document.createElement('div');nm.className='match-team-ko';nm.textContent=m.a;teamA.appendChild(nm);
+        const fl2=flagEl(dispA); if(fl2)teamA.appendChild(fl2);
+        const nm=document.createElement('div');nm.className='match-team-ko';nm.textContent=dispA;teamA.appendChild(nm);
       }
 
       // Estadio
@@ -720,6 +837,8 @@ buildTeamDropdown('');
 updateNextBanner();
 render();
 setInterval(updateNextBanner,30000);
+// Cargar datos en vivo de la API
+fetchLiveData();
 </script>
 </body>
 </html>
