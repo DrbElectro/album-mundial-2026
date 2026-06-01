@@ -185,23 +185,29 @@ body{padding-top:var(--safe-top);padding-bottom:calc(32px + var(--safe-bottom))}
   font-family:'Archivo Black',sans-serif;font-size:11px;
   letter-spacing:.12em;text-transform:uppercase;
 }
-.st-table{width:100%;border-collapse:collapse}
+.st-table{width:100%;border-collapse:collapse;table-layout:fixed}
+/* Anchos fijos: # equipo PJ G E P DG Pts */
+.st-table col.col-pos {width:28px}
+.st-table col.col-team{width:auto}
+.st-table col.col-num {width:32px}
+.st-table col.col-pts {width:36px}
 .st-table th{
-  font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.08em;
+  font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.06em;
   text-transform:uppercase;color:var(--ink-soft);
-  padding:5px 6px;text-align:center;
+  padding:5px 4px;text-align:center;
   border-bottom:1.5px solid var(--rule);background:var(--paper-2);
+  white-space:nowrap;
 }
-.st-table th.th-team{text-align:left;padding-left:10px}
+.st-table th.th-team{text-align:left;padding-left:8px}
 .st-table td{
-  font-family:'JetBrains Mono',monospace;font-size:11px;
-  padding:8px 6px;text-align:center;
+  font-family:'JetBrains Mono',monospace;font-size:12px;
+  padding:8px 4px;text-align:center;
   border-bottom:1px solid var(--paper-3);
 }
 .st-table tr:last-child td{border-bottom:none}
 .st-table td.td-pos{
   font-family:'Archivo Black',sans-serif;font-size:12px;
-  width:24px;padding-left:8px;
+  padding-left:8px;
 }
 .st-table td.td-team{
   text-align:left;padding-left:6px;
@@ -908,7 +914,12 @@ function _buildGroupTable(g, table){
   div.innerHTML=`<div class="st-group-header">Grupo ${g}</div>`;
   const t = document.createElement('table');
   t.className='st-table';
-  t.innerHTML=`<thead><tr>
+  t.innerHTML=`<colgroup>
+    <col class="col-pos"><col class="col-team">
+    <col class="col-num"><col class="col-num"><col class="col-num">
+    <col class="col-num"><col class="col-num"><col class="col-pts">
+  </colgroup>
+  <thead><tr>
     <th class="th-pos">#</th>
     <th class="th-team">Equipo</th>
     <th title="Partidos jugados">PJ</th>
