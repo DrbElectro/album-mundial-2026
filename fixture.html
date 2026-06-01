@@ -75,14 +75,15 @@ body{padding-top:var(--safe-top);padding-bottom:calc(32px + var(--safe-bottom))}
 .fchip.active{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 .fchip.today-chip.active{background:var(--wc-orange);border-color:var(--wc-orange)}
 
-/* Chips de grupo en fila scrolleable */
-.group-chips-row{display:flex;gap:5px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch}
-.group-chips-row::-webkit-scrollbar{display:none}
-.group-chip{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.05em;
-  background:var(--paper);border:1px solid var(--rule);color:var(--ink-soft);
-  padding:6px 10px;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .12s}
-.group-chip:hover{border-color:var(--ink);color:var(--ink)}
-.group-chip.active{background:var(--wc-blue-dark);color:#fff;border-color:var(--wc-blue-dark)}
+/* Select de grupo */
+.group-select{
+  flex:1;padding:8px 10px;
+  border:1.5px solid var(--rule);background:var(--paper);
+  font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink);
+  outline:none;cursor:pointer;appearance:auto;
+}
+.group-select:focus{border-color:var(--ink)}
+.group-select.has-value{border-color:var(--wc-blue-dark);background:#eef4ff}
 
 /* ── Dropdown selección ── */
 .team-dropdown-wrap{position:relative;flex:1}
@@ -217,9 +218,29 @@ body{padding-top:var(--safe-top);padding-bottom:calc(32px + var(--safe-bottom))}
     <button class="fchip active" id="fTodos" onclick="toggleFilter('todos')">Todos</button>
   </div>
   <!-- Fila 2: grupos -->
-  <div class="fix-filter-row" style="align-items:flex-start">
-    <span class="fix-filter-label" style="padding-top:6px">Grupo</span>
-    <div class="group-chips-row" id="groupChips"></div>
+  <div class="fix-filter-row">
+    <span class="fix-filter-label">Grupo</span>
+    <select class="group-select" id="groupSelect" onchange="onGroupSelect(this.value)">
+      <option value="">Todos los grupos</option>
+      <option value="A">Grupo A</option>
+      <option value="B">Grupo B</option>
+      <option value="C">Grupo C</option>
+      <option value="D">Grupo D</option>
+      <option value="E">Grupo E</option>
+      <option value="F">Grupo F</option>
+      <option value="G">Grupo G</option>
+      <option value="H">Grupo H</option>
+      <option value="I">Grupo I</option>
+      <option value="J">Grupo J</option>
+      <option value="K">Grupo K</option>
+      <option value="L">Grupo L</option>
+      <option value="R32">Ronda de 32</option>
+      <option value="R16">Octavos de final</option>
+      <option value="QF">Cuartos de final</option>
+      <option value="SF">Semifinales</option>
+      <option value="3P">Tercer puesto</option>
+      <option value="FIN">Final</option>
+    </select>
   </div>
   <!-- Fila 3: selección con dropdown+búsqueda -->
   <div class="fix-filter-row">
@@ -485,17 +506,15 @@ function formatTime(utc){ return new Date(utc).toLocaleTimeString([],{hour:'2-di
 function formatDay(utc){ return new Date(utc).toLocaleDateString([],{weekday:'long',day:'numeric',month:'long'}); }
 function capitalize(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
 
-// ── Chips de grupo ────────────────────────────────
-function buildGroupChips(){
-  const wrap=document.getElementById('groupChips');
-  const groups=['A','B','C','D','E','F','G','H','I','J','K','L','R32','R16','QF','SF','3P','FIN'];
-  groups.forEach(g=>{
-    const btn=document.createElement('button');
-    btn.className='group-chip';btn.dataset.g=g;
-    btn.textContent=GROUP_LABELS[g];
-    btn.onclick=()=>toggleGroup(g);
-    wrap.appendChild(btn);
-  });
+// ── Select de grupo ───────────────────────────────
+function onGroupSelect(val){
+  filterHoy=false; filterTeam=null; clearTeamFilter();
+  filterGroup=val||null;
+  const sel=document.getElementById('groupSelect');
+  sel.classList.toggle('has-value',!!filterGroup);
+  document.querySelectorAll('.fchip').forEach(b=>b.classList.remove('active'));
+  if(!filterGroup) document.getElementById('fTodos').classList.add('active');
+  render();
 }
 
 // ── Dropdown selección ────────────────────────────
@@ -547,27 +566,22 @@ function clearTeamFilter(){
 }
 
 // ── Toggle filtros ────────────────────────────────
+function _resetGroupSelect(){
+  const sel=document.getElementById('groupSelect');
+  if(sel){ sel.value=''; sel.classList.remove('has-value'); }
+}
 function toggleFilter(type){
   if(type==='hoy'){
     filterHoy=!filterHoy; filterGroup=null; filterTeam=null;
-    clearTeamFilter();
-    document.querySelectorAll('.group-chip').forEach(b=>b.classList.remove('active'));
+    clearTeamFilter(); _resetGroupSelect();
     document.getElementById('fHoy').classList.toggle('active',filterHoy);
     document.getElementById('fTodos').classList.toggle('active',!filterHoy);
   } else {
     filterHoy=false; filterGroup=null; filterTeam=null;
-    clearTeamFilter();
-    document.querySelectorAll('.fchip,.group-chip').forEach(b=>b.classList.remove('active'));
+    clearTeamFilter(); _resetGroupSelect();
+    document.querySelectorAll('.fchip').forEach(b=>b.classList.remove('active'));
     document.getElementById('fTodos').classList.add('active');
   }
-  render();
-}
-function toggleGroup(g){
-  filterHoy=false; filterTeam=null; clearTeamFilter();
-  filterGroup=filterGroup===g?null:g;
-  document.querySelectorAll('.fchip,.group-chip').forEach(b=>b.classList.remove('active'));
-  if(filterGroup) document.querySelector(`.group-chip[data-g="${g}"]`)?.classList.add('active');
-  else document.getElementById('fTodos').classList.add('active');
   render();
 }
 
@@ -702,7 +716,6 @@ function render(){
 }
 
 // ── Init ─────────────────────────────────────────
-buildGroupChips();
 buildTeamDropdown('');
 updateNextBanner();
 render();
