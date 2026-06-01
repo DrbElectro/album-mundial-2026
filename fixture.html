@@ -858,12 +858,21 @@ function render(){
 }
 
 // ── Init ─────────────────────────────────────────
-buildTeamDropdown('');
-updateNextBanner();
-render();
-setInterval(updateNextBanner,30000);
+try{ buildTeamDropdown(''); }catch(e){ console.warn('buildTeamDropdown:',e); }
+try{ updateNextBanner(); }catch(e){ console.warn('updateNextBanner:',e); }
+try{ render(); }catch(e){
+  console.warn('render:',e);
+  // Fallback: mostrar los partidos de forma básica si render() falla
+  const fb = document.getElementById('fixBody');
+  if(fb && !fb.children.length){
+    fb.innerHTML = '<div style="padding:16px;font-family:monospace;font-size:12px;color:var(--ink-soft)">'+
+      'Error al renderizar partidos.<br>Revisá la consola para más detalles.<br><br>'+
+      'MATCHES cargados: '+MATCHES.length+'</div>';
+  }
+}
+setInterval(()=>{ try{updateNextBanner();}catch(_){} }, 30000);
 // Cargar datos en vivo de la API
-fetchLiveData();
+try{ fetchLiveData(); }catch(e){ console.warn('fetchLiveData:',e); }
 </script>
 </body>
 </html>
