@@ -4665,8 +4665,8 @@ window.tryCloseTopModal = function() {
       </div>
       <!-- Step 1: elegir fuente (paquete nuevo) -->
       <div id="webScanStep0" style="display:none">
-        <p class="scan-hint">Sacá una foto donde se vean los <strong>códigos</strong> de tus figuritas — por ejemplo <strong>GHA&nbsp;6</strong>, <strong>PAN&nbsp;5</strong>. Cuanto más cerca y nítido, mejor.</p>
-        <div style="display:flex;gap:10px">
+        <p class="scan-hint" style="display:none">Sacá una foto donde se vean los <strong>códigos</strong> de tus figuritas — por ejemplo <strong>GHA&nbsp;6</strong>, <strong>PAN&nbsp;5</strong>. Cuanto más cerca y nítido, mejor.</p>
+        <div style="display:flex;gap:10px;margin-top:16px">
           <button class="btn" id="webScanCameraBtn" style="flex:1;background:var(--blue);border-color:var(--blue)">📷 Cámara</button>
           <button class="btn ghost" id="webScanGalleryBtn" style="flex:1">🖼 Galería</button>
         </div>
@@ -5189,6 +5189,7 @@ document.getElementById('webScanChangesBtn').addEventListener('click', () => {
 document.getElementById('webScanPackageBtn').addEventListener('click', () => {
   document.getElementById('webScanStepType').style.display = 'none';
   document.getElementById('webScanStep0').style.display = 'block';
+  document.querySelector('#webScanStep0 .scan-hint').style.display = 'block';
   document.getElementById('webScanModal').scrollTop = 0;
 });
 
@@ -5363,6 +5364,9 @@ function resetCambios() {
 function resetWebScanTypeStep() {
   document.getElementById('webScanStepType').style.display = 'block';
   document.getElementById('webScanStep0').style.display = 'none';
+  if (document.querySelector('#webScanStep0 .scan-hint')) {
+    document.querySelector('#webScanStep0 .scan-hint').style.display = 'none';
+  }
 }
 
 async function handleCambiosFile(file) {
