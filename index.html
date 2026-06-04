@@ -4655,8 +4655,16 @@ window.tryCloseTopModal = function() {
       <button class="modal-close" id="webScanClose">✕</button>
     </div>
     <div class="modal-body">
-      <!-- Step 0: elegir fuente -->
-      <div id="webScanStep0">
+      <!-- Step 0: elegir tipo -->
+      <div id="webScanStepType" style="text-align:center">
+        <p class="scan-hint">¿Qué quieres hacer?</p>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <button class="btn" id="webScanChangesBtn" style="background:var(--wc-orange);border-color:var(--wc-orange-dark)">🔄 Cambios</button>
+          <button class="btn" id="webScanPackageBtn" style="background:var(--blue);border-color:var(--blue)">📦 Paquete nuevo</button>
+        </div>
+      </div>
+      <!-- Step 1: elegir fuente (paquete nuevo) -->
+      <div id="webScanStep0" style="display:none">
         <p class="scan-hint">Sacá una foto donde se vean los <strong>códigos</strong> de tus figuritas — por ejemplo <strong>GHA&nbsp;6</strong>, <strong>PAN&nbsp;5</strong>. Cuanto más cerca y nítido, mejor.</p>
         <div style="display:flex;gap:10px">
           <button class="btn" id="webScanCameraBtn" style="flex:1;background:var(--blue);border-color:var(--blue)">📷 Cámara</button>
@@ -4696,6 +4704,69 @@ window.tryCloseTopModal = function() {
           <button class="btn ghost" id="webScanAddBtn" style="flex:1;font-size:12px">📷 + Foto</button>
         </div>
         <button class="btn" id="webScanApplyBtn" style="width:100%;background:var(--green);border-color:var(--green)">✅ Marcar Recibidas</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Cambios -->
+<div class="modal-overlay hidden" id="cambiosModal">
+  <div class="modal orange">
+    <div class="modal-head">
+      <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5h10a2 2 0 012 2v6h-3v4H8v-4H5V7a2 2 0 012-2z"/><path d="M11 10h-2m8 0h-2"/></svg></span>
+      <div class="title-wrap"><span class="kicker">Cambios</span><span id="cambiosTabTitle">Recibir Figuritas</span></div>
+      <button class="modal-close" id="cambiosClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Tabs -->
+      <div style="display:flex;gap:10px;margin-bottom:14px;border-bottom:2px solid var(--ink)">
+        <button class="btn ghost" id="cambiosTabRecibo" style="flex:1;border:none;border-bottom:3px solid var(--wc-orange);padding-bottom:10px;background:none">📥 Recibo</button>
+        <button class="btn ghost" id="cambiosTabDoy" style="flex:1;border:none;padding-bottom:10px;background:none;color:var(--ink-soft)">📤 Doy</button>
+      </div>
+
+      <!-- Step: elegir fuente -->
+      <div id="cambiosStep0">
+        <p class="scan-hint" id="cambiosHint">Sacá una foto con los <strong>códigos</strong> que <strong>recibirás</strong>.</p>
+        <div style="display:flex;gap:10px">
+          <button class="btn" id="cambiosCameraBtn" style="flex:1;background:var(--wc-orange);border-color:var(--wc-orange-dark)">📷 Cámara</button>
+          <button class="btn ghost" id="cambiosGalleryBtn" style="flex:1">🖼 Galería</button>
+        </div>
+        <input type="file" id="cambiosCameraInput" accept="image/*" capture="environment" style="display:none">
+        <input type="file" id="cambiosGalleryInput" accept="image/*" style="display:none">
+      </div>
+
+      <!-- Cámara en vivo -->
+      <div id="cambiosCamView" style="display:none">
+        <video id="cambiosVideo" playsinline autoplay muted style="width:100%;border:2px solid var(--ink);background:#000;max-height:50vh;object-fit:cover;box-shadow:4px 4px 0 var(--ink);display:block"></video>
+        <div style="display:flex;gap:10px;margin-top:12px">
+          <button class="btn ghost" id="cambiosCamCancel" style="flex:1">Cancelar</button>
+          <button class="btn" id="cambiosCamShoot" style="flex:2;background:var(--wc-orange);border-color:var(--wc-orange-dark)">📸 Capturar</button>
+        </div>
+      </div>
+
+      <!-- Preview -->
+      <img id="cambiosPreview" class="scan-preview" alt="preview" style="display:none">
+
+      <!-- Progress -->
+      <div id="cambiosProgressWrap" style="display:none;margin-top:16px">
+        <div class="scan-bar"><div id="cambiosProgressFill" class="scan-bar-fill"></div></div>
+        <p id="cambiosProgressText" class="scan-bar-text">Iniciando...</p>
+      </div>
+
+      <!-- Sin resultados -->
+      <div id="cambiosNoResults" style="display:none;margin-top:16px">
+        <p style="font-size:12px;color:var(--ink-soft);text-align:center;line-height:1.5">No se encontraron códigos. Probá con una foto más cercana y con buena luz.</p>
+      </div>
+
+      <!-- Resultados -->
+      <div id="cambiosResultsWrap" style="display:none;margin-top:16px">
+        <p class="scan-section-title" id="cambiosResultsTitle">Figuritas a recibir</p>
+        <div id="cambiosResultsList" style="display:flex;flex-wrap:wrap;gap:8px;max-height:200px;overflow-y:auto;margin-bottom:12px"></div>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <button class="btn ghost" id="cambiosRetryBtn" style="flex:1;font-size:12px">↺ Limpiar</button>
+          <button class="btn ghost" id="cambiosAddBtn" style="flex:1;font-size:12px">📷 + Foto</button>
+        </div>
+        <button class="btn" id="cambiosConfirmBtn" style="width:100%;background:var(--wc-orange);border-color:var(--wc-orange-dark)">✓ Confirmar cambio</button>
       </div>
     </div>
   </div>
@@ -5106,6 +5177,310 @@ document.getElementById('webScanApplyBtn').addEventListener('click', () => {
   document.getElementById('webScanModal').classList.add('hidden');
   if (count > 0) showToast(`✅ ${count} figurita${count !== 1 ? 's' : ''} marcada${count !== 1 ? 's' : ''}`);
 });
+
+// ===== CAMBIOS =====
+document.getElementById('webScanChangesBtn').addEventListener('click', () => {
+  document.getElementById('webScanStepType').style.display = 'none';
+  document.getElementById('webScanStep0').style.display = 'none';
+  document.getElementById('cambiosModal').classList.remove('hidden');
+  resetCambios();
+});
+
+document.getElementById('webScanPackageBtn').addEventListener('click', () => {
+  document.getElementById('webScanStepType').style.display = 'none';
+  document.getElementById('webScanStep0').style.display = 'block';
+  document.getElementById('webScanModal').scrollTop = 0;
+});
+
+document.getElementById('cambiosClose').addEventListener('click', () => {
+  stopCambiosCamera();
+  document.getElementById('cambiosModal').classList.add('hidden');
+  resetWebScanTypeStep();
+});
+
+document.getElementById('cambiosModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('cambiosModal')) {
+    stopCambiosCamera();
+    document.getElementById('cambiosModal').classList.add('hidden');
+    resetWebScanTypeStep();
+  }
+});
+
+let cambiosMode = 'recibo'; // 'recibo' o 'doy'
+let cambiosCameraStream = null;
+let cambiosDetectedList = []; // lista de figus detectadas
+
+document.getElementById('cambiosTabRecibo').addEventListener('click', () => {
+  cambiosMode = 'recibo';
+  document.getElementById('cambiosTabRecibo').style.borderBottom = '3px solid var(--wc-orange)';
+  document.getElementById('cambiosTabRecibo').style.color = 'var(--ink)';
+  document.getElementById('cambiosTabDoy').style.borderBottom = 'none';
+  document.getElementById('cambiosTabDoy').style.color = 'var(--ink-soft)';
+  document.getElementById('cambiosTabTitle').textContent = 'Recibir Figuritas';
+  document.getElementById('cambiosHint').innerHTML = 'Sacá una foto con los <strong>códigos</strong> que <strong>recibirás</strong>.';
+  document.getElementById('cambiosResultsTitle').textContent = 'Figuritas a recibir';
+  resetCambios();
+});
+
+document.getElementById('cambiosTabDoy').addEventListener('click', () => {
+  cambiosMode = 'doy';
+  document.getElementById('cambiosTabDoy').style.borderBottom = '3px solid var(--wc-orange)';
+  document.getElementById('cambiosTabDoy').style.color = 'var(--ink)';
+  document.getElementById('cambiosTabRecibo').style.borderBottom = 'none';
+  document.getElementById('cambiosTabRecibo').style.color = 'var(--ink-soft)';
+  document.getElementById('cambiosTabTitle').textContent = 'Dar Figuritas';
+  document.getElementById('cambiosHint').innerHTML = 'Sacá una foto con los <strong>códigos</strong> que <strong>darás</strong>.';
+  document.getElementById('cambiosResultsTitle').textContent = 'Figuritas a dar';
+  resetCambios();
+});
+
+document.getElementById('cambiosCameraBtn').addEventListener('click', () => {
+  if (typeof Android !== 'undefined') Android.openCamera();
+  else openCambiosCamera();
+});
+
+document.getElementById('cambiosCamCancel').addEventListener('click', () => {
+  stopCambiosCamera();
+  resetCambios();
+});
+
+document.getElementById('cambiosCamShoot').addEventListener('click', shootCambiosCamera);
+
+document.getElementById('cambiosGalleryBtn').addEventListener('click', () => {
+  if (typeof Android !== 'undefined') Android.openGallery();
+  else document.getElementById('cambiosGalleryInput').click();
+});
+
+document.getElementById('cambiosCameraInput').addEventListener('change', e => handleCambiosFile(e.target.files[0]));
+document.getElementById('cambiosGalleryInput').addEventListener('change', e => handleCambiosFile(e.target.files[0]));
+
+document.getElementById('cambiosRetryBtn').addEventListener('click', () => {
+  stopCambiosCamera();
+  resetCambios();
+});
+
+document.getElementById('cambiosAddBtn').addEventListener('click', () => {
+  if (typeof Android !== 'undefined') Android.openCamera();
+  else openCambiosCamera();
+});
+
+document.getElementById('cambiosConfirmBtn').addEventListener('click', async () => {
+  if (cambiosDetectedList.length === 0) {
+    showToast('No hay figuritas para cambiar');
+    return;
+  }
+
+  let changedCount = 0;
+  cambiosDetectedList.forEach(({ id, suggested }) => {
+    const realId = _SCAN_INDEX.upperToReal.get(id);
+    if (realId === undefined) return;
+
+    if (cambiosMode === 'recibo') {
+      // Si la tengo → marcar como repetida
+      // Si no la tengo → marcar como pegada
+      const tengo = (state.stickers[realId] || 0) > 0;
+      if (tengo) {
+        state.stickers[realId] = (state.stickers[realId] || 0) + 1; // Suma como repetida
+      } else {
+        state.stickers[realId] = 1; // Suma como pegada
+      }
+      changedCount++;
+    } else if (cambiosMode === 'doy') {
+      // Destilar 1 unidad
+      if ((state.stickers[realId] || 0) > 0) {
+        state.stickers[realId]--;
+        changedCount++;
+      }
+    }
+  });
+
+  saveData();
+  refreshAllStickers();
+  updateStats();
+  recordHistory();
+  document.getElementById('cambiosModal').classList.add('hidden');
+  resetWebScanTypeStep();
+
+  const mensaje = cambiosMode === 'recibo'
+    ? `✅ ${changedCount} figurita${changedCount !== 1 ? 's' : ''} registrada${changedCount !== 1 ? 's' : ''}`
+    : `✅ ${changedCount} figurita${changedCount !== 1 ? 's' : ''} destilada${changedCount !== 1 ? 's' : ''}`;
+  showToast(mensaje);
+});
+
+async function openCambiosCamera() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    document.getElementById('cambiosCameraInput').click();
+    return;
+  }
+  try {
+    cambiosCameraStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } },
+      audio: false
+    });
+    const video = document.getElementById('cambiosVideo');
+    video.srcObject = cambiosCameraStream;
+    await video.play().catch(() => {});
+    document.getElementById('cambiosStep0').style.display = 'none';
+    document.getElementById('cambiosCamView').style.display = 'block';
+  } catch (err) {
+    document.getElementById('cambiosCameraInput').click();
+  }
+}
+
+function stopCambiosCamera() {
+  if (cambiosCameraStream) {
+    cambiosCameraStream.getTracks().forEach(t => t.stop());
+    cambiosCameraStream = null;
+  }
+  const video = document.getElementById('cambiosVideo');
+  if (video) video.srcObject = null;
+  document.getElementById('cambiosCamView').style.display = 'none';
+}
+
+function shootCambiosCamera() {
+  const video = document.getElementById('cambiosVideo');
+  if (!video.videoWidth) return;
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  stopCambiosCamera();
+  canvas.toBlob(blob => { if (blob) handleCambiosFile(blob); }, 'image/jpeg', 0.92);
+}
+
+function resetCambios() {
+  cambiosDetectedList = [];
+  document.getElementById('cambiosStep0').style.display = 'block';
+  document.getElementById('cambiosCamView').style.display = 'none';
+  document.getElementById('cambiosPreview').style.display = 'none';
+  document.getElementById('cambiosProgressWrap').style.display = 'none';
+  document.getElementById('cambiosResultsWrap').style.display = 'none';
+  document.getElementById('cambiosNoResults').style.display = 'none';
+  document.getElementById('cambiosCameraInput').value = '';
+  document.getElementById('cambiosGalleryInput').value = '';
+}
+
+function resetWebScanTypeStep() {
+  document.getElementById('webScanStepType').style.display = 'block';
+  document.getElementById('webScanStep0').style.display = 'none';
+}
+
+async function handleCambiosFile(file) {
+  if (!file) return;
+  const rawUrl = URL.createObjectURL(file);
+  const preview = document.getElementById('cambiosPreview');
+  preview.src = rawUrl;
+  preview.style.display = 'block';
+  document.getElementById('cambiosStep0').style.display = 'none';
+  document.getElementById('cambiosCamView').style.display = 'none';
+  document.getElementById('cambiosNoResults').style.display = 'none';
+  document.getElementById('cambiosProgressWrap').style.display = 'block';
+  document.getElementById('cambiosProgressFill').style.width = '5%';
+  document.getElementById('cambiosProgressText').textContent = 'Procesando imagen...';
+
+  try {
+    // 1) Decodificar con orientación EXIF
+    let bitmap = null;
+    try {
+      bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+    } catch (_) {
+      bitmap = await new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = rawUrl;
+      });
+    }
+
+    // 2) Redimensionar
+    const maxSide = 1600;
+    let w = bitmap.width, h = bitmap.height;
+    const longest = Math.max(w, h);
+    if (longest > maxSide) {
+      const scale = maxSide / longest;
+      w = Math.round(w * scale);
+      h = Math.round(h * scale);
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(bitmap, 0, 0, w, h);
+    URL.revokeObjectURL(rawUrl);
+    if (bitmap.close) bitmap.close();
+
+    // 3) Preview
+    const previewUrl = canvas.toDataURL('image/jpeg', 0.75);
+    document.getElementById('cambiosPreview').src = previewUrl;
+
+    // 4) Preprocesar OCR
+    const ocrCanvas = document.createElement('canvas');
+    ocrCanvas.width = w; ocrCanvas.height = h;
+    const ocrCtx = ocrCanvas.getContext('2d');
+    ocrCtx.drawImage(canvas, 0, 0);
+    const imageData = ocrCtx.getImageData(0, 0, w, h);
+    const d = imageData.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const gray = 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
+      const c = Math.max(0, Math.min(255, (gray - 128) * 1.8 + 128));
+      d[i] = d[i+1] = d[i+2] = c;
+    }
+    ocrCtx.putImageData(imageData, 0, 0);
+
+    // 5) Comprimir
+    let q = 0.88;
+    let dataUrl = ocrCanvas.toDataURL('image/jpeg', q);
+    while (dataUrl.length > 1330000 && q > 0.4) { q -= 0.12; dataUrl = ocrCanvas.toDataURL('image/jpeg', q); }
+    const kb = Math.round(dataUrl.length * 0.75 / 1024);
+    document.getElementById('cambiosProgressText').textContent = 'Preparando (' + w + 'x' + h + ', ~' + kb + 'KB)...';
+
+    // 6) OCR
+    runCambiosOCR(dataUrl, previewUrl);
+  } catch (err) {
+    document.getElementById('cambiosProgressText').textContent = 'Error procesando imagen: ' + (err.message || err);
+  }
+}
+
+async function runCambiosOCR(dataUrl, colorDataUrl) {
+  try {
+    document.getElementById('cambiosProgressFill').style.width = '40%';
+    document.getElementById('cambiosProgressText').textContent = 'Analizando imagen...';
+
+    let text = '';
+    try {
+      text = await callCloudVision(colorDataUrl);
+      cambiosDetectedList = parseStickerCodesWeb(text);
+    } catch (_) {}
+
+    document.getElementById('cambiosProgressFill').style.width = '100%';
+    document.getElementById('cambiosProgressWrap').style.display = 'none';
+    renderCambiosResults();
+  } catch (err) {
+    const msg = (err && (err.message || String(err))) || 'desconocido';
+    document.getElementById('cambiosProgressText').textContent = 'Error: ' + msg;
+  }
+}
+
+function renderCambiosResults() {
+  const list = document.getElementById('cambiosResultsList');
+  list.innerHTML = '';
+
+  if (cambiosDetectedList.length === 0) {
+    document.getElementById('cambiosNoResults').style.display = 'block';
+    document.getElementById('cambiosResultsWrap').style.display = 'none';
+    return;
+  }
+
+  cambiosDetectedList.forEach(({ id, suggested }) => {
+    const chip = document.createElement('span');
+    chip.className = 'scan-chip' + (suggested ? ' suggested' : '');
+    chip.dataset.id = id;
+    chip.textContent = displayId(_SCAN_INDEX.upperToReal.get(id) || id);
+    list.appendChild(chip);
+  });
+
+  document.getElementById('cambiosResultsWrap').style.display = 'block';
+  document.getElementById('cambiosNoResults').style.display = 'none';
+}
 </script>
 
 
