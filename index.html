@@ -1418,44 +1418,6 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
         <button onclick="window.location.href='fixture.html'" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:9px 12px;background:var(--wc-blue-dark);color:#fff8ee;font-family:'Archivo Black',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.12em;border:1.5px solid var(--wc-blue-dark);cursor:pointer;margin-bottom:8px">
           📅 <span data-i18n="btn-fixture">Fixture Mundial 2026</span>
         </button>
-        <!-- fila 1: extras PC -->
-        <div class="ctrl-row" id="exportRowTop">
-          <button class="btn ghost" id="exportTxtBtn" data-i18n="btn-export">📝 Exportar Lista</button>
-          <button class="btn ghost" id="autosaveBtn">💾 Auto-Guardado</button>
-          <button class="btn ghost" id="importTxtBtn" data-i18n="btn-import-txt">📥 Importar Lista</button>
-          <input type="file" id="importTxtInput" accept=".txt" style="display:none">
-        </div>
-        <!-- fila 2: buscador -->
-        <div class="ctrl-row">
-          <input type="text" id="search" data-i18n-ph="search" placeholder="Buscar país, código o número…">
-          <select id="filterSel" class="ctrl-pc-inline">
-            <option value="all" data-i18n="f-all">Todas</option>
-            <option value="missing" data-i18n="f-miss">Faltan</option>
-            <option value="owned" data-i18n="f-own">Pegadas</option>
-            <option value="repeated" data-i18n="f-dup">Repetidas</option>
-            <option value="reserved" data-i18n="f-res">Cambios pactados</option>
-          </select>
-          <select id="sortSel" class="ctrl-pc-inline">
-            <option value="default" data-i18n="s-default">Orden del álbum</option>
-            <option value="completion" data-i18n="s-pct">Por completado %</option>
-            <option value="alpha">A → Z</option>
-          </select>
-        </div>
-        <!-- fila 3: filtros (solo mobile) -->
-        <div class="ctrl-row ctrl-mobile-only">
-          <select id="filterSelM">
-            <option value="all" data-i18n="f-all">Todas</option>
-            <option value="missing" data-i18n="f-miss">Faltan</option>
-            <option value="owned" data-i18n="f-own">Pegadas</option>
-            <option value="repeated" data-i18n="f-dup">Repetidas</option>
-            <option value="reserved" data-i18n="f-res">Cambios pactados</option>
-          </select>
-          <select id="sortSelM">
-            <option value="default" data-i18n="s-default">Orden del álbum</option>
-            <option value="completion" data-i18n="s-pct">Por completado %</option>
-            <option value="alpha">A → Z</option>
-          </select>
-        </div>
         <!-- Enviar faltantes / repetidas por WhatsApp -->
         <div class="btn-arcos-copy-row">
           <button class="btn-arcos-copy btn-wa" type="button" id="waEnviarFaltantesBtn">
@@ -1552,6 +1514,44 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
             </span>
             <span class="lbl" data-i18n="btn-lock">Bloquear</span>
           </button>
+        </div>
+        <!-- exportar / importar -->
+        <div class="ctrl-row" id="exportRowTop">
+          <button class="btn ghost" id="exportTxtBtn" data-i18n="btn-export">📝 Exportar Lista</button>
+          <button class="btn ghost" id="autosaveBtn">💾 Auto-Guardado</button>
+          <button class="btn ghost" id="importTxtBtn" data-i18n="btn-import-txt">📥 Importar Lista</button>
+          <input type="file" id="importTxtInput" accept=".txt" style="display:none">
+        </div>
+        <!-- buscador -->
+        <div class="ctrl-row">
+          <input type="text" id="search" data-i18n-ph="search" placeholder="Buscar país, código o número…">
+          <select id="filterSel" class="ctrl-pc-inline">
+            <option value="all" data-i18n="f-all">Todas</option>
+            <option value="missing" data-i18n="f-miss">Faltan</option>
+            <option value="owned" data-i18n="f-own">Pegadas</option>
+            <option value="repeated" data-i18n="f-dup">Repetidas</option>
+            <option value="reserved" data-i18n="f-res">Cambios pactados</option>
+          </select>
+          <select id="sortSel" class="ctrl-pc-inline">
+            <option value="default" data-i18n="s-default">Orden del álbum</option>
+            <option value="completion" data-i18n="s-pct">Por completado %</option>
+            <option value="alpha">A → Z</option>
+          </select>
+        </div>
+        <!-- filtros mobile -->
+        <div class="ctrl-row ctrl-mobile-only">
+          <select id="filterSelM">
+            <option value="all" data-i18n="f-all">Todas</option>
+            <option value="missing" data-i18n="f-miss">Faltan</option>
+            <option value="owned" data-i18n="f-own">Pegadas</option>
+            <option value="repeated" data-i18n="f-dup">Repetidas</option>
+            <option value="reserved" data-i18n="f-res">Cambios pactados</option>
+          </select>
+          <select id="sortSelM">
+            <option value="default" data-i18n="s-default">Orden del álbum</option>
+            <option value="completion" data-i18n="s-pct">Por completado %</option>
+            <option value="alpha">A → Z</option>
+          </select>
         </div>
       </div>
       <div id="sync-status-bar" class="sync-status-bar"></div>
