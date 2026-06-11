@@ -1418,7 +1418,14 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
         <button onclick="window.location.href='fixture.html'" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:9px 12px;background:var(--wc-blue-dark);color:#fff8ee;font-family:'Archivo Black',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.12em;border:1.5px solid var(--wc-blue-dark);cursor:pointer;margin-bottom:8px">
           📅 <span data-i18n="btn-fixture">Fixture Mundial 2026</span>
         </button>
-        <!-- fila 1: buscador -->
+        <!-- fila 1: extras PC -->
+        <div class="ctrl-row ctrl-pc-only" id="exportRowTop">
+          <button class="btn ghost" id="exportTxtBtn" data-i18n="btn-export">📝 Exportar Lista</button>
+          <button class="btn ghost" id="autosaveBtn">💾 Auto-Guardado</button>
+          <button class="btn ghost" id="importTxtBtn" data-i18n="btn-import-txt">📥 Importar Lista</button>
+          <input type="file" id="importTxtInput" accept=".txt" style="display:none">
+        </div>
+        <!-- fila 2: buscador -->
         <div class="ctrl-row">
           <input type="text" id="search" data-i18n-ph="search" placeholder="Buscar país, código o número…">
           <select id="filterSel" class="ctrl-pc-inline">
@@ -1434,7 +1441,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
             <option value="alpha">A → Z</option>
           </select>
         </div>
-        <!-- fila 2: filtros (solo mobile, en PC están arriba) -->
+        <!-- fila 3: filtros (solo mobile) -->
         <div class="ctrl-row ctrl-mobile-only">
           <select id="filterSelM">
             <option value="all" data-i18n="f-all">Todas</option>
@@ -1545,13 +1552,6 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
             </span>
             <span class="lbl" data-i18n="btn-lock">Bloquear</span>
           </button>
-        </div>
-        <!-- extras PC -->
-        <div class="ctrl-row ctrl-pc-only">
-          <button class="btn ghost" id="exportTxtBtn" data-i18n="btn-export">📝 Exportar Lista</button>
-          <button class="btn ghost" id="autosaveBtn">💾 Auto-Guardado</button>
-          <button class="btn ghost" id="importTxtBtn" data-i18n="btn-import-txt">📥 Importar Lista</button>
-          <input type="file" id="importTxtInput" accept=".txt" style="display:none">
         </div>
       </div>
       <div id="sync-status-bar" class="sync-status-bar"></div>
