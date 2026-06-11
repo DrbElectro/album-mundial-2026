@@ -613,7 +613,7 @@ function onFixtureData(b64){
   try{
     const json = JSON.parse(atob(b64));
     const data = json.matches || [];
-    sessionStorage.setItem(API_CACHE_KEY, JSON.stringify({ts:Date.now(), data}));
+    localStorage.setItem(API_CACHE_KEY, JSON.stringify({ts:Date.now(), data}));
     _processApi(data);
   }catch(e){ _updateApiStatusBar(false); }
 }
@@ -623,21 +623,24 @@ function onFixtureDataErr(code){
 }
 
 async function fetchLiveData(){
-  // Caché en sessionStorage (válida para ambas plataformas)
+  // Caché en localStorage (persiste entre sesiones para conservar resultados)
   try{
-    const raw = sessionStorage.getItem(API_CACHE_KEY);
+    const raw = localStorage.getItem(API_CACHE_KEY);
     if(raw){
       const {ts, data} = JSON.parse(raw);
       const hasLive = data.some(m=>m.status==='IN_PLAY'||m.status==='PAUSED');
-      const ttl = hasLive ? 30000 : 90000;
+      // Partidos en vivo: 30s. Sin vivos: 5 min. Si la API falla igual mostramos caché.
+      const ttl = hasLive ? 30000 : 5*60*1000;
       if(Date.now()-ts < ttl){ _processApi(data); return; }
+      // Caché vencida pero la usamos igual como fallback si la API falla
+      _processApi(data);
     }
   }catch(_){}
 
   // Android: bridge nativo (evita bloqueo CORS en file://)
   if(window.Android && typeof Android.fetchFixtureData === 'function'){
     try{ Android.fetchFixtureData(); }
-    catch(e){ _updateApiStatusBar(false); }
+    catch(e){ /* silencioso — Android maneja el error */ }
     return;
   }
 
@@ -647,11 +650,10 @@ async function fetchLiveData(){
     if(!resp.ok) throw new Error('HTTP '+resp.status);
     const json = await resp.json();
     const data = json.matches || [];
-    sessionStorage.setItem(API_CACHE_KEY, JSON.stringify({ts:Date.now(), data}));
+    localStorage.setItem(API_CACHE_KEY, JSON.stringify({ts:Date.now(), data}));
     _processApi(data);
   }catch(e){
-    console.warn('[Fixture API]', e.message);
-    _updateApiStatusBar(false);
+    // Silencioso — ya mostramos caché arriba si existía
   }
 }
 
