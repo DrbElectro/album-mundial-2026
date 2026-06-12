@@ -616,11 +616,22 @@ function onFixtureData(b64){
 }
 function onFixtureDataErr(code){ _updateApiStatusBar(false); }
 
-// Devuelve lista de fechas YYYYMMDD con partidos ≤ hoy
+// Devuelve lista de fechas YYYYMMDD con partidos ≤ hoy.
+// ESPN usa hora EDT (UTC-4): partidos antes de las 05:00 UTC están bajo la fecha anterior en ESPN.
 function _matchDatesUpToToday(){
   const today = new Date().toISOString().substring(0,10);
   const s = new Set();
-  MATCHES.forEach(m=>{ const d=m.utc.substring(0,10); if(d<=today) s.add(d.replace(/-/g,'')); });
+  MATCHES.forEach(m=>{
+    const d = m.utc.substring(0,10);
+    if(d > today) return;
+    s.add(d.replace(/-/g,''));
+    const utcHour = parseInt(m.utc.substring(11,13));
+    if(utcHour < 5){
+      const prev = new Date(m.utc);
+      prev.setUTCDate(prev.getUTCDate()-1);
+      s.add(prev.toISOString().substring(0,10).replace(/-/g,''));
+    }
+  });
   return [...s].sort();
 }
 
