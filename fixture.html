@@ -607,14 +607,23 @@ let _apiLoaded = false;
 let _apiTimer  = null;
 let _lastUpdate = null;
 
-// Callbacks del bridge Android (mantener para compatibilidad futura)
+// Callbacks del bridge Android
 function onFixtureData(b64){
   try{
     const events = JSON.parse(atob(b64));
     _processEspnEvents(Array.isArray(events) ? events : []);
+  }catch(e){ _fetchESPNDirectly(); }
+}
+// Si el bridge falla (APK viejo con API caída), hacer fetch ESPN directo
+function onFixtureDataErr(code){ _fetchESPNDirectly(); }
+
+async function _fetchESPNDirectly(){
+  const dates = _matchDatesUpToToday();
+  try{
+    const all = (await Promise.all(dates.map(d=>_fetchESPNDate(d).catch(()=>[])) )).flat();
+    _processEspnEvents(all);
   }catch(e){ _updateApiStatusBar(false); }
 }
-function onFixtureDataErr(code){ _updateApiStatusBar(false); }
 
 // Devuelve lista de fechas YYYYMMDD con partidos ≤ hoy.
 // ESPN usa hora EDT (UTC-4): partidos antes de las 05:00 UTC están bajo la fecha anterior en ESPN.
