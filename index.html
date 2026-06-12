@@ -1350,10 +1350,34 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
   .masthead .stat .delta{font-size:9px}
 }
 
+#liveBanner{
+  position:sticky;top:0;z-index:200;
+  background:#111;color:#fff;
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;
+  padding:7px 16px;
+  display:none;align-items:center;justify-content:center;gap:8px;
+  cursor:pointer;text-decoration:none;
+}
+#liveBanner:hover{background:#222}
+.live-dot{
+  width:7px;height:7px;background:#e53935;border-radius:50%;
+  animation:livePulse 1.2s ease-in-out infinite;flex-shrink:0
+}
+@keyframes livePulse{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:.4;transform:scale(.75)}
+}
+
 </style>
 </head>
 <body>
 <div class="page">
+
+  <!-- ===== Banner Partido en Vivo ===== -->
+  <a id="liveBanner" href="fixture.html">
+    <span class="live-dot"></span>
+    <span id="liveBannerText"></span>
+  </a>
 
   <!-- ===== Masthead ===== -->
   <header class="masthead">
@@ -5616,6 +5640,42 @@ setLang(currentLang);
   btn.addEventListener('click', ()=>{
     window.scrollTo({top:0, behavior:'smooth'});
   });
+})();
+</script>
+
+<script>
+(function initLiveBanner(){
+  const ESPN = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard';
+  const banner = document.getElementById('liveBanner');
+  const bannerText = document.getElementById('liveBannerText');
+
+  async function check(){
+    try{
+      const resp = await fetch(ESPN);
+      if(!resp.ok) throw new Error();
+      const json = await resp.json();
+      const events = json.events || [];
+      const live = events.find(e => e.competitions?.[0]?.status?.type?.state === 'in');
+      if(live){
+        const comp = live.competitions[0];
+        const min  = comp.status.displayClock || '';
+        const homeC = comp.competitors.find(c=>c.homeAway==='home');
+        const awayC = comp.competitors.find(c=>c.homeAway==='away');
+        const txt = `EN VIVO · ${homeC?.team?.abbreviation} ${homeC?.score}–${awayC?.score} ${awayC?.team?.abbreviation} · ${min}`;
+        bannerText.textContent = txt;
+        banner.style.display = 'flex';
+        setTimeout(check, 30000);
+      } else {
+        banner.style.display = 'none';
+        setTimeout(check, 5*60*1000);
+      }
+    }catch(e){
+      banner.style.display = 'none';
+      setTimeout(check, 5*60*1000);
+    }
+  }
+
+  check();
 })();
 </script>
 
