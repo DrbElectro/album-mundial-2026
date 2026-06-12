@@ -573,10 +573,9 @@ GROUPS_LIST.forEach(g=>{
   GROUP_TEAMS_ARR[g] = [...s];
 });
 
-// ── API football-data.org ─────────────────────────
-const API_KEY  = '4a48a6cf07064ff3822c431323c47a7d';
-const API_URL  = 'https://api.football-data.org/v4/competitions/2000/matches';
-const API_CACHE_KEY = 'wc2026_api_v2';
+// ── API ESPN (gratuita, sin key) ──────────────────
+const ESPN_BASE = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard';
+const ESPN_CACHE_PREFIX = 'wc2026_espn_';
 
 // Nombres de la API → nombres en español de nuestra app
 const API_TEAM_ES = {
@@ -608,77 +607,108 @@ let _apiLoaded = false;
 let _apiTimer  = null;
 let _lastUpdate = null;
 
-// Callbacks del bridge Android
+// Callbacks del bridge Android (mantener para compatibilidad futura)
 function onFixtureData(b64){
   try{
-    const json = JSON.parse(atob(b64));
-    const data = json.matches || [];
-    localStorage.setItem(API_CACHE_KEY, JSON.stringify({ts:Date.now(), data}));
-    _processApi(data);
+    const events = JSON.parse(atob(b64));
+    _processEspnEvents(Array.isArray(events) ? events : []);
   }catch(e){ _updateApiStatusBar(false); }
 }
-function onFixtureDataErr(code){
-  console.warn('[Fixture API Android] error', code);
-  _updateApiStatusBar(false);
+function onFixtureDataErr(code){ _updateApiStatusBar(false); }
+
+// Devuelve lista de fechas YYYYMMDD con partidos ≤ hoy
+function _matchDatesUpToToday(){
+  const today = new Date().toISOString().substring(0,10);
+  const s = new Set();
+  MATCHES.forEach(m=>{ const d=m.utc.substring(0,10); if(d<=today) s.add(d.replace(/-/g,'')); });
+  return [...s].sort();
+}
+
+async function _fetchESPNDate(dateStr){
+  const cacheKey = ESPN_CACHE_PREFIX + dateStr;
+  const todayStr = new Date().toISOString().substring(0,10).replace(/-/g,'');
+  const isToday  = dateStr === todayStr;
+  try{
+    const raw = localStorage.getItem(cacheKey);
+    if(raw){
+      const cached = JSON.parse(raw);
+      if(cached.done) return cached.events;           // día completo: no expira
+      if(!isToday)    return cached.events;           // pasado: usar caché
+      if(Date.now()-cached.ts < 60000) return cached.events; // hoy: 1 min TTL
+    }
+  }catch(_){}
+  const resp = await fetch(`${ESPN_BASE}?dates=${dateStr}`);
+  if(!resp.ok) throw new Error('HTTP '+resp.status);
+  const json = await resp.json();
+  const events = json.events || [];
+  const done = !isToday && events.every(e=>e.competitions?.[0]?.status?.type?.completed);
+  localStorage.setItem(cacheKey, JSON.stringify({ts:Date.now(), events, done}));
+  return events;
+}
+
+function _parseEspnEvent(ev){
+  const comp = ev.competitions?.[0];
+  if(!comp) return null;
+  const key   = ev.date.substring(0,16);
+  const st    = comp.status?.type;
+  const homeC = comp.competitors?.find(c=>c.homeAway==='home');
+  const awayC = comp.competitors?.find(c=>c.homeAway==='away');
+  if(!homeC||!awayC) return null;
+  const isPost = st?.state==='post'||st?.completed;
+  const isLive = st?.state==='in';
+  return {
+    key,
+    status : isPost?'FINISHED':isLive?'IN_PLAY':'SCHEDULED',
+    scoreH : (isPost||isLive) ? (parseInt(homeC.score)||0) : null,
+    scoreA : (isPost||isLive) ? (parseInt(awayC.score)||0) : null,
+    htH:null, htA:null,
+    isLive
+  };
 }
 
 async function fetchLiveData(){
-  // Caché en localStorage (persiste entre sesiones para conservar resultados)
-  try{
-    const raw = localStorage.getItem(API_CACHE_KEY);
-    if(raw){
-      const {ts, data} = JSON.parse(raw);
-      const hasLive = data.some(m=>m.status==='IN_PLAY'||m.status==='PAUSED');
-      // Partidos en vivo: 30s. Sin vivos: 5 min. Si la API falla igual mostramos caché.
-      const ttl = hasLive ? 30000 : 5*60*1000;
-      if(Date.now()-ts < ttl){ _processApi(data); return; }
-      // Caché vencida pero la usamos igual como fallback si la API falla
-      _processApi(data);
-    }
-  }catch(_){}
-
-  // Android: bridge nativo (evita bloqueo CORS en file://)
-  if(window.Android && typeof Android.fetchFixtureData === 'function'){
-    try{ Android.fetchFixtureData(); }
-    catch(e){ /* silencioso — Android maneja el error */ }
+  // Android: bridge nativo
+  if(window.Android && typeof Android.fetchFixtureData==='function'){
+    try{ Android.fetchFixtureData(); }catch(e){}
     return;
   }
-
-  // Web: fetch normal
+  const dates = _matchDatesUpToToday();
+  // Mostrar caché existente de inmediato
+  let hasCache = false;
+  for(const d of dates){
+    try{
+      const raw = localStorage.getItem(ESPN_CACHE_PREFIX+d);
+      if(raw){
+        const {events} = JSON.parse(raw);
+        (events||[]).forEach(ev=>{ const p=_parseEspnEvent(ev); if(p) _apiScores.set(p.key,p); });
+        hasCache = true;
+      }
+    }catch(_){}
+  }
+  if(hasCache){ _apiLoaded=true; _updateApiStatusBar(true,false); updateNextBanner(); render(); }
+  // Fetch fresco en paralelo
   try{
-    const resp = await fetch(API_URL, {headers:{'X-Auth-Token': API_KEY}});
-    if(!resp.ok) throw new Error('HTTP '+resp.status);
-    const json = await resp.json();
-    const data = json.matches || [];
-    localStorage.setItem(API_CACHE_KEY, JSON.stringify({ts:Date.now(), data}));
-    _processApi(data);
+    const all = (await Promise.all(dates.map(d=>_fetchESPNDate(d).catch(()=>[])) )).flat();
+    _processEspnEvents(all);
   }catch(e){
-    // Silencioso — ya mostramos caché arriba si existía
+    if(!hasCache) _updateApiStatusBar(false);
   }
 }
 
-function _processApi(apiMatches){
+function _processEspnEvents(events){
   _apiScores.clear();
   let hasLive = false;
-  for(const m of apiMatches){
-    const key = m.utcDate.substring(0,16); // "2026-06-11T19:00"
-    const sH = m.score?.fullTime?.home ?? null;
-    const sA = m.score?.fullTime?.away ?? null;
-    const hH = m.score?.halfTime?.home ?? null;
-    const hA = m.score?.halfTime?.away ?? null;
-    const home = m.homeTeam?.name ? (API_TEAM_ES[m.homeTeam.name] || m.homeTeam.name) : null;
-    const away = m.awayTeam?.name ? (API_TEAM_ES[m.awayTeam.name] || m.awayTeam.name) : null;
-    _apiScores.set(key, { status: m.status, scoreH:sH, scoreA:sA, htH:hH, htA:hA, home, away });
-    if(m.status==='IN_PLAY'||m.status==='PAUSED') hasLive = true;
-  }
+  (events||[]).forEach(ev=>{
+    const p = _parseEspnEvent(ev);
+    if(p){ _apiScores.set(p.key,p); if(p.isLive) hasLive=true; }
+  });
   _apiLoaded = true;
   _lastUpdate = new Date();
   _updateApiStatusBar(true, hasLive);
   updateNextBanner();
   render();
-  // Auto-refresh: cada 30s si hay partido en vivo, 90s si no
   clearTimeout(_apiTimer);
-  _apiTimer = setTimeout(fetchLiveData, hasLive ? 30000 : 90000);
+  _apiTimer = setTimeout(fetchLiveData, hasLive ? 30000 : 5*60*1000);
 }
 
 function _updateApiStatusBar(ok, hasLive){
@@ -815,56 +845,66 @@ function toggleFilter(type){
   render();
 }
 
-// ── Tabla de posiciones ──────────────────────────────
-
-const STANDINGS_URL = 'https://api.football-data.org/v4/competitions/2000/standings';
-const STANDINGS_CACHE_KEY = 'fixture_standings_cache_v1';
+// ── Tabla de posiciones (calculada desde resultados ESPN) ────────────
 let _standingsTimer = null;
 
-// Mapeo nombre API → nombre ES (reutiliza el mismo de partidos)
 function _stTeamName(apiName){ return API_TEAM_ES[apiName] || apiName; }
 
-async function fetchStandingsData(){
-  const wrap = document.getElementById('standingsWrap');
-  // Cache: válido 5 min si no hay partidos en juego
-  try{
-    const raw = sessionStorage.getItem(STANDINGS_CACHE_KEY);
-    if(raw){
-      const {ts, data} = JSON.parse(raw);
-      if(Date.now()-ts < 300000){ renderStandings(data); return; }
-    }
-  }catch(_){}
-
-  wrap.innerHTML='<div class="st-loading">Cargando tabla de posiciones…</div>';
-
-  // Android: bridge nativo
-  if(window.Android && typeof Android.fetchStandingsData==='function'){
-    try{ Android.fetchStandingsData(); } catch(e){ renderStandingsStatic(); }
-    return;
-  }
-
-  // Web: fetch normal
-  try{
-    const resp = await fetch(STANDINGS_URL,{headers:{'X-Auth-Token':API_KEY}});
-    if(!resp.ok) throw new Error('HTTP '+resp.status);
-    const json = await resp.json();
-    const data = json.standings||[];
-    sessionStorage.setItem(STANDINGS_CACHE_KEY, JSON.stringify({ts:Date.now(), data}));
-    renderStandings(data);
-  }catch(e){
-    console.warn('[Standings]',e);
-    renderStandingsStatic();
-  }
+// Calcula tabla de cada grupo a partir de _apiScores + MATCHES
+function computeStandingsFromResults(){
+  // Para cada equipo que aparece en MATCHES, acumular stats
+  const stats = {}; // key = nombre equipo
+  MATCHES.forEach(m=>{
+    const api = apiForMatch(m);
+    if(!api || api.status!=='FINISHED' || api.scoreH===null) return;
+    [m.h, m.a].forEach(t=>{ if(!stats[t]) stats[t]={name:t,g:m.g,pj:0,w:0,d:0,l:0,gf:0,ga:0,pts:0}; });
+    const gh=api.scoreH, ga=api.scoreA;
+    // local
+    stats[m.h].pj++; stats[m.h].gf+=gh; stats[m.h].ga+=ga;
+    // visitante
+    stats[m.a].pj++; stats[m.a].gf+=ga; stats[m.a].ga+=gh;
+    if(gh>ga){      stats[m.h].w++; stats[m.h].pts+=3; stats[m.a].l++; }
+    else if(gh<ga){ stats[m.a].w++; stats[m.a].pts+=3; stats[m.h].l++; }
+    else{           stats[m.h].d++; stats[m.h].pts+=1; stats[m.a].d++; stats[m.a].pts+=1; }
+  });
+  // Agrupar por grupo y convertir al formato esperado por renderStandings
+  return GROUPS_LIST.map(g=>{
+    const teams = Object.values(stats).filter(t=>t.g===g);
+    // Completar equipos sin partidos jugados
+    const inGroup = new Set(teams.map(t=>t.name));
+    (GROUP_TEAMS_ARR[g]||[]).forEach(name=>{
+      if(!inGroup.has(name)) teams.push({name,g,pj:0,w:0,d:0,l:0,gf:0,ga:0,pts:0});
+    });
+    // Ordenar: pts desc, dg desc, gf desc, nombre asc
+    teams.sort((a,b)=>{
+      if(b.pts!==a.pts) return b.pts-a.pts;
+      const dga=(a.gf-a.ga), dgb=(b.gf-b.ga);
+      if(dgb!==dga) return dgb-dga;
+      if(b.gf!==a.gf) return b.gf-a.gf;
+      return a.name.localeCompare(b.name);
+    });
+    return {
+      group:'Group '+g,
+      table: teams.map((t,i)=>({
+        position:i+1,
+        team:{name:t.name},
+        playedGames:t.pj, won:t.w, draw:t.d, lost:t.l,
+        goalsFor:t.gf, goalsAgainst:t.ga,
+        goalDifference:t.gf-t.ga, points:t.pts
+      }))
+    };
+  });
 }
 
-function onStandingsData(b64){
-  try{
-    const json = JSON.parse(atob(b64));
-    const data = json.standings||[];
-    sessionStorage.setItem(STANDINGS_CACHE_KEY, JSON.stringify({ts:Date.now(), data}));
-    renderStandings(data);
-  }catch(e){ renderStandingsStatic(); }
+function fetchStandingsData(){
+  const data = computeStandingsFromResults();
+  renderStandings(data);
+  clearTimeout(_standingsTimer);
+  _standingsTimer = setTimeout(fetchStandingsData, 60000);
 }
+
+// Callbacks Android (sin uso activo, mantener por compatibilidad)
+function onStandingsData(){ fetchStandingsData(); }
 function onStandingsDataErr(){ renderStandingsStatic(); }
 
 // Renderizar con datos de la API
