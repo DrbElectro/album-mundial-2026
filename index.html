@@ -1350,17 +1350,15 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
   .masthead .stat .delta{font-size:9px}
 }
 
-#liveBanner{
-  position:sticky;top:0;z-index:200;
-  background:#111;color:#fff;
-  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;
-  padding:7px 16px;
-  display:none;align-items:center;justify-content:center;gap:8px;
-  cursor:pointer;text-decoration:none;
+.live-pill{
+  display:none;align-items:center;gap:5px;
+  background:#e53935;color:#fff;
+  font-size:10px;font-weight:500;letter-spacing:.04em;
+  padding:3px 8px;border-radius:10px;white-space:nowrap;flex-shrink:0
 }
-#liveBanner:hover{background:#222}
+.live-pill.visible{display:flex}
 .live-dot{
-  width:7px;height:7px;background:#e53935;border-radius:50%;
+  width:6px;height:6px;background:#fff;border-radius:50%;
   animation:livePulse 1.2s ease-in-out infinite;flex-shrink:0
 }
 @keyframes livePulse{
@@ -1372,12 +1370,6 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 </head>
 <body>
 <div class="page">
-
-  <!-- ===== Banner Partido en Vivo ===== -->
-  <a id="liveBanner" href="fixture.html">
-    <span class="live-dot"></span>
-    <span id="liveBannerText"></span>
-  </a>
 
   <!-- ===== Masthead ===== -->
   <header class="masthead">
@@ -1439,8 +1431,9 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 
       <div class="controls">
         <!-- fixture button -->
-        <button onclick="window.location.href='fixture.html'" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:9px 12px;background:var(--wc-blue-dark);color:#fff8ee;font-family:'Archivo Black',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.12em;border:1.5px solid var(--wc-blue-dark);cursor:pointer;margin-bottom:8px">
+        <button id="fixtureBtnMain" onclick="window.location.href='fixture.html'" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:9px 12px;background:var(--wc-blue-dark);color:#fff8ee;font-family:'Archivo Black',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.12em;border:1.5px solid var(--wc-blue-dark);cursor:pointer;margin-bottom:8px">
           📅 <span data-i18n="btn-fixture">Fixture Mundial 2026</span>
+          <span class="live-pill" id="livePill"><span class="live-dot"></span><span id="livePillText"></span></span>
         </button>
         <!-- Enviar faltantes / repetidas por WhatsApp -->
         <div class="btn-arcos-copy-row">
@@ -5644,10 +5637,10 @@ setLang(currentLang);
 </script>
 
 <script>
-(function initLiveBanner(){
+(function initLivePill(){
   const ESPN = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard';
-  const banner = document.getElementById('liveBanner');
-  const bannerText = document.getElementById('liveBannerText');
+  const pill = document.getElementById('livePill');
+  const pillText = document.getElementById('livePillText');
 
   async function check(){
     try{
@@ -5656,21 +5649,20 @@ setLang(currentLang);
       const json = await resp.json();
       const events = json.events || [];
       const live = events.find(e => e.competitions?.[0]?.status?.type?.state === 'in');
-      if(live){
+      if(live && pill){
         const comp = live.competitions[0];
         const min  = comp.status.displayClock || '';
         const homeC = comp.competitors.find(c=>c.homeAway==='home');
         const awayC = comp.competitors.find(c=>c.homeAway==='away');
-        const txt = `EN VIVO · ${homeC?.team?.abbreviation} ${homeC?.score}–${awayC?.score} ${awayC?.team?.abbreviation} · ${min}`;
-        bannerText.textContent = txt;
-        banner.style.display = 'flex';
+        pillText.textContent = `${homeC?.team?.abbreviation} ${homeC?.score}–${awayC?.score} · ${min}`;
+        pill.classList.add('visible');
         setTimeout(check, 30000);
       } else {
-        banner.style.display = 'none';
+        pill?.classList.remove('visible');
         setTimeout(check, 5*60*1000);
       }
     }catch(e){
-      banner.style.display = 'none';
+      pill?.classList.remove('visible');
       setTimeout(check, 5*60*1000);
     }
   }
