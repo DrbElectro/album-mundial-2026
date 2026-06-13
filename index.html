@@ -3623,14 +3623,14 @@ function disponiblesParaDar(id, excludeId=null){
 function confirmarCanjePendiente(i){
   const cj = state.canjes[i];
   if(!cj) return;
-  showConfirm('Confirmar cambio', `¿Confirmar cambio con ${cj.nombre}? Se aplicarán los cambios en tu álbum.`, ()=>{
+  showConfirm('¿Ya hiciste el cambio?', `Con ${cj.nombre}`, ()=>{
     cj.dar.forEach(id=>{ state.stickers[id]=Math.max(0,(state.stickers[id]||0)-1); });
     cj.recibir.forEach(id=>{ if((state.stickers[id]||0)===0) state.stickers[id]=1; });
     state.canjes.splice(i,1);
     saveData(); refreshAllStickers(); updateStats(); calcGasto(); recordHistory(); renderChart();
     renderCanjesPendientesList(); updateCanjesPendientesBtn();
     showToast('✓ '+I18N[currentLang]['toast-trade-confirmed']+' '+cj.nombre);
-  }, 'Confirmar', 'var(--green)');
+  }, 'Sí', 'var(--green)');
 }
 
 function cancelarCanjePendiente(i){
