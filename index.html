@@ -784,7 +784,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
   .flag{width:34px;height:24px;}
   .stickers{grid-template-columns:repeat(5,1fr) !important;gap:4px !important;}
   .side{display:none !important;}
-  .fab{display:flex !important;}
+  .fab{display:none !important;} /* en mobile vive dentro de la barra inferior como "Cómo se usa" */
   .ctrl-pc-only{display:none !important;}
   .ctrl-pc-inline{display:none !important;}
   #autosaveBtn{display:none !important;}
@@ -801,6 +801,13 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
   .leg-pc{display:none !important;}
   .leg-mobile{display:flex !important;}
   .stamp{position:absolute;bottom:8px;right:0;top:auto;width:80px;height:80px;}
+  /* Bottom nav bar replaces the in-page action grid on mobile.
+     (display:grid lives in a later media query — see .bottom-nav rules below
+     the base declaration, so it isn't overridden by the base display:none.) */
+  .btn-arcos-stack{display:none !important;}
+  /* room for the bar + lift the scroll-top button above it */
+  .page{padding-bottom:78px !important;}
+  #scrollTopBtn{bottom:calc(80px + var(--safe-bottom, 0px)) !important;}
 }
 /* Disable sticky hover on touch */
 @media(hover:none){
@@ -1367,6 +1374,101 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
   50%{opacity:.4;transform:scale(.75)}
 }
 
+/* ===== Filter cuadrantes ===== */
+.filter-cuadrantes{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:6px;
+}
+.filt-btn{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:5px;padding:10px 4px;
+  border:1.5px solid var(--rule);background:var(--paper-2);
+  cursor:pointer;border-radius:4px;transition:all .12s;
+  color:var(--ink);font-family:'JetBrains Mono',monospace;
+  font-size:7px;font-weight:700;letter-spacing:.04em;
+  text-transform:uppercase;text-align:center;line-height:1.2;
+}
+.filt-btn svg{width:20px;height:20px;flex-shrink:0}
+.filt-btn.active{color:#fff8ee;border-color:transparent}
+.filt-btn.active.f-all  {background:var(--ink)}
+.filt-btn.active.f-miss {background:var(--red)}
+.filt-btn.active.f-own  {background:var(--green)}
+.filt-btn.active.f-rep  {background:var(--gold-deep)}
+.filt-btn.active.f-trade{background:var(--blue)}
+
+/* ===== Country scroller ===== */
+/* Fix: grid item must have min-width:0 to be constrained by the grid column */
+.main{min-width:0}
+.country-scroller-wrap{margin-top:10px;border-top:1px dashed var(--rule);padding-top:8px;overflow:hidden}
+.country-scroller-lbl{
+  font-family:'JetBrains Mono',monospace;font-size:8px;text-transform:uppercase;
+  letter-spacing:.16em;color:var(--ink-soft);margin-bottom:6px;
+}
+.country-scroller{
+  display:flex;gap:5px;overflow-x:auto;
+  padding-bottom:6px;
+  scrollbar-width:thin;scrollbar-color:var(--rule) transparent;
+  -webkit-overflow-scrolling:touch;
+}
+.country-chip{
+  flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:6px 8px;border:1.5px solid var(--rule);background:var(--paper-2);
+  cursor:pointer;border-radius:4px;min-width:46px;transition:all .12s;
+  font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;letter-spacing:.06em;
+}
+.country-chip img{width:24px;height:auto;display:block}
+.country-chip.active{background:#fff;box-shadow:0 0 0 1.5px var(--chip-color,var(--ink))}
+.country-chip:active{transform:scale(.95)}
+/* Cap filter buttons so they don't become giant squares on desktop */
+.filt-btn{max-height:80px}
+
+/* ===== Bottom nav bar (mobile only) ===== */
+.bottom-nav{display:none}
+.bottom-nav button{position:relative}
+.bn-ico{position:relative;z-index:2;display:flex;align-items:center;justify-content:center}
+.bn-ico svg{width:18px;height:18px}
+.bn-lbl{position:relative;z-index:2;font-family:'JetBrains Mono',monospace;font-size:6.5px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:#fff;line-height:1.15;text-align:center}
+.bn-badge{position:absolute;top:2px;right:3px;z-index:3;background:var(--red);color:#fff;font-family:'Archivo Black',sans-serif;font-size:8px;min-width:15px;height:15px;border-radius:8px;align-items:center;justify-content:center;padding:0 3px;border:1px solid var(--ink);display:none}
+.bn-badge.visible{display:flex}
+.bn-on{position:absolute;top:2px;right:3px;z-index:3;background:var(--green);color:#fff;font-family:'Archivo Black',sans-serif;font-size:7px;padding:1px 4px;border-radius:6px;border:1px solid var(--ink);display:none}
+.bn-on.visible{display:block}
+/* mobile activation — placed after base .bottom-nav{display:none} so it wins */
+@media(max-width:600px){
+  .bottom-nav{
+    display:grid;grid-template-columns:repeat(7,1fr);
+    position:fixed;left:0;right:0;bottom:0;z-index:95;
+    border-top:2px solid var(--ink);
+    padding-bottom:var(--safe-bottom);
+    box-shadow:0 -3px 12px rgba(0,0,0,.32);
+  }
+  .bottom-nav button{
+    position:relative;overflow:hidden;
+    background:#888;border:none;border-right:1px solid rgba(0,0,0,.2);
+    padding:9px 1px 10px;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+    color:#fff;
+  }
+  .bottom-nav button:last-child{border-right:none;}
+  .bottom-nav button:active{filter:brightness(1.08);}
+  /* Arcos (mismo lenguaje que los botones grandes btn-arcos) */
+  .bottom-nav button::before{
+    content:"";position:absolute;width:150%;height:150%;border-radius:50%;
+    bottom:-95%;right:-45%;z-index:1;pointer-events:none;
+  }
+  .bottom-nav button::after{
+    content:"";position:absolute;width:85%;height:85%;border-radius:50%;
+    top:-45%;left:-32%;z-index:1;pointer-events:none;opacity:.85;
+  }
+  /* Rampas de color (idénticas a btn-arcos) */
+  .bottom-nav .c-blue{background:#3878c0}.bottom-nav .c-blue::before{background:#5fb4e0}.bottom-nav .c-blue::after{background:#1c3870}
+  .bottom-nav .c-green{background:#3da855}.bottom-nav .c-green::before{background:#b8d040}.bottom-nav .c-green::after{background:#226a3a}
+  .bottom-nav .c-orange{background:#e07a30}.bottom-nav .c-orange::before{background:#f0c038}.bottom-nav .c-orange::after{background:#a04a18}
+  .bottom-nav .c-lime{background:#b8d040}.bottom-nav .c-lime::before{background:#f0c038}.bottom-nav .c-lime::after{background:#3da855}
+  .bottom-nav .c-lime .bn-lbl{color:#1a2400}
+  .bottom-nav .c-purple{background:#7546b0}.bottom-nav .c-purple::before{background:#a06adc}.bottom-nav .c-purple::after{background:#4a2680}
+  .bottom-nav .c-red{background:#c93434}.bottom-nav .c-red::before{background:#e07a30}.bottom-nav .c-red::after{background:#7a1c1c}
+  .bottom-nav .c-teal{background:#0f6e6a}.bottom-nav .c-teal::before{background:#1a8c7a}.bottom-nav .c-teal::after{background:#084038}
+}
+
 </style>
 </head>
 <body>
@@ -1387,6 +1489,8 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
           <button class="lang-btn active" id="langBtnEs" onclick="setLang('es')">🇦🇷 ES</button>
           <div class="lang-sep"></div>
           <button class="lang-btn" id="langBtnEn" onclick="setLang('en')">🇺🇸 EN</button>
+          <div class="lang-sep"></div>
+          <button class="lang-btn" id="langBtnPt" onclick="setLang('pt')">🇧🇷 PT</button>
         </div>
       </div>
 
@@ -1533,43 +1637,64 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
             <span class="lbl" data-i18n="btn-lock">Bloquear</span>
           </button>
         </div>
-        <!-- exportar / importar -->
-        <div class="ctrl-row" id="exportRowTop">
-          <button class="btn ghost" id="exportTxtBtn" data-i18n="btn-export">📝 Exportar Lista</button>
-          <button class="btn ghost" id="autosaveBtn">💾 Auto-Guardado</button>
-          <button class="btn ghost" id="importTxtBtn" data-i18n="btn-import-txt">📥 Importar Lista</button>
-          <input type="file" id="importTxtInput" accept=".txt" style="display:none">
+        <!-- hidden: kept for JS compatibility -->
+        <div id="exportRowTop" style="display:none">
+          <button id="exportTxtBtn" data-i18n="btn-export"></button>
+          <button id="autosaveBtn"></button>
+          <button id="importTxtBtn" data-i18n="btn-import-txt"></button>
+          <input type="file" id="importTxtInput" accept=".txt">
         </div>
-        <!-- buscador -->
-        <div class="ctrl-row">
-          <input type="text" id="search" data-i18n-ph="search" placeholder="Buscar país, código o número…">
-          <select id="filterSel" class="ctrl-pc-inline">
-            <option value="all" data-i18n="f-all">Todas</option>
-            <option value="missing" data-i18n="f-miss">Faltan</option>
-            <option value="owned" data-i18n="f-own">Pegadas</option>
-            <option value="repeated" data-i18n="f-dup">Repetidas</option>
-            <option value="reserved" data-i18n="f-res">Cambios pactados</option>
-          </select>
-          <select id="sortSel" class="ctrl-pc-inline">
-            <option value="default" data-i18n="s-default">Orden del álbum</option>
-            <option value="completion" data-i18n="s-pct">Por completado %</option>
-            <option value="alpha">A → Z</option>
-          </select>
+        <input type="text" id="search" style="display:none" value="">
+        <select id="filterSel" style="display:none">
+          <option value="all">Todas</option><option value="missing">Faltan</option>
+          <option value="owned">Pegadas</option><option value="repeated">Repetidas</option>
+          <option value="reserved">Cambios pactados</option>
+        </select>
+        <select id="filterSelM" style="display:none">
+          <option value="all">Todas</option><option value="missing">Faltan</option>
+          <option value="owned">Pegadas</option><option value="repeated">Repetidas</option>
+          <option value="reserved">Cambios pactados</option>
+        </select>
+        <select id="sortSel" style="display:none">
+          <option value="default">Orden del álbum</option>
+          <option value="completion">Por completado %</option><option value="alpha">A → Z</option>
+        </select>
+        <select id="sortSelM" style="display:none">
+          <option value="default">Orden del álbum</option>
+          <option value="completion">Por completado %</option><option value="alpha">A → Z</option>
+        </select>
+
+        <!-- Filtrar figuritas — 5 cuadrantes -->
+        <div style="padding:6px 0 2px">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.16em;color:var(--ink-soft);margin-bottom:6px" data-i18n="filter-lbl">Filtrar figuritas</div>
+          <div class="filter-cuadrantes">
+            <button class="filt-btn f-all active" onclick="setFilter('all',this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="3" rx="1"/><rect x="3" y="10.5" width="18" height="3" rx="1"/><rect x="3" y="16" width="18" height="3" rx="1"/></svg>
+              <span data-i18n="f-all">Todas</span>
+            </button>
+            <button class="filt-btn f-miss" onclick="setFilter('missing',this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 4l16 16"/></svg>
+              <span data-i18n="f-miss">Faltan</span>
+            </button>
+            <button class="filt-btn f-own" onclick="setFilter('owned',this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+              <span data-i18n="f-own">Pegadas</span>
+            </button>
+            <button class="filt-btn f-rep" onclick="setFilter('repeated',this)">
+              <svg viewBox="0 0 24 24" fill="currentColor"><text x="3" y="18" font-size="14" font-family="Arial Black,sans-serif" font-weight="900">×2</text></svg>
+              <span data-i18n="f-dup">Repetidas</span>
+            </button>
+            <button class="filt-btn f-trade" onclick="setFilter('reserved',this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16l-4-4 4-4"/><path d="M17 8l4 4-4 4"/><line x1="3" y1="12" x2="21" y2="12"/></svg>
+              <span data-i18n="f-res">Pactados</span>
+            </button>
+          </div>
         </div>
-        <!-- filtros mobile -->
-        <div class="ctrl-row ctrl-mobile-only">
-          <select id="filterSelM">
-            <option value="all" data-i18n="f-all">Todas</option>
-            <option value="missing" data-i18n="f-miss">Faltan</option>
-            <option value="owned" data-i18n="f-own">Pegadas</option>
-            <option value="repeated" data-i18n="f-dup">Repetidas</option>
-            <option value="reserved" data-i18n="f-res">Cambios pactados</option>
-          </select>
-          <select id="sortSelM">
-            <option value="default" data-i18n="s-default">Orden del álbum</option>
-            <option value="completion" data-i18n="s-pct">Por completado %</option>
-            <option value="alpha">A → Z</option>
-          </select>
+
+        <!-- Ir a selección — scroller horizontal -->
+        <div class="country-scroller-wrap">
+          <div class="country-scroller-lbl" data-i18n="goto-lbl">Ir a selección</div>
+          <div class="country-scroller" id="countryScroller"></div>
         </div>
       </div>
       <div id="sync-status-bar" class="sync-status-bar"></div>
@@ -1858,6 +1983,40 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
 <!-- FAB (solo mobile) -->
 <button class="fab" id="fabBtn" title="Estadísticas">📊</button>
 
+<!-- ===== Barra de navegación inferior (solo mobile) ===== -->
+<nav class="bottom-nav" id="bottomNav" aria-label="Acciones">
+  <button type="button" class="c-blue" onclick="document.getElementById('webScanBtn').click()">
+    <span class="bn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5C3 7.4 3.9 6.5 5 6.5h2.5l1.5-2h6l1.5 2H19c1.1 0 2 .9 2 2v9c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2v-9z"/><circle cx="12" cy="13" r="3.5"/></svg></span>
+    <span class="bn-lbl" data-i18n="bn-scan">Escanear</span>
+  </button>
+  <button type="button" class="c-green" onclick="document.getElementById('canjeBtn').click()">
+    <span class="bn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="6" height="6"/><rect x="14.5" y="3.5" width="6" height="6"/><rect x="3.5" y="14.5" width="6" height="6"/><path d="M14.5 14.5h2v2M20.5 14.5v3M14.5 19.5v1M17.5 17.5h3M17.5 20.5h3"/></svg></span>
+    <span class="bn-lbl" data-i18n="bn-qr">Cambio QR</span>
+  </button>
+  <button type="button" class="c-orange" onclick="document.getElementById('canjesPendientesBtn').click()">
+    <span class="bn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3H7a2 2 0 00-2 2v14l7-3 7 3V5a2 2 0 00-2-2z"/><path d="M9 8h6M9 12h4"/></svg></span>
+    <span class="bn-lbl" data-i18n="bn-trades">Pactados</span>
+    <span class="bn-badge" id="bnCanjesBadge"></span>
+  </button>
+  <button type="button" class="c-lime" onclick="document.getElementById('syncBtn').click()">
+    <span class="bn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#1a2400" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17h10a4 4 0 001-7.9A6 6 0 005.1 9 4 4 0 007 17z"/><path d="M10.5 13l-1.5 1.5 1.5 1.5M13.5 16l1.5-1.5-1.5-1.5M9 14.5h6"/></svg></span>
+    <span class="bn-lbl" data-i18n="bn-sync">Sincro</span>
+    <span class="bn-on" id="bnSyncOn">ON</span>
+  </button>
+  <button type="button" class="c-purple" onclick="document.getElementById('importOtraAppBtn').click()">
+    <span class="bn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="2"/><path d="M10 18.5h4"/><path d="M14.5 6l3-3M17.5 3v3M17.5 3h-3"/></svg></span>
+    <span class="bn-lbl" data-i18n="bn-import">Importar</span>
+  </button>
+  <button type="button" class="c-red" onclick="document.getElementById('lockBtn').click()">
+    <span class="bn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="1"/><path d="M8 10.5V7a4 4 0 018 0v3.5"/><circle cx="12" cy="15.5" r="1.2" fill="#fff" stroke="none"/></svg></span>
+    <span class="bn-lbl" data-i18n="bn-lock">Bloquear</span>
+  </button>
+  <button type="button" class="c-teal" onclick="document.getElementById('fabBtn').click()">
+    <span class="bn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.2 9.3a2.8 2.8 0 015.4 1c0 1.9-2.8 2.5-2.8 2.5"/><circle cx="12" cy="16.7" r="0.6" fill="#fff" stroke="none"/></svg></span>
+    <span class="bn-lbl" data-i18n="bn-howto">Cómo<br>se usa</span>
+  </button>
+</nav>
+
 <!-- Stats modal (mobile) -->
 <div class="stats-modal-overlay hidden" id="statsModal">
   <div class="stats-modal">
@@ -1865,11 +2024,11 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
       <span data-i18n="modal-album-title">Mi Álbum Mundial</span>
       <button class="modal-close" id="statsClose">✕</button>
     </div>
-    <div class="stats-tabs">
-      <button class="stats-tab active" data-tab="estadisticas" data-i18n="tab-stats">📊 Estadísticas</button>
-      <button class="stats-tab" data-tab="manual" data-i18n="tab-howto">📖 Cómo se usa</button>
+    <div class="stats-tabs" style="display:none">
+      <button class="stats-tab" data-tab="estadisticas" data-i18n="tab-stats">📊 Estadísticas</button>
+      <button class="stats-tab active" data-tab="manual" data-i18n="tab-howto">📖 Cómo se usa</button>
     </div>
-    <div class="stats-panel active" id="panel-estadisticas">
+    <div class="stats-panel" id="panel-estadisticas" style="display:none">
       <div style="margin-bottom:18px">
         <div style="font-family:'Archivo Black',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px" data-i18n="sm-progress">Progreso del álbum</div>
         <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:6px">
@@ -1903,7 +2062,7 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
       <div id="sm-gasto-meta" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-soft);margin-bottom:4px"></div>
       <div id="sm-gasto-cost" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-soft)"></div>
     </div>
-    <div class="stats-panel" id="panel-manual">
+    <div class="stats-panel active" id="panel-manual">
       <div id="panel-manual-content" style="font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.8;color:var(--ink-soft)">
         <p style="font-family:'Archivo Black',sans-serif;font-size:13px;color:var(--ink);margin-bottom:12px">¿Cómo usar Mi Álbum Mundial?</p>
         <p style="margin-bottom:10px"><strong style="color:var(--ink)">Sumar figurita:</strong> Tocá una vez el sticker.</p>
@@ -1913,8 +2072,12 @@ body.canje-rapido .sticker.owned{opacity:.35;cursor:default;pointer-events:none}
         </p>
         <p style="margin-bottom:10px"><strong style="color:var(--ink)">🔄 Cambio x QR:</strong> Mostrá tu QR o compartilo por WhatsApp. Tu amigo lo escanea (con cámara o desde la galería) y ven al instante qué figuritas pueden cambiar.</p>
         <p style="margin-bottom:10px"><strong style="color:var(--ink)">📷 Escanea Figus:</strong> Fotografiá tus figuritas con la cámara y la app detecta los códigos automáticamente. Tildá las que querés sumar y tocá <em>Marcar Recibidas</em>.</p>
-        <p style="margin-bottom:10px"><strong style="color:var(--ink)">📌 Cambios Pactados:</strong> Guardá cambios acordados con amigos para reservar esas figuritas hasta concretar el intercambio.</p>
+        <p style="margin-bottom:10px"><strong style="color:var(--ink)">📌 Cambios Pactados:</strong> Guardá cambios acordados con amigos para reservar esas figuritas. Al confirmar, aparece un cartel <em>"¿Ya hiciste el cambio?"</em> para evitar confirmaciones accidentales.</p>
         <p style="margin-bottom:10px"><strong style="color:var(--ink)">☁ Sync:</strong> Sincronizá entre dispositivos con un código de sala.</p>
+        <div style="margin-bottom:12px;padding:10px 12px;background:#fff3e0;border:1.5px solid #e65100;border-left:4px solid #e65100">
+          <strong style="color:#e65100;font-family:'Archivo Black',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.06em">📅 ¡NUEVO! Fixture y Resultados</strong>
+          <p style="margin-top:6px;margin-bottom:0;color:#bf360c;line-height:1.6">Resultados en vivo, horarios y tabla de posiciones del Mundial 2026. Cuando hay un partido en curso, aparece una pastilla roja 🔴 en el botón Fixture de la pantalla principal.</p>
+        </div>
         <div style="margin-bottom:20px;padding:10px 12px;background:#f0e8ff;border:1.5px solid #7546b0;border-left:4px solid #7546b0">
           <strong style="color:#7546b0;font-family:'Archivo Black',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.06em">📲 ¡NUEVO! Importar de otra App</strong>
           <p style="margin-top:6px;margin-bottom:0;color:#4a2680;line-height:1.6">¿Tenés tus figuritas cargadas en otra app? Importalas con un solo toque — sin perder nada de lo que ya tenés acá.</p>
@@ -1961,6 +2124,8 @@ const I18N = {
     'wa-send-miss':'Enviar Faltantes','wa-send-dup':'Enviar Repetidas',
     'btn-scan':'Escanear Figus','btn-qr':'Cambio x QR','btn-trades':'Cambios Pactados',
     'btn-sync':'Sincronizar','btn-import':'Importar de otra App','btn-lock':'Bloquear',
+    'bn-scan':'Escanear','bn-qr':'Cambio QR','bn-trades':'Pactados','bn-sync':'Sincro','bn-import':'Importar','bn-lock':'Bloquear','bn-howto':'Cómo<br>se usa',
+    'filter-lbl':'Filtrar figuritas','goto-lbl':'Ir a selección',
     'btn-export':'📝 Exportar Lista','btn-import-txt':'📥 Importar Lista',
     'autosave-off':'💾 Auto-Guardado','autosave-on':'✓ Auto-Guardado',
     'autosave-title-off':'Vincular un archivo .json para guardar automáticamente','autosave-title-on':'Click para desvincular el archivo',
@@ -2003,7 +2168,7 @@ const I18N = {
     'ac-sub':'¡Lo Lograste!!<br>Llenaste Mi Álbum Mundial 2026 🎉',
     'ac-meta':'994 figuritas · 48 selecciones','ac-share':'🥳 Compartir logro',
     'title-l1':'Mi Álbum','title-l2':'Mundial',
-    'manual-html':'<p style="font-family:\'Archivo Black\',sans-serif;font-size:13px;color:var(--ink);margin-bottom:12px">¿Cómo usar Mi Álbum Mundial?</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">Sumar figurita:</strong> Tocá una vez el sticker.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">Restar figurita:</strong> Mantené presionado 500ms (mobile) o click derecho (PC).</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">Colores:</strong><br>· Beige = falta<br>· Verde = pegada<br>· Dorado = repetida<br>· Blanco = reservada para dar en un cambio pactado<br>· Celeste = reservada para recibir en un cambio pactado</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">🔄 Cambio x QR:</strong> Mostrá tu QR o compartilo por WhatsApp. Tu amigo lo escanea y ven al instante qué figuritas pueden cambiar.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">📷 Escanea Figus:</strong> Fotografiá tus figuritas con la cámara y la app detecta los códigos automáticamente. Tildá las que querés sumar y tocá <em>Marcar Recibidas</em>.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">📌 Cambios Pactados:</strong> Guardá cambios acordados con amigos para reservar esas figuritas hasta concretar el intercambio.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">☁ Sync:</strong> Sincronizá entre dispositivos con un código de sala.</p><div style="margin-bottom:20px;padding:10px 12px;background:#f0e8ff;border:1.5px solid #7546b0;border-left:4px solid #7546b0"><strong style="color:#7546b0;font-family:\'Archivo Black\',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.06em">📲 ¡NUEVO! Importar de otra App</strong><p style="margin-top:6px;margin-bottom:0;color:#4a2680;line-height:1.6">¿Tenés tus figuritas cargadas en otra app? Importalas con un solo toque — sin perder nada de lo que ya tenés acá.</p></div><div style="padding-top:16px;border-top:1px dashed var(--rule)"><p style="font-family:\'Archivo Black\',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;color:var(--ink)">¿Encontraste un problema?</p><button id="reportarBtn" class="btn" style="width:100%;background:#25d366;border-color:#1ebe5d;color:#fff;font-size:12px">📲 Reportar por WhatsApp</button></div><div style="margin-top:20px;padding-top:16px;border-top:1px dashed var(--rule)"><p style="font-family:\'Archivo Black\',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;color:var(--ink)">🔒 Política de Privacidad</p><p style="font-size:12px;color:var(--ink);opacity:.8;line-height:1.5;margin-bottom:6px">Todos tus datos (figuritas, lotes, canjes) se guardan <strong>localmente en tu dispositivo</strong>. Esta app no recopila ni envía información personal a ningún servidor.</p><p style="font-size:12px;color:var(--ink);opacity:.8;line-height:1.5;margin-bottom:6px">La función <strong>Sync</strong> usa Firebase únicamente para sincronizar tus datos entre dispositivos cuando vos lo activás voluntariamente. No se almacena ningún dato personal identificable.</p><p style="font-size:12px;color:var(--ink);opacity:.8;line-height:1.5">Realizado por <strong>DRB ELECTRO</strong> · 2026</p></div>',
+    'manual-html':'<p style="font-family:\'Archivo Black\',sans-serif;font-size:13px;color:var(--ink);margin-bottom:12px">¿Cómo usar Mi Álbum Mundial?</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">Sumar figurita:</strong> Tocá una vez el sticker.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">Restar figurita:</strong> Mantené presionado 500ms (mobile) o click derecho (PC).</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">Colores:</strong><br>· Beige = falta<br>· Verde = pegada<br>· Dorado = repetida<br>· Blanco = reservada para dar en un cambio pactado<br>· Celeste = reservada para recibir en un cambio pactado</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">🔄 Cambio x QR:</strong> Mostrá tu QR o compartilo por WhatsApp. Tu amigo lo escanea y ven al instante qué figuritas pueden cambiar.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">📷 Escanea Figus:</strong> Fotografiá tus figuritas con la cámara y la app detecta los códigos automáticamente. Tildá las que querés sumar y tocá <em>Marcar Recibidas</em>.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">📌 Cambios Pactados:</strong> Guardá cambios acordados con amigos para reservar esas figuritas. Al confirmar, aparece un cartel <em>"¿Ya hiciste el cambio?"</em> para evitar confirmaciones accidentales.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">☁ Sync:</strong> Sincronizá entre dispositivos con un código de sala.</p><div style="margin-bottom:12px;padding:10px 12px;background:#fff3e0;border:1.5px solid #e65100;border-left:4px solid #e65100"><strong style="color:#e65100;font-family:\'Archivo Black\',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.06em">📅 ¡NUEVO! Fixture y Resultados</strong><p style="margin-top:6px;margin-bottom:0;color:#bf360c;line-height:1.6">Resultados en vivo, horarios y tabla de posiciones del Mundial 2026. Cuando hay un partido en curso, aparece una pastilla roja 🔴 en el botón Fixture de la pantalla principal.</p></div><div style="margin-bottom:20px;padding:10px 12px;background:#f0e8ff;border:1.5px solid #7546b0;border-left:4px solid #7546b0"><strong style="color:#7546b0;font-family:\'Archivo Black\',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.06em">📲 ¡NUEVO! Importar de otra App</strong><p style="margin-top:6px;margin-bottom:0;color:#4a2680;line-height:1.6">¿Tenés tus figuritas cargadas en otra app? Importalas con un solo toque — sin perder nada de lo que ya tenés acá.</p></div><div style="padding-top:16px;border-top:1px dashed var(--rule)"><p style="font-family:\'Archivo Black\',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;color:var(--ink)">¿Encontraste un problema?</p><button id="reportarBtn" class="btn" style="width:100%;background:#25d366;border-color:#1ebe5d;color:#fff;font-size:12px">📲 Reportar por WhatsApp</button></div><div style="margin-top:20px;padding-top:16px;border-top:1px dashed var(--rule)"><p style="font-family:\'Archivo Black\',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;color:var(--ink)">🔒 Política de Privacidad</p><p style="font-size:12px;color:var(--ink);opacity:.8;line-height:1.5;margin-bottom:6px">Todos tus datos (figuritas, lotes, canjes) se guardan <strong>localmente en tu dispositivo</strong>. Esta app no recopila ni envía información personal a ningún servidor.</p><p style="font-size:12px;color:var(--ink);opacity:.8;line-height:1.5;margin-bottom:6px">La función <strong>Sync</strong> usa Firebase únicamente para sincronizar tus datos entre dispositivos cuando vos lo activás voluntariamente. No se almacena ningún dato personal identificable.</p><p style="font-size:12px;color:var(--ink);opacity:.8;line-height:1.5">Realizado por <strong>DRB ELECTRO</strong> · 2026</p></div>',
   },
   en: {
     'pill':"Collector's Edition",
@@ -2027,6 +2192,8 @@ const I18N = {
     'wa-send-miss':'Send Missing','wa-send-dup':'Send Duplicates',
     'btn-scan':'Scan Stickers','btn-qr':'Trade by QR','btn-trades':'Agreed Trades',
     'btn-sync':'Sync','btn-import':'Import from another App','btn-lock':'Lock',
+    'bn-scan':'Scan','bn-qr':'Trade QR','bn-trades':'Trades','bn-sync':'Sync','bn-import':'Import','bn-lock':'Lock','bn-howto':'How<br>to use',
+    'filter-lbl':'Filter stickers','goto-lbl':'Go to team',
     'btn-export':'📝 Export List','btn-import-txt':'📥 Import List',
     'autosave-off':'💾 Auto-Save','autosave-on':'✓ Auto-Save',
     'autosave-title-off':'Link a .json file to save automatically','autosave-title-on':'Click to unlink the file',
@@ -2069,13 +2236,82 @@ const I18N = {
     'ac-sub':'You did it!!<br>My World Cup Album 2026 is complete 🎉',
     'ac-meta':'994 stickers · 48 national teams','ac-share':'🥳 Share achievement',
     'title-l1':'My Album','title-l2':'World Cup',
-    'manual-html':'<p style="font-family:\'Archivo Black\',sans-serif;font-size:13px;color:var(--ink);margin-bottom:12px">How to use My World Cup Album?</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">Add sticker:</strong> Tap it once.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">Remove sticker:</strong> Hold 500ms (mobile) or right-click (PC).</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">Colors:</strong><br>· Beige = missing<br>· Green = placed<br>· Gold = duplicate<br>· White = reserved to give in a trade<br>· Blue = reserved to receive in a trade</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">🔄 Trade by QR:</strong> Show your QR or share it on WhatsApp. Your friend scans it and instantly sees which stickers you can swap.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">📷 Scan Stickers:</strong> Take a photo of your stickers and the app detects the codes automatically. Check the ones you want to add and tap <em>Mark as Received</em>.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">📌 Agreed Trades:</strong> Save trades agreed with friends to reserve stickers until the exchange is completed.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">☁ Sync:</strong> Sync across devices using a room code.</p><div style="margin-bottom:20px;padding:10px 12px;background:#f0e8ff;border:1.5px solid #7546b0;border-left:4px solid #7546b0"><strong style="color:#7546b0;font-family:\'Archivo Black\',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.06em">📲 NEW! Import from another App</strong><p style="margin-top:6px;margin-bottom:0;color:#4a2680;line-height:1.6">Already have your stickers in another app? Import them with one tap — without losing anything you already entered here.</p></div><div style="padding-top:16px;border-top:1px dashed var(--rule)"><p style="font-family:\'Archivo Black\',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;color:var(--ink)">Found a bug?</p><button id="reportarBtn" class="btn" style="width:100%;background:#25d366;border-color:#1ebe5d;color:#fff;font-size:12px">📲 Report on WhatsApp</button></div><div style="margin-top:20px;padding-top:16px;border-top:1px dashed var(--rule)"><p style="font-family:\'Archivo Black\',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;color:var(--ink)">🔒 Privacy Policy</p><p style="font-size:12px;color:var(--ink);opacity:.8;line-height:1.5;margin-bottom:6px">All your data (stickers, packs, trades) is saved <strong>locally on your device</strong>. This app does not collect or send any personal information to any server.</p><p style="font-size:12px;color:var(--ink);opacity:.8;line-height:1.5;margin-bottom:6px">The <strong>Sync</strong> feature uses Firebase solely to sync your data between devices when you voluntarily enable it. No personally identifiable data is stored.</p><p style="font-size:12px;color:var(--ink);opacity:.8;line-height:1.5">Made by <strong>DRB ELECTRO</strong> · 2026</p></div>',
+    'manual-html':'<p style="font-family:\'Archivo Black\',sans-serif;font-size:13px;color:var(--ink);margin-bottom:12px">How to use My World Cup Album?</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">Add sticker:</strong> Tap it once.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">Remove sticker:</strong> Hold 500ms (mobile) or right-click (PC).</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">Colors:</strong><br>· Beige = missing<br>· Green = placed<br>· Gold = duplicate<br>· White = reserved to give in a trade<br>· Blue = reserved to receive in a trade</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">🔄 Trade by QR:</strong> Show your QR or share it on WhatsApp. Your friend scans it and instantly sees which stickers you can swap.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">📷 Scan Stickers:</strong> Take a photo of your stickers and the app detects the codes automatically. Check the ones you want to add and tap <em>Mark as Received</em>.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">📌 Agreed Trades:</strong> Save trades agreed with friends to reserve stickers. When you confirm, a dialog <em>"Did you make the trade?"</em> appears to avoid accidental confirmations.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">☁ Sync:</strong> Sync across devices using a room code.</p><div style="margin-bottom:12px;padding:10px 12px;background:#fff3e0;border:1.5px solid #e65100;border-left:4px solid #e65100"><strong style="color:#e65100;font-family:\'Archivo Black\',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.06em">📅 NEW! Fixture &amp; Results</strong><p style="margin-top:6px;margin-bottom:0;color:#bf360c;line-height:1.6">Live results, schedules and group standings for the 2026 World Cup. When a match is in progress, a red live pill 🔴 appears on the Fixture button on the main screen.</p></div><div style="margin-bottom:20px;padding:10px 12px;background:#f0e8ff;border:1.5px solid #7546b0;border-left:4px solid #7546b0"><strong style="color:#7546b0;font-family:\'Archivo Black\',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.06em">📲 NEW! Import from another App</strong><p style="margin-top:6px;margin-bottom:0;color:#4a2680;line-height:1.6">Already have your stickers in another app? Import them with one tap — without losing anything you already entered here.</p></div><div style="padding-top:16px;border-top:1px dashed var(--rule)"><p style="font-family:\'Archivo Black\',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;color:var(--ink)">Found a bug?</p><button id="reportarBtn" class="btn" style="width:100%;background:#25d366;border-color:#1ebe5d;color:#fff;font-size:12px">📲 Report on WhatsApp</button></div><div style="margin-top:20px;padding-top:16px;border-top:1px dashed var(--rule)"><p style="font-family:\'Archivo Black\',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;color:var(--ink)">🔒 Privacy Policy</p><p style="font-size:12px;color:var(--ink);opacity:.8;line-height:1.5;margin-bottom:6px">All your data (stickers, packs, trades) is saved <strong>locally on your device</strong>. This app does not collect or send any personal information to any server.</p><p style="font-size:12px;color:var(--ink);opacity:.8;line-height:1.5;margin-bottom:6px">The <strong>Sync</strong> feature uses Firebase solely to sync your data between devices when you voluntarily enable it. No personally identifiable data is stored.</p><p style="font-size:12px;color:var(--ink);opacity:.8;line-height:1.5">Made by <strong>DRB ELECTRO</strong> · 2026</p></div>',
+  },
+  pt: {
+    'pill':'Edição Colecionador',
+    'sub':'Minha coleção pessoal — 994 figurinhas, 48 seleções.',
+    'hint-pc':'Clique esquerdo para somar, clique direito para subtrair.',
+    'hint-mob':'Toque para somar, segure pressionado para subtrair.',
+    'hint-save':'O álbum salva tudo localmente.',
+    'progress-lbl':'Progresso total',
+    'stickers':'figurinhas',
+    'd-total':'figurinhas no álbum',
+    'lbl-placed':'Coladas','d-placed':'no lugar',
+    'lbl-dupes':'Repetidas','d-dupes':'para trocar',
+    'lbl-miss':'Faltam','d-miss':'para conseguir',
+    'leg-miss':'Falta','leg-own':'Colada','leg-rep':'Repetida','leg-res':'Troca combinada',
+    'leg-hint-pc':'Clique esquerdo: +1 · Clique direito: −1',
+    'leg-hint-mob':'Toque: +1 · Segurar: −1',
+    'search':'Buscar país, código ou número…',
+    'f-all':'Todas','f-miss':'Faltam','f-own':'Coladas','f-dup':'Repetidas','f-res':'Trocas combinadas',
+    's-default':'Ordem do álbum','s-pct':'Por completude %',
+    'copy-miss':'Copiar faltantes','copy-dup':'Copiar repetidas',
+    'wa-send-miss':'Enviar Faltantes','wa-send-dup':'Enviar Repetidas',
+    'btn-scan':'Escanear Figurinhas','btn-qr':'Troca por QR','btn-trades':'Trocas Combinadas',
+    'btn-sync':'Sincronizar','btn-import':'Importar de outro App','btn-lock':'Bloquear',
+    'bn-scan':'Escanear','bn-qr':'Troca QR','bn-trades':'Combinadas','bn-sync':'Sincro','bn-import':'Importar','bn-lock':'Bloquear','bn-howto':'Como<br>usar',
+    'filter-lbl':'Filtrar figurinhas','goto-lbl':'Ir à seleção',
+    'btn-export':'📝 Exportar Lista','btn-import-txt':'📥 Importar Lista',
+    'autosave-off':'💾 Salvamento Auto','autosave-on':'✓ Salvamento Auto',
+    'autosave-title-off':'Vincular um arquivo .json para salvar automaticamente','autosave-title-on':'Clique para desvincular o arquivo',
+    'btn-add-lote':'+ Adicionar lote','btn-locked':'Bloqueado',
+    'lote-sep':'pcts a R$','lote-qty-ph':'Qtd.','lote-price-ph':'Preço','lote-del-title':'Remover',
+    'lotes-title':'Pacotes comprados','precio-album-title':'Preço do álbum','gasto-album-lbl':'Álbum',
+    'sync-modal-title':'Sincronizar dispositivos',
+    'qr-confirm-title':'Confirme a troca',
+    'import-app-hint':'No outro app, exporte ou copie sua lista de figurinhas (a que mostra <strong>"Faltam"</strong> e <strong>"Repetidas"</strong>) e cole aqui embaixo. Seu álbum vai ficar com as mesmas faltantes e repetidas.',
+    'import-app-ph':'Cole aqui a lista do outro app…',
+    'import-app-do':'✅ Importar para o álbum',
+    'import-app-warn':'⚠️ Isso substitui o estado atual do seu álbum pelo importado.',
+    'modal-album-title':'Meu Álbum da Copa',
+    'btn-wa-miss':'📲 Compartilhar no WhatsApp',
+    'toast-exported':'Lista exportada','toast-autosave-on':'Salvamento automático ativo','toast-unlinked':'Desvinculado',
+    'toast-miss-copied':'Faltantes copiadas!','toast-dup-copied':'Repetidas copiadas!','toast-no-copy':'Não foi possível copiar',
+    'toast-imported':'Importado','toast-reset':'Álbum reiniciado',
+    'toast-locked':'🔒 Álbum bloqueado','toast-unlocked':'🔓 Desbloqueado',
+    'toast-sync-off':'✕ Sincronização desativada','toast-synced':'Sincronizado!',
+    'toast-code-copied':'Código copiado','toast-invalid-code':'Código inválido',
+    'toast-trade-confirmed':'Troca confirmada com','toast-trade-cancelled':'Troca cancelada',
+    'toast-trade-saved':'Troca salva','toast-trade-updated':'Troca atualizada',
+    'toast-trade-applied':'Troca aplicada!',
+    'toast-no-friend':'Digite o nome do amigo','toast-no-stickers':'Adicione pelo menos uma figurinha',
+    'toast-copied':'Copiado! Cole onde quiser',
+    'toast-no-miss':'🎉 Não falta nenhuma figurinha!','toast-no-miss-wa':'Sem faltantes',
+    'sync-connecting':'Conectando…','sync-saved':'🟢 Sincronizado','sync-offline':'🟡 Sem conexão · tentando de novo…',
+    'sync-error':'🔴 Erro · toque para tentar de novo','sync-updated':'↓ Atualizado','sync-connected':'🟢 Conectado e sincronizado',
+    'sync-active':'🟢 Sync ativo','sync-disconnected':'Dessincronizado','sync-room-created':'🟢 Sala criada',
+    'sync-join-title':'Entrar nesta sala?',
+    'sync-join-msg':'⚠️ O progresso atual DESTE dispositivo será substituído pelo da sala. Isso não pode ser desfeito.',
+    'sync-join-ok':'Sim, entrar',
+    'scan-review':'Revise antes de marcar — algumas foram autocorrigidas',
+    'wa-miss-header':'🏆 Meu Álbum da Copa 2026\n📋 Faltam:\n',
+    'wa-miss-footer':'faltantes',
+    'card-gasto':'Gasto em figurinhas','card-progreso':'Progresso ao longo do tempo',
+    'btn-manual':'📖 Manual de uso','btn-fixture':'Tabela da Copa 2026',
+    'tab-stats':'📊 Estatísticas','tab-howto':'📖 Como usar','sm-progress':'Progresso do álbum',
+    'ac-tag':'FIFA World Cup 2026','ac-title':'Parabéns!',
+    'ac-sub':'Você conseguiu!!<br>Completou Meu Álbum da Copa 2026 🎉',
+    'ac-meta':'994 figurinhas · 48 seleções','ac-share':'🥳 Compartilhar conquista',
+    'title-l1':'Meu Álbum','title-l2':'da Copa',
+    'manual-html':'<p style="font-family:\'Archivo Black\',sans-serif;font-size:13px;color:var(--ink);margin-bottom:12px">Como usar Meu Álbum da Copa?</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">Somar figurinha:</strong> Toque uma vez na figurinha.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">Subtrair figurinha:</strong> Segure pressionado 500ms (celular) ou clique direito (PC).</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">Cores:</strong><br>· Bege = falta<br>· Verde = colada<br>· Dourado = repetida<br>· Branco = reservada para dar em uma troca combinada<br>· Azul-claro = reservada para receber em uma troca combinada</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">🔄 Troca por QR:</strong> Mostre seu QR ou compartilhe pelo WhatsApp. Seu amigo escaneia e vocês veem na hora quais figurinhas podem trocar.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">📷 Escanear Figurinhas:</strong> Fotografe suas figurinhas com a câmera e o app detecta os códigos automaticamente. Marque as que quer somar e toque em <em>Marcar Recebidas</em>.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">📌 Trocas Combinadas:</strong> Salve trocas combinadas com amigos para reservar essas figurinhas. Ao confirmar, aparece um aviso <em>"Você já fez a troca?"</em> para evitar confirmações acidentais.</p><p style="margin-bottom:10px"><strong style="color:var(--ink)">☁ Sync:</strong> Sincronize entre dispositivos com um código de sala.</p><div style="margin-bottom:12px;padding:10px 12px;background:#fff3e0;border:1.5px solid #e65100;border-left:4px solid #e65100"><strong style="color:#e65100;font-family:\'Archivo Black\',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.06em">📅 NOVO! Tabela e Resultados</strong><p style="margin-top:6px;margin-bottom:0;color:#bf360c;line-height:1.6">Resultados ao vivo, horários e classificação da Copa 2026. Quando há um jogo em andamento, aparece uma pastilha vermelha 🔴 no botão Tabela da tela principal.</p></div><div style="margin-bottom:20px;padding:10px 12px;background:#f0e8ff;border:1.5px solid #7546b0;border-left:4px solid #7546b0"><strong style="color:#7546b0;font-family:\'Archivo Black\',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.06em">📲 NOVO! Importar de outro App</strong><p style="margin-top:6px;margin-bottom:0;color:#4a2680;line-height:1.6">Tem suas figurinhas em outro app? Importe com um só toque — sem perder nada do que já tem aqui.</p></div><div style="padding-top:16px;border-top:1px dashed var(--rule)"><p style="font-family:\'Archivo Black\',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;color:var(--ink)">Encontrou um problema?</p><button id="reportarBtn" class="btn" style="width:100%;background:#25d366;border-color:#1ebe5d;color:#fff;font-size:12px">📲 Reportar pelo WhatsApp</button></div><div style="margin-top:20px;padding-top:16px;border-top:1px dashed var(--rule)"><p style="font-family:\'Archivo Black\',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;color:var(--ink)">🔒 Política de Privacidade</p><p style="font-size:12px;color:var(--ink);opacity:.8;line-height:1.5;margin-bottom:6px">Todos os seus dados (figurinhas, lotes, trocas) são salvos <strong>localmente no seu dispositivo</strong>. Este app não coleta nem envia informações pessoais a nenhum servidor.</p><p style="font-size:12px;color:var(--ink);opacity:.8;line-height:1.5;margin-bottom:6px">A função <strong>Sync</strong> usa o Firebase apenas para sincronizar seus dados entre dispositivos quando você ativa voluntariamente. Nenhum dado pessoal identificável é armazenado.</p><p style="font-size:12px;color:var(--ink);opacity:.8;line-height:1.5">Feito por <strong>DRB ELECTRO</strong> · 2026</p></div>',
   }
 };
 function _detectLang(){
   const saved = localStorage.getItem('lang');
   if(saved) return saved;
   const bl = (navigator.language || 'es').toLowerCase();
+  if(bl.startsWith('pt')) return 'pt';
   return bl.startsWith('es') ? 'es' : 'en';
 }
 let currentLang = _detectLang();
@@ -2087,8 +2323,10 @@ function setLang(lang) {
   document.documentElement.lang = lang;
   const btnEs = document.getElementById('langBtnEs');
   const btnEn = document.getElementById('langBtnEn');
+  const btnPt = document.getElementById('langBtnPt');
   if(btnEs) btnEs.classList.toggle('active', lang==='es');
   if(btnEn) btnEn.classList.toggle('active', lang==='en');
+  if(btnPt) btnPt.classList.toggle('active', lang==='pt');
   const t = document.getElementById('main-title');
   if(t) t.innerHTML = d['title-l1']+'<em>'+d['title-l2']+' <span class="t-2026">2026</span></em>';
   document.querySelectorAll('[data-i18n]').forEach(el=>{
@@ -2112,7 +2350,7 @@ function setLang(lang) {
   // Actualizar nombres de países en secciones ya renderizadas
   document.querySelectorAll('.sec-title[data-sec-id]').forEach(el => {
     const id = el.getAttribute('data-sec-id');
-    el.textContent = (lang==='en' && COUNTRY_NAMES_EN[id]) ? COUNTRY_NAMES_EN[id] : (SECTIONS.find(s=>s.id===id)||{name:id}).name;
+    el.textContent = countryName(id, lang);
   });
   // Actualizar "X figuritas / X stickers" en cabeceras de sección
   document.querySelectorAll('[data-role="sec-label"]').forEach(el => {
@@ -2240,6 +2478,68 @@ const COUNTRY_NAMES_EN = {
   PAN:"Panama",
   CC:"Coca-Cola",
 };
+
+// Nombres de selecciones en portugués
+const COUNTRY_NAMES_PT = {
+  FWC:"Copa do Mundo FIFA",
+  MEX:"México",
+  RSA:"África do Sul",
+  KOR:"Coreia do Sul",
+  CZE:"República Tcheca",
+  CAN:"Canadá",
+  BIH:"Bósnia e Herzegovina",
+  QAT:"Catar",
+  SUI:"Suíça",
+  BRA:"Brasil",
+  MAR:"Marrocos",
+  HAI:"Haiti",
+  SCO:"Escócia",
+  USA:"Estados Unidos",
+  PAR:"Paraguai",
+  AUS:"Austrália",
+  TUR:"Turquia",
+  GER:"Alemanha",
+  CUW:"Curaçao",
+  CIV:"Costa do Marfim",
+  ECU:"Equador",
+  NED:"Holanda",
+  JPN:"Japão",
+  SWE:"Suécia",
+  TUN:"Tunísia",
+  BEL:"Bélgica",
+  EGY:"Egito",
+  IRN:"Irã",
+  NZL:"Nova Zelândia",
+  ESP:"Espanha",
+  CPV:"Cabo Verde",
+  KSA:"Arábia Saudita",
+  URU:"Uruguai",
+  FRA:"França",
+  SEN:"Senegal",
+  IRQ:"Iraque",
+  NOR:"Noruega",
+  ARG:"Argentina",
+  ALG:"Argélia",
+  AUT:"Áustria",
+  JOR:"Jordânia",
+  POR:"Portugal",
+  COD:"Congo",
+  UZB:"Uzbequistão",
+  COL:"Colômbia",
+  ENG:"Inglaterra",
+  CRO:"Croácia",
+  GHA:"Gana",
+  PAN:"Panamá",
+  CC:"Coca-Cola",
+};
+
+// Resuelve el nombre de la selección según el idioma activo
+function countryName(id, lang){
+  lang = lang || currentLang;
+  if(lang==='en' && COUNTRY_NAMES_EN[id]) return COUNTRY_NAMES_EN[id];
+  if(lang==='pt' && COUNTRY_NAMES_PT[id]) return COUNTRY_NAMES_PT[id];
+  return (SECTIONS.find(s=>s.id===id)||{name:id}).name;
+}
 
 // ===== FLAGS (inline SVG) =====
 // Compact, recognizable representations. Stripes, fields, simple emblems.
@@ -2444,7 +2744,7 @@ function buildSectionDOM(sec){
     <div class="flag">${flagFor(sec)}</div>
     <div>
       <div class="sec-id" data-role="sec-label" data-count="${ids.length}">${sec.id} · ${ids.length} ${I18N[currentLang]['stickers']}</div>
-      <div class="sec-title" data-sec-id="${sec.id}">${currentLang==='en' && COUNTRY_NAMES_EN[sec.id] ? COUNTRY_NAMES_EN[sec.id] : sec.name}</div>
+      <div class="sec-title" data-sec-id="${sec.id}">${countryName(sec.id)}</div>
     </div>
     <div class="sec-meta">
       <span class="pct" data-role="pct">0%</span>
@@ -2575,6 +2875,8 @@ function applyFilters(){
     const dom = sectionDOMs.get(sec.id);
     const ids = getIds(sec);
     const nameMatch = !q || sec.name.toLowerCase().includes(q) || sec.id.toLowerCase().includes(q);
+    // País seleccionado: ocultar todas las secciones excepto esa
+    const countryHidden = selectedCountry && sec.id !== selectedCountry;
 
     let anyVisible = false;
     dom.querySelectorAll('.sticker').forEach(el=>{
@@ -2591,7 +2893,7 @@ function applyFilters(){
       el.style.display = visible ? '' : 'none';
       if(visible) anyVisible=true;
     });
-    dom.classList.toggle('hidden', !anyVisible && !!q);
+    dom.classList.toggle('hidden', countryHidden || (!anyVisible && !!q));
   });
 }
 
@@ -2904,17 +3206,18 @@ function _waEnviar(tipo){
   const isEn = currentLang === 'en';
   const esFaltantes = tipo === 'miss';
 
-  const titulo = isEn ? 'My World Cup Album 2026' : 'Mi Álbum Mundial 2026';
+  const isPt = currentLang === 'pt';
+  const titulo = isEn ? 'My World Cup Album 2026' : (isPt ? 'Meu Álbum da Copa 2026' : 'Mi Álbum Mundial 2026');
   const footerLbl = esFaltantes
-    ? (isEn ? 'Missing' : 'faltantes')
-    : (isEn ? 'Duplicates' : 'Repetidas');
+    ? (isEn ? 'Missing' : (isPt ? 'faltantes' : 'faltantes'))
+    : (isEn ? 'Duplicates' : (isPt ? 'Repetidas' : 'Repetidas'));
 
   const secLines = [];
   let total = 0;
 
   SECTIONS.forEach(sec=>{
     const ids = getIds(sec);
-    const secName = (isEn && COUNTRY_NAMES_EN[sec.id]) ? COUNTRY_NAMES_EN[sec.id] : sec.name;
+    const secName = countryName(sec.id);
     const flag = FLAG_EMOJI[sec.id] || '🏳';
     let items;
     if(esFaltantes){
@@ -3306,12 +3609,15 @@ function updateSyncBtn(){
   if(!btn) return;
   const lbl=btn.querySelector('.lbl');
   const badge=btn.querySelector('.badge-on');
+  const bnOn=document.getElementById('bnSyncOn');
   if(syncRoom){
     if(lbl) lbl.textContent='Sincronización activa';
     if(badge) badge.classList.add('visible');
+    if(bnOn) bnOn.classList.add('visible');
   } else {
     if(lbl) lbl.textContent='Sincronizar';
     if(badge) badge.classList.remove('visible');
+    if(bnOn) bnOn.classList.remove('visible');
   }
 }
 
@@ -3490,6 +3796,8 @@ function updateCanjesPendientesBtn(){
   const n = canjesPendientesCount();
   const badge = document.getElementById('canjesPendientesBadge');
   if(badge){ badge.textContent = n; badge.classList.toggle('visible', n>0); }
+  const bnBadge = document.getElementById('bnCanjesBadge');
+  if(bnBadge){ bnBadge.textContent = n; bnBadge.classList.toggle('visible', n>0); }
 }
 
 let ecDarSel = new Set();
@@ -4187,6 +4495,113 @@ document.getElementById('canjeShareMyCode').addEventListener('click',()=>{
 if(location.hash.startsWith('#canje=')){
   window.addEventListener('load', ()=>setTimeout(openCanje, 600));
 }
+
+// ===== FILTER CUADRANTES =====
+function setFilter(val, btn) {
+  document.querySelectorAll('.filt-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const sel = document.getElementById('filterSel');
+  sel.value = val;
+  sel.dispatchEvent(new Event('change'));
+}
+
+// ===== COUNTRY SCROLLER =====
+let selectedCountry = null; // null = todas las selecciones
+
+function selectCountry(id) {
+  // id === null → "Todos"; sino filtra solo esa selección
+  selectedCountry = id;
+  document.querySelectorAll('.country-chip').forEach(c => {
+    c.classList.remove('active');
+    c.style.removeProperty('--chip-color');
+  });
+  const sel = id === null ? 'all' : id;
+  const chip = document.querySelector('.country-chip[data-id="' + sel + '"]');
+  if (chip) {
+    chip.classList.add('active');
+    chip.style.setProperty('--chip-color', chip.dataset.color || 'var(--ink)');
+  }
+  applyFilters();
+  // subir al inicio de la lista para ver la selección filtrada desde arriba
+  const cont = document.getElementById('sections-container');
+  if (cont) cont.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+(function buildCountryScroller() {
+  const FLAG_COLORS = {
+    FWC:"#1c3870",MEX:"#006847",RSA:"#007A4D",KOR:"#C60C30",CZE:"#D7141A",
+    CAN:"#CC0001",BIH:"#002395",QAT:"#8D1B3D",SUI:"#FF0000",BRA:"#009C3B",
+    MAR:"#C1272D",HAI:"#00209F",SCO:"#005EB8",USA:"#B22234",PAR:"#D52B1E",
+    AUS:"#00008B",TUR:"#E30A17",GER:"#333333",CUW:"#003DA5",CIV:"#F77F00",
+    ECU:"#8B6914",NED:"#AE1C28",JPN:"#BC002D",SWE:"#006AA7",TUN:"#E70013",
+    BEL:"#EF3340",EGY:"#CE1126",IRN:"#239F40",NZL:"#00247D",ESP:"#AA151B",
+    CPV:"#003893",KSA:"#006C35",URU:"#5EB6E4",FRA:"#002395",SEN:"#00853F",
+    IRQ:"#CE1126",NOR:"#EF2B2D",ARG:"#74ACDF",ALG:"#006233",AUT:"#ED2939",
+    JOR:"#007A3D",POR:"#006600",COD:"#007FFF",UZB:"#1EB53A",COL:"#8B6914",
+    ENG:"#CF142B",CRO:"#CC0001",GHA:"#006B3F",PAN:"#DA121A",CC:"#E61B23"
+  };
+  const SPECIAL = {
+    SCO:'1f3f4-e0067-e0062-e0073-e0063-e006f-e007f',
+    ENG:'1f3f4-e0067-e0062-e0065-e006e-e0067-e007f',
+    FWC:'1f30d',
+    CC:'1f964'
+  };
+  const BASE = 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/';
+
+  function flagUrl(sec) {
+    if (SPECIAL[sec.id]) return BASE + SPECIAL[sec.id] + '.svg';
+    if (sec.iso && sec.iso.length === 2) {
+      const a = (sec.iso.charCodeAt(0) - 65 + 0x1F1E6).toString(16);
+      const b = (sec.iso.charCodeAt(1) - 65 + 0x1F1E6).toString(16);
+      return BASE + a + '-' + b + '.svg';
+    }
+    return null;
+  }
+
+  const wrap = document.getElementById('countryScroller');
+  if (!wrap) return;
+
+  // Chip "Todos" al inicio — muestra la lista completa
+  const allChip = document.createElement('button');
+  allChip.className = 'country-chip active';
+  allChip.dataset.id = 'all';
+  allChip.dataset.color = '#1a1814';
+  allChip.style.setProperty('--chip-color', '#1a1814');
+  allChip.title = 'Todas las selecciones';
+  const allIco = document.createElement('span');
+  allIco.style.cssText = 'font-size:18px;line-height:24px;height:24px';
+  allIco.textContent = '🌐';
+  const allLbl = document.createElement('span');
+  allLbl.textContent = 'TODOS';
+  allLbl.style.color = '#1a1814';
+  allLbl.dataset.i18nDynamic = 'goto-all';
+  allChip.appendChild(allIco);
+  allChip.appendChild(allLbl);
+  allChip.addEventListener('click', function() { selectCountry(null); });
+  wrap.appendChild(allChip);
+
+  SECTIONS.forEach(function(sec) {
+    const color = FLAG_COLORS[sec.id] || '#3d362b';
+    const url = flagUrl(sec);
+    const btn = document.createElement('button');
+    btn.className = 'country-chip';
+    btn.dataset.id = sec.id;
+    btn.dataset.color = color;
+    btn.title = sec.name;
+    const img = document.createElement('img');
+    img.src = url || '';
+    img.alt = sec.id;
+    img.width = 24;
+    img.loading = 'lazy';
+    const lbl = document.createElement('span');
+    lbl.textContent = sec.id;
+    lbl.style.color = color;
+    btn.appendChild(img);
+    btn.appendChild(lbl);
+    btn.addEventListener('click', function() { selectCountry(sec.id); });
+    wrap.appendChild(btn);
+  });
+})();
 
 // ===== INIT =====
 document.getElementById('search').addEventListener('input', applyFilters);
@@ -5642,8 +6057,10 @@ setLang(currentLang);
   const ESPN = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard';
   const pill = document.getElementById('livePill');
   const pillText = document.getElementById('livePillText');
+  let _pillTimer = null;
 
   async function check(){
+    clearTimeout(_pillTimer);
     try{
       const resp = await fetch(ESPN);
       if(!resp.ok) throw new Error();
@@ -5657,16 +6074,19 @@ setLang(currentLang);
         const awayC = comp.competitors.find(c=>c.homeAway==='away');
         pillText.textContent = `${homeC?.team?.abbreviation} ${homeC?.score}–${awayC?.score} · ${min}`;
         pill.classList.add('visible');
-        setTimeout(check, 30000);
+        _pillTimer = setTimeout(check, 30000);
       } else {
         pill?.classList.remove('visible');
-        setTimeout(check, 5*60*1000);
+        _pillTimer = setTimeout(check, 5*60*1000);
       }
     }catch(e){
       pill?.classList.remove('visible');
-      setTimeout(check, 5*60*1000);
+      _pillTimer = setTimeout(check, 5*60*1000);
     }
   }
+
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) check(); });
+  window._pillRefresh = check;
 
   check();
 })();
