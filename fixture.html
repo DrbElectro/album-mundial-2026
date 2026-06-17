@@ -273,8 +273,8 @@ body{padding-top:var(--safe-top);padding-bottom:calc(32px + var(--safe-bottom))}
   <!-- Fila 1: vista rápida -->
   <div class="fix-filter-row">
     <span class="fix-filter-label">Vista</span>
-    <button class="fchip today-chip" id="fHoy" onclick="toggleFilter('hoy')">⚡ Hoy</button>
-    <button class="fchip active" id="fTodos" onclick="toggleFilter('todos')">Todos</button>
+    <button class="fchip today-chip active" id="fHoy" onclick="toggleFilter('hoy')">⚡ Hoy</button>
+    <button class="fchip" id="fTodos" onclick="toggleFilter('todos')">Todos</button>
     <button class="fchip" id="fTabla" onclick="toggleFilter('tabla')" style="margin-left:4px">📊 Tabla</button>
   </div>
   <!-- Fila 2: grupos -->
@@ -552,7 +552,7 @@ const TEAMS = [...new Set(
     .filter(t=>TEAM_ISO[t])
 )].sort();
 
-let filterHoy   = false;
+let filterHoy   = true;
 let filterGroup = null;
 let filterTeam  = null;
 let viewMode    = 'fixture'; // 'fixture' | 'standings'
@@ -1161,6 +1161,7 @@ try{ updateNextBanner(); }catch(e){ console.warn('updateNextBanner:',e); }
 try{ render(); }catch(e){ console.warn('render:',e); }
 setInterval(()=>{ try{updateNextBanner();}catch(_){} }, 30000);
 try{ fetchLiveData(); }catch(e){ console.warn('fetchLiveData:',e); }
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ clearTimeout(_apiTimer); fetchLiveData(); } });
 </script>
 </body>
 </html>
