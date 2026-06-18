@@ -2128,7 +2128,7 @@ const I18N = {
     'wa-send-miss':'Enviar Faltantes','wa-send-dup':'Enviar Repetidas',
     'btn-scan':'Escanear Figus','btn-qr':'Cambio x QR','btn-trades':'Cambios Pactados',
     'btn-sync':'Sincronizar','btn-import':'Importar de otra App','btn-lock':'Bloquear',
-    'bn-scan':'Escanear','bn-qr':'Cambio QR','bn-trades':'Pactados','bn-sync':'Sincro','bn-import':'Importar','bn-lock':'Bloquear','bn-howto':'Cómo<br>se usa',
+    'bn-scan':'Escanear','bn-qr':'Cambio QR','bn-trades':'Pactados','bn-sync':'Sincro','bn-import':'Importar','bn-lock':'Bloquear','bn-locked':'Bloqueado','bn-howto':'Cómo<br>se usa',
     'filter-lbl':'Filtrar figuritas','goto-lbl':'Ir a selección',
     'notif-on':'Avisos de goles: ACTIVADOS','notif-off':'Avisarme goles en vivo',
     'btn-export':'📝 Exportar Lista','btn-import-txt':'📥 Importar Lista',
@@ -2197,7 +2197,7 @@ const I18N = {
     'wa-send-miss':'Send Missing','wa-send-dup':'Send Duplicates',
     'btn-scan':'Scan Stickers','btn-qr':'Trade by QR','btn-trades':'Agreed Trades',
     'btn-sync':'Sync','btn-import':'Import from another App','btn-lock':'Lock',
-    'bn-scan':'Scan','bn-qr':'Trade QR','bn-trades':'Trades','bn-sync':'Sync','bn-import':'Import','bn-lock':'Lock','bn-howto':'How<br>to use',
+    'bn-scan':'Scan','bn-qr':'Trade QR','bn-trades':'Trades','bn-sync':'Sync','bn-import':'Import','bn-lock':'Lock','bn-locked':'Locked','bn-howto':'How<br>to use',
     'filter-lbl':'Filter stickers','goto-lbl':'Go to team',
     'notif-on':'Goal alerts: ON','notif-off':'Notify me of live goals',
     'btn-export':'📝 Export List','btn-import-txt':'📥 Import List',
@@ -2266,7 +2266,7 @@ const I18N = {
     'wa-send-miss':'Enviar Faltantes','wa-send-dup':'Enviar Repetidas',
     'btn-scan':'Escanear Figurinhas','btn-qr':'Troca por QR','btn-trades':'Trocas Combinadas',
     'btn-sync':'Sincronizar','btn-import':'Importar de outro App','btn-lock':'Bloquear',
-    'bn-scan':'Escanear','bn-qr':'Troca QR','bn-trades':'Combinadas','bn-sync':'Sincro','bn-import':'Importar','bn-lock':'Bloquear','bn-howto':'Como<br>usar',
+    'bn-scan':'Escanear','bn-qr':'Troca QR','bn-trades':'Combinadas','bn-sync':'Sincro','bn-import':'Importar','bn-lock':'Bloquear','bn-locked':'Bloqueado','bn-howto':'Como<br>usar',
     'filter-lbl':'Filtrar figurinhas','goto-lbl':'Ir à seleção',
     'notif-on':'Avisos de gols: ATIVADOS','notif-off':'Avisar gols ao vivo',
     'btn-export':'📝 Exportar Lista','btn-import-txt':'📥 Importar Lista',
@@ -2376,6 +2376,8 @@ function setLang(lang) {
   // Re-lock label
   const _lb = document.getElementById('lockBtn');
   if(_lb){ const _lbl=_lb.querySelector('.lbl'); if(_lbl && typeof locked!=='undefined') _lbl.textContent = locked ? d['btn-locked'] : d['btn-lock']; }
+  const _bn = document.querySelector('#bottomNav [data-i18n="bn-lock"]');
+  if(_bn && typeof locked!=='undefined') _bn.innerHTML = locked ? d['bn-locked'] : d['bn-lock'];
   if(typeof updateLiveNotifBtn==='function') updateLiveNotifBtn();
 }
 
@@ -4027,10 +4029,13 @@ let locked = false;
 const lockBtn = document.getElementById('lockBtn');
 lockBtn.addEventListener('click', ()=>{
   locked = !locked;
+  const d = I18N[currentLang];
   const lbl = lockBtn.querySelector('.lbl');
-  if(lbl) lbl.textContent = locked ? I18N[currentLang]['btn-locked'] : I18N[currentLang]['btn-lock'];
+  if(lbl) lbl.textContent = locked ? d['btn-locked'] : d['btn-lock'];
+  const bn = document.querySelector('#bottomNav [data-i18n="bn-lock"]');
+  if(bn) bn.innerHTML = locked ? d['bn-locked'] : d['bn-lock'];
   document.body.classList.toggle('album-locked', locked);
-  showToast(locked ? I18N[currentLang]['toast-locked'] : I18N[currentLang]['toast-unlocked']);
+  showToast(locked ? d['toast-locked'] : d['toast-unlocked']);
 });
 
 // ===== CANJE RÁPIDO =====
@@ -4549,7 +4554,7 @@ function selectCountry(id) {
     ENG:"#CF142B",CRO:"#CC0001",GHA:"#006B3F",PAN:"#DA121A",CC:"#E61B23"
   };
   const SPECIAL = {
-    SCO:'1f3f4-e0067-e0062-e0073-e0063-e006f-e007f',
+    SCO:'1f3f4-e0067-e0062-e0073-e0063-e0074-e007f',
     ENG:'1f3f4-e0067-e0062-e0065-e006e-e0067-e007f',
     FWC:'1f30d',
     CC:'1f964'
