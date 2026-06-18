@@ -716,6 +716,7 @@ async function fetchLiveData(){
 }
 
 function _processEspnEvents(events){
+  webLiveNotify(events);
   _apiScores.clear();
   let hasLive = false;
   (events||[]).forEach(ev=>{
@@ -1162,6 +1163,46 @@ try{ render(); }catch(e){ console.warn('render:',e); }
 setInterval(()=>{ try{updateNextBanner();}catch(_){} }, 30000);
 try{ fetchLiveData(); }catch(e){ console.warn('fetchLiveData:',e); }
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ clearTimeout(_apiTimer); fetchLiveData(); } });
+
+// ===== Notificaciones de goles en vivo (web; Android usa notif nativas) =====
+function _fireWebNotif(title, body){
+  try{ new Notification(title, {body, icon:'icon-192.png', tag:body}); }catch(_){}
+}
+function webLiveNotify(events){
+  if(window.Android) return;                                  // Android: notificaciones nativas
+  if(localStorage.getItem('live_notif_pref')!=='1') return;
+  if(!('Notification' in window) || Notification.permission!=='granted') return;
+  let prev={}; try{ prev=JSON.parse(localStorage.getItem('live_notif_state')||'{}'); }catch(_){}
+  const next={};
+  (events||[]).forEach(ev=>{
+    const comp = ev.competitions && ev.competitions[0]; if(!comp) return;
+    const id = ev.id; if(!id) return;
+    const st = comp.status && comp.status.type;
+    const state = (st && st.state) || 'pre';
+    const completed = !!(st && st.completed);
+    const hc = (comp.competitors||[]).find(c=>c.homeAway==='home');
+    const ac = (comp.competitors||[]).find(c=>c.homeAway==='away');
+    if(!hc||!ac) return;
+    const home = (hc.team&&(hc.team.abbreviation||hc.team.displayName))||'?';
+    const away = (ac.team&&(ac.team.abbreviation||ac.team.displayName))||'?';
+    const scored = (state==='in'||state==='post'||completed);
+    const sh = scored ? (parseInt(hc.score)||0) : '';
+    const sa = scored ? (parseInt(ac.score)||0) : '';
+    next[id] = state+'|'+sh+'|'+sa;
+    const pv = prev[id]; if(pv===undefined) return;
+    const parts = pv.split('|'), pst=parts[0], psh=parts[1], psa=parts[2];
+    if(state==='in' && pst!=='in'){
+      _fireWebNotif('⚽ ¡Empezó el partido!', home+' vs '+away);
+    } else if(state==='in' && pst==='in' && (String(sh)!==psh || String(sa)!==psa)){
+      _fireWebNotif('⚽ ¡GOL!', `${home} ${sh}-${sa} ${away}`);
+    }
+    if((completed||state==='post') && pst!=='post'){
+      _fireWebNotif('🏁 Final del partido', `${home} ${sh}-${sa} ${away}`);
+    }
+  });
+  Object.keys(prev).forEach(k=>{ if(next[k]===undefined) next[k]=prev[k]; });
+  localStorage.setItem('live_notif_state', JSON.stringify(next));
+}
 </script>
 </body>
 </html>
