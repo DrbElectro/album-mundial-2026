@@ -24,7 +24,7 @@
 <body>
 
   <h1>Política de Privacidad</h1>
-  <p class="updated">Última actualización: 19 de mayo de 2025</p>
+  <p class="updated">Última actualización: 3 de octubre de 2026</p>
 
   <p>Esta Política de Privacidad describe cómo la aplicación <strong>Mi Álbum Mundial 2026</strong> (en adelante "la App"), desarrollada por <strong>Milosoft by DRB ELECTRO</strong>, trata la información del usuario.</p>
 
@@ -34,13 +34,13 @@
   <h2>2. Uso de la cámara y galería</h2>
   <p>La App solicita acceso a la cámara y a la galería de imágenes únicamente para la función de escaneo de figuritas mediante reconocimiento óptico de texto (OCR). Las imágenes capturadas:</p>
   <ul>
-    <li>Se procesan localmente en el dispositivo (Android) o se envían al servicio OCR.space para su análisis (versión web).</li>
+    <li>Se procesan localmente en el dispositivo (Android) o se envían al servicio Google Cloud Vision para su análisis (versión web).</li>
     <li>No se almacenan de forma permanente ni se comparten con terceros.</li>
     <li>Se eliminan del almacenamiento temporal inmediatamente después del procesamiento.</li>
   </ul>
 
   <h2>3. Servicio de OCR (versión web)</h2>
-  <p>En la versión web de la App, las imágenes escaneadas se envían al servicio de terceros <a href="https://ocr.space" target="_blank">OCR.space</a> para el reconocimiento de texto. Este servicio cuenta con su propia política de privacidad disponible en <a href="https://ocr.space/privacypolicy" target="_blank">ocr.space/privacypolicy</a>. En la versión Android el procesamiento OCR se realiza completamente en el dispositivo sin enviar datos a servidores externos.</p>
+  <p>En la versión web de la App, las imágenes escaneadas se envían a <strong>Google Cloud Vision</strong>, un servicio de Google, sólo para leer los códigos de las figuritas. Según Google, esas imágenes se procesan en memoria, no se guardan, no se usan para entrenar sus sistemas y no se comparten con terceros (<a href="https://cloud.google.com/vision/docs/data-usage" target="_blank">uso de datos de Cloud Vision</a>). En la versión Android el procesamiento OCR se realiza completamente en el dispositivo sin enviar datos a servidores externos.</p>
 
   <h2>4. Almacenamiento local</h2>
   <p>La App guarda los datos del álbum (figuritas, cambios, configuración) en el almacenamiento local del dispositivo mediante <em>localStorage</em> (versión web) o en la carpeta de Descargas como archivo de backup JSON (versión Android). Estos datos nunca son enviados a ningún servidor.</p>
